@@ -50,6 +50,34 @@
     });
   }
   renderTextEditor();
+
+  async function imageAsCompactDataUrl(file) {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, 850 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale); canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
+    let data=canvas.toDataURL("image/jpeg", 0.68);
+    if(data.length>260000){const c2=document.createElement("canvas");c2.width=Math.round(canvas.width*.72);c2.height=Math.round(canvas.height*.72);c2.getContext("2d").drawImage(canvas,0,0,c2.width,c2.height);data=c2.toDataURL("image/jpeg",0.58);}
+    return data;
+  }
+  function fileAsDataUrl(file) {
+    return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});
+  }
+  const photoPicker=document.getElementById("photoPicker"), musicPicker=document.getElementById("musicPicker");
+  photoPicker?.addEventListener("change",async()=>{
+    const file=photoPicker.files?.[0]; if(!file)return;
+    try { const data=await imageAsCompactDataUrl(file); get("heroImage").value=data; const preview=document.getElementById("photoPreview"); if(preview){preview.src=data;preview.hidden=false;} resultMessage.textContent="Foto berhasil dipilih dan disiapkan."; resultPanel.hidden=false; }
+    catch(e){alert("Foto tidak dapat diproses. Coba pilih file JPG atau PNG.");}
+  });
+  musicPicker?.addEventListener("change",async()=>{
+    const file=musicPicker.files?.[0]; if(!file)return;
+    if(file.size>300*1024){alert("Ukuran musik terlalu besar. Pilih MP3 pendek maksimal 300 KB agar tautan undangan tetap mudah dibagikan.");musicPicker.value="";return;}
+    try { get("musicFile").value=await fileAsDataUrl(file); resultMessage.textContent="Musik berhasil dipilih."; resultPanel.hidden=false; }
+    catch(e){alert("File musik tidak dapat dibaca.");}
+  });
+
   if (get("arrivalSlotsRows")) get("arrivalSlotsRows").value = (DEFAULT_INVITATION.arrivalSlots || []).join("\n");
   if (get("guestCountRows")) get("guestCountRows").value = (DEFAULT_INVITATION.guestCountOptions || ["1","2","3","4","5"]).join("\n");
 
@@ -72,8 +100,12 @@
       groom:val("groom"), bride:val("bride"), groomParents:val("groomParents"), brideParents:val("brideParents"),
       dateLabel, dateISO, akadDate:dateLabel, akadTime:formatTime(akadTimeInput), receptionDate:dateLabel,
       receptionTime:val("receptionTimeInput"), guestArrival:formatTime(val("guestArrivalInput")),
-      venue:val("venue"), mapsUrl:val("mapsUrl") || "https://maps.google.com/", whatsappNumber:safePhone(val("whatsappNumber")),
-      bankName:val("bankName"), accountNumber:val("accountNumber"), accountHolder:val("accountHolder"),
+      venueName:val("venueName"), venue:val("venue"), mapsUrl:val("mapsUrl") || "https://maps.google.com/", whatsappNumber:safePhone(val("whatsappNumber")),
+      bankName:"", accountNumber:"", accountHolder:"",
+      bankAccounts:[
+        {provider:"DANA",accountNumber:val("danaNumber"),accountHolder:val("danaHolder")},
+        {provider:"BRI",accountNumber:val("briNumber"),accountHolder:val("briHolder")}
+      ],
       heroImage:val("heroImage"), musicFile:val("musicFile"), texts,
       arrivalSlots:val("arrivalSlotsRows").split(/\r?\n/).map(s=>s.trim()).filter(Boolean),
       guestCountOptions:val("guestCountRows").split(/\r?\n/).map(s=>s.trim()).filter(Boolean)
@@ -95,10 +127,15 @@
     const v={groom:c.groom,bride:c.bride,groomParents:c.groomParents,brideParents:c.brideParents,
       eventDate:(c.dateISO||"").slice(0,10),akadTimeInput:(c.dateISO||"").slice(11,16)||"08:00",
       receptionTimeInput:c.receptionTime,guestArrivalInput:(c.guestArrival||"10.00").replace(" WIB","").replace(".",":"),
-      venue:c.venue,mapsUrl:c.mapsUrl,whatsappNumber:c.whatsappNumber,bankName:c.bankName,accountNumber:c.accountNumber,
-      accountHolder:c.accountHolder,heroImage:c.heroImage,musicFile:c.musicFile,
+      venueName:c.venueName,venue:c.venue,mapsUrl:c.mapsUrl,whatsappNumber:c.whatsappNumber,
+      danaNumber:(c.bankAccounts||[]).find(x=>x.provider==="DANA")?.accountNumber||"",
+      danaHolder:(c.bankAccounts||[]).find(x=>x.provider==="DANA")?.accountHolder||"",
+      briNumber:(c.bankAccounts||[]).find(x=>x.provider==="BRI")?.accountNumber||"",
+      briHolder:(c.bankAccounts||[]).find(x=>x.provider==="BRI")?.accountHolder||"",
+      heroImage:c.heroImage,musicFile:c.musicFile,
       arrivalSlotsRows:(c.arrivalSlots||[]).join("\n"),guestCountRows:(c.guestCountOptions||[]).join("\n")};
     Object.entries(v).forEach(([k,value])=>{if(get(k))get(k).value=value||"";});
+    const preview=document.getElementById("photoPreview");if(preview&&c.heroImage){preview.src=c.heroImage;preview.hidden=false;}
     TEXT_GROUPS.forEach(g=>g.fields.forEach(([key])=>{if(get(`text_${key}`))get(`text_${key}`).value=(c.texts&&c.texts[key]!==undefined)?c.texts[key]:(DEFAULT_TEXTS[key]||"");}));
   }
   form.addEventListener("submit",e=>{

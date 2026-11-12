@@ -1,32 +1,28 @@
-# Template Undangan Digital Adat Madura — V4 Editable Text
+# Template Undangan Digital Adat Madura — V5
 
-## Semua teks undangan dapat diubah
-Buka `admin.html`. Pada bagian **Semua tulisan undangan**, tersedia kolom untuk mengubah seluruh salinan yang tampil kepada tamu serta pesan status dan format pesan WhatsApp: tulisan sampul, salam, pengantar, judul bagian, label mempelai, kutipan, nama acara, jam hadir, lokasi, hitung mundur, hadiah/rekening, label dan pilihan RSVP, placeholder, tombol, serta penutup. Perubahan teks ikut dimasukkan ke tautan undangan masing-masing.
-
-Label dan petunjuk pada halaman admin bersifat instruksi pengelola, bukan teks undangan.
+Template statis untuk GitHub Pages. Tema visual diperbarui menjadi merah marun, hitam, dan emas dengan ilustrasi sampul rumah tradisional bernuansa Madura.
 
 ## File utama
-- `index.html`: halaman undangan.
-- `admin.html`: pembuat tautan undangan dan editor seluruh teks.
-- `config.js`: teks bawaan dan data contoh.
-- `script.js`: renderer halaman undangan.
-- `admin.js`: formulir pembuat undangan.
-- `style.css`, `admin.css`: desain halaman.
-- `batik-madura.svg`: motif ornamen.
-- `batik-madura-fabric.jpg`: foto kain batik dekoratif tanpa tulisan.
+- `index.html` — undangan untuk tamu
+- `admin.html` — pembuat undangan
+- `config.js`, `script.js`, `style.css` — data, fungsi, dan tampilan
+- `admin.js`, `admin.css` — pembuat undangan
+- `rumah-adat-madura-cover.jpg` — ilustrasi sampul
 
-## Menggunakan berulang kali
-1. Buka `/admin.html`.
-2. Isi nama, keluarga, acara, jam kehadiran, lokasi, foto, musik, rekening, WhatsApp.
-3. Buka grup **Semua tulisan undangan** untuk mengedit copy undangan.
-4. Tekan **Buat tautan undangan**.
-5. Masukkan nama tamu untuk membuat tautan personal. Ulangi untuk pasangan lain atau nama tamu berbeda.
-6. Unduh file JSON sebagai cadangan dan simpan tautannya.
+## Fitur
+- Sampul bergambar rumah, tombol buka, transisi pembukaan dan animasi bagian saat digulir.
+- Semua teks undangan dapat diedit dari halaman admin.
+- Unggah foto dari perangkat melalui pemilih file (foto dikompres di browser).
+- Pilih musik dari perangkat; MP3/OGG disarankan maksimal 300 KB.
+- Lokasi acara dengan peta Google Maps tertanam dan tombol petunjuk lokasi.
+- Kartu hadiah DANA dan BRI; tab hanya tampil jika nomor rekening diisi.
+- Jam kedatangan tamu dan RSVP WhatsApp.
+- Simpan draf di browser, buat tautan, unduh cadangan JSON.
 
-## Batasan hosting gratis statis
-GitHub Pages tidak menyediakan database atau autentikasi admin. Draf disimpan pada browser/perangkat lokal. Data acara dan teks ikut dibawa dalam URL `?data=...`; URL dapat menjadi panjang jika teks sangat banyak. RSVP dikirim langsung ke WhatsApp panitia, bukan tersimpan sebagai daftar online. Jangan memakai kata sandi atau informasi rahasia di data undangan.
+## Cara memasang
+1. Unggah semua file ke root repository GitHub Pages.
+2. Commit langsung ke branch `main`.
+3. Buka `https://USERNAME.github.io/NAMA-REPOSITORY/admin.html`.
 
-Foto pasangan dan audio harus diunggah ke repository atau tersedia melalui URL publik. Foto kain batik dekoratif sudah disertakan.
-
-## Publikasi
-Unggah semua file ke root repository GitHub yang sama, timpa file yang namanya sama, commit ke branch `main`, dan pertahankan GitHub Pages pada `main` serta folder `/ (root)`.
+## Batasan hosting statis
+GitHub Pages tidak menyediakan database atau unggah server-side. Foto dan musik yang dipilih di admin akan dikompres/diubah menjadi data URL dan disertakan dalam tautan undangan. Gunakan foto terkompresi dan audio pendek agar tautan tidak terlalu panjang. Draf disimpan di browser perangkat admin; unduh JSON sebagai cadangan. RSVP diarahkan ke WhatsApp panitia, bukan disimpan ke database.

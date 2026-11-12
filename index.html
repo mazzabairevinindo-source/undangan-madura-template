@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#123d35">
+  <meta name="theme-color" content="#3b0b12">
   <meta name="description" content="Undangan pernikahan dengan sentuhan batik Madura, tradisi, dan nuansa islami.">
   <title>Undangan Pernikahan</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,14 +13,14 @@
 </head>
 <body>
   <div class="cover" id="cover" aria-label="Sampul undangan">
-    <div class="cover-grain"></div>
+    <img class="cover-house-art" src="rumah-adat-madura-cover.jpg" alt="Ilustrasi rumah tradisional Madura bernuansa merah dan emas"><div class="cover-shade"></div><div class="cover-grain"></div>
     <div class="cover-arch"></div>
     <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
     <div class="corner corner-bl"></div><div class="corner corner-br"></div>
     <div class="floating-flower flower-one">✿</div><div class="floating-flower flower-two">❋</div>
     <div class="floating-flower flower-three">✿</div><div class="floating-flower flower-four">❋</div>
     <div class="cover-inner">
-      <div class="brand-seal" aria-label="Foto kain batik bermotif Madura"><img src="batik-madura-fabric.jpg" alt="Foto kain batik bermotif floral dan sulur" /></div>
+      <div class="brand-seal" aria-label="Ornamen bunga Madura"><span>✿</span></div>
       <p class="eyebrow cover-eyebrow" data-copy="coverEyebrow">UNDANGAN PERNIKAHAN</p>
       <p class="arabic cover-arabic" data-copy="coverSalutation">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
       <div class="cover-rule"><i></i><span>❖</span><i></i></div>
@@ -55,7 +55,7 @@
         <div class="photo-corner pc-bl">❧</div><div class="photo-corner pc-br">❧</div>
       </div>
       <p class="intro" data-copy="introParagraph">Dengan memohon rahmat dan ridha Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami. Merupakan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir.</p>
-      <figure class="batik-photo-wrap"><img src="batik-madura-fabric.jpg" alt="Foto detail kain batik bermotif bunga, daun, dan sulur" loading="lazy"></figure>
+      <figure class="batik-photo-wrap madurese-floral"><span class="floral-medallion">✿</span><figcaption>Warisan budaya, kehangatan keluarga</figcaption></figure>
     </section>
 
     <section class="section couple reveal">
@@ -101,7 +101,7 @@
         <h3 id="guestArrival">10.00 WIB</h3>
         <p data-copy="arrivalDescription">Kami mengharapkan kehadiran Bapak/Ibu/Saudara/i pada waktu tersebut.</p>
       </div>
-      <div class="venue-block"><span class="venue-icon">⌖</span><p class="eyebrow" data-copy="venueEyebrow">LOKASI ACARA</p><p id="venue" class="venue"></p><a id="mapsLink" class="map-button" href="#" target="_blank" rel="noopener"><span data-copy="mapsButton">Lihat Petunjuk Lokasi</span> <b>↗</b></a></div>
+      <div class="venue-block"><span class="venue-icon">⌖</span><p class="eyebrow" data-copy="venueEyebrow">LOKASI ACARA</p><div class="map-frame"><iframe id="mapFrame" title="Peta lokasi acara" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Madura&output=embed"></iframe></div><h3 id="venueName" class="venue-name">Lokasi Acara</h3><p id="venue" class="venue"></p><a id="mapsLink" class="map-button" href="#" target="_blank" rel="noopener"><span data-copy="mapsButton">Lihat Petunjuk Lokasi</span> <b>↗</b></a></div>
     </section>
 
     <section class="section countdown-section reveal">
@@ -116,7 +116,20 @@
       <p class="eyebrow" data-copy="giftEyebrow">TANDA KASIH</p><h2 data-copy="giftTitle">Hadiah Pernikahan</h2>
       <div class="ornament-divider"><span>✿</span><i></i><span>❖</span><i></i><span>✿</span></div>
       <p class="gift-intro" data-copy="giftIntro">Doa restu Anda merupakan hadiah terindah bagi kami. Bagi keluarga dan sahabat yang ingin memberikan tanda kasih, dapat melalui rekening berikut.</p>
-      <div class="bank-card"><div class="bank-emblem">✦</div><p id="bankName" class="bank-name">Nama Bank</p><strong id="accountNumber" class="account-number">Nomor Rekening</strong><p id="accountHolder" class="account-holder">Atas nama pemilik rekening</p><button type="button" class="copy-button" id="copyAccount" data-copy="copyAccountButton">Salin Nomor Rekening</button><p id="copyNotice" class="small" aria-live="polite"></p></div>
+      <div class="bank-wallets">
+        <div class="bank-tabs" id="bankTabs" aria-label="Pilih rekening">
+          <button type="button" class="bank-tab active" data-bank="DANA"><span class="bank-logo dana-logo">DANA</span><small>DANA</small></button>
+          <button type="button" class="bank-tab" data-bank="BRI"><span class="bank-logo bri-logo">BRI</span><small>Bank BRI</small></button>
+        </div>
+        <article class="bank-card" id="bankCard">
+          <div class="bank-card-top"><span class="bank-card-brand" id="bankBrand">DANA</span><span class="bank-card-chip">✦</span></div>
+          <p class="bank-card-label">NOMOR REKENING / E-WALLET</p>
+          <strong id="accountNumber" class="account-number">Nomor belum diisi</strong>
+          <p id="accountHolder" class="account-holder"></p>
+          <button type="button" class="copy-button" id="copyAccount" data-copy="copyAccountButton">Salin Nomor</button>
+          <p id="copyNotice" class="small" aria-live="polite"></p>
+        </article>
+      </div>
     </section>
 
     <section class="section rsvp reveal">
@@ -135,7 +148,7 @@
     <footer class="footer">
       <div class="footer-batik"></div><p class="arabic" data-copy="footerBlessing">وَبَارَكَ اللَّهُ لَكُمَا</p>
       <p data-copy="footerMessage">Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.</p>
-      <h2 id="footerNames"></h2><div class="footer-seal"><img src="batik-madura-fabric.jpg" alt="Foto kain batik" loading="lazy"></div><small data-copy="footerThanks">Terima kasih atas doa dan restunya.</small>
+      <h2 id="footerNames"></h2><div class="footer-seal" aria-hidden="true">✿</div><small data-copy="footerThanks">Terima kasih atas doa dan restunya.</small>
     </footer>
   </main>
   <audio id="backgroundMusic" loop></audio>

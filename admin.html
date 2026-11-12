@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#123d35">
+  <meta name="theme-color" content="#4a1019">
   <title>Pembuat Undangan Madura</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,7 +59,7 @@
       <section class="form-card">
         <div class="section-head"><span>04</span><div><h2>Lokasi acara</h2><p>Alamat dan tautan petunjuk lokasi.</p></div></div>
         <div class="form-grid">
-          <label class="full">Alamat lengkap acara<textarea name="venue" rows="2" placeholder="Desa, kecamatan, kabupaten, provinsi"></textarea></label>
+          <label>Nama gedung/tempat<input name="venueName" placeholder="Contoh: Kediaman Mempelai Wanita"></label><label class="full">Alamat lengkap acara<textarea name="venue" rows="2" placeholder="Dusun, desa, kecamatan, kabupaten, provinsi"></textarea></label>
           <label class="full">Tautan Google Maps<input name="mapsUrl" type="text" placeholder="https://maps.app.goo.gl/..."></label>
         </div>
       </section>
@@ -67,8 +67,8 @@
       <section class="form-card">
         <div class="section-head"><span>05</span><div><h2>Foto dan musik</h2><p>Isi alamat file yang sudah diunggah ke repository atau alamat web publik.</p></div></div>
         <div class="form-grid">
-          <label class="full">Alamat/path foto kedua mempelai<input name="heroImage" type="text" placeholder="assets/foto/mempelai.jpg atau https://..."></label>
-          <label class="full">Alamat/path musik islami<input name="musicFile" type="text" placeholder="assets/musik/islami.mp3 atau https://..."></label>
+          <label class="full upload-field">Foto kedua mempelai<input id="photoPicker" type="file" accept="image/*"><small>Pilih langsung dari folder HP/komputer. Foto otomatis diperkecil agar tautan tidak terlalu berat.</small><img id="photoPreview" class="upload-preview" alt="Pratinjau foto mempelai" hidden><input name="heroImage" type="hidden"></label>
+          <label class="full upload-field">Musik islami (MP3/OGG)<input id="musicPicker" type="file" accept="audio/mpeg,audio/ogg,audio/mp4"><small>Pilih file audio dari perangkat. Disarankan ukuran maksimal 700 KB agar tautan mudah dibagikan.</small><input name="musicFile" type="hidden"></label>
         </div>
         <p class="hint">Foto dan audio harus berupa file yang dapat dibuka melalui tautan publik. File foto kain batik dekoratif sudah termasuk dalam template.</p>
       </section>
@@ -76,9 +76,10 @@
       <section class="form-card">
         <div class="section-head"><span>06</span><div><h2>Hadiah pernikahan</h2><p>Bagian rekening dapat dibiarkan kosong jika tidak digunakan.</p></div></div>
         <div class="form-grid">
-          <label>Nama bank<input name="bankName" placeholder="Contoh: BSI"></label>
-          <label>Nomor rekening<input name="accountNumber" inputmode="numeric" placeholder="Nomor rekening"></label>
-          <label class="full">Nama pemilik rekening<input name="accountHolder" placeholder="Nama sesuai rekening"></label>
+          <label>Nomor DANA<input name="danaNumber" inputmode="numeric" placeholder="Nomor DANA"></label>
+          <label>Nama pemilik DANA<input name="danaHolder" placeholder="Nama pemilik akun DANA"></label>
+          <label>Nomor rekening BRI<input name="briNumber" inputmode="numeric" placeholder="Nomor rekening BRI"></label>
+          <label>Nama pemilik rekening BRI<input name="briHolder" placeholder="Nama sesuai rekening BRI"></label>
         </div>
       </section>
 

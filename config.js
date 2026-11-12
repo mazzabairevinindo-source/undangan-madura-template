@@ -1,4 +1,4 @@
-/* DATA DEFAULT. Semua tulisan pada undangan dapat diubah melalui admin.html. */
+/* Data bawaan undangan. Semua teks dapat diedit dari admin.html. */
 const DEFAULT_INVITATION = {
   "groom": "Nama Mempelai Pria",
   "bride": "Nama Mempelai Wanita",
@@ -105,5 +105,17 @@ const DEFAULT_INVITATION = {
     "3",
     "4",
     "5"
+  ],
+  "bankAccounts": [
+    {
+      "provider": "DANA",
+      "accountNumber": "",
+      "accountHolder": ""
+    },
+    {
+      "provider": "BRI",
+      "accountNumber": "",
+      "accountHolder": ""
+    }
   ]
 };

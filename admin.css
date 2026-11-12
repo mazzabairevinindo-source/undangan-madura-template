@@ -3,3 +3,14 @@
 @media(max-width:620px){.admin-wrap{margin-top:16px}.form-grid{grid-template-columns:1fr}.form-grid .full{grid-column:auto}.form-card{padding:20px 16px}.button-row>*{width:100%}.saved-row{grid-template-columns:1fr 1fr}.saved-row select{grid-column:1/-1}.intro-pills{gap:6px}}
 
 .text-editor-groups{display:grid;gap:12px}.text-editor-groups details{border:1px solid #e4d5b9;background:#fffdf8}.text-editor-groups summary{padding:12px 14px;cursor:pointer;font-weight:700;color:var(--green);background:#f3eadb}.text-editor-groups .form-grid{padding:15px}.text-editor-groups textarea{min-height:70px}.text-extra-grid{margin-top:18px;padding-top:18px;border-top:1px solid #e4d5b9}.field-hint{display:block;font-size:.7rem;font-weight:400;color:var(--muted);margin-top:3px}
+
+:root{--green:#4a1019;--deep:#16090d;--gold:#d6ad68;--cream:#f4eee6;--paper:#fffaf3;--ink:#21191a;--muted:#74696a;--red:#a32635}
+.topbar{background:var(--deep);border-color:var(--gold)}
+.intro-card{background:linear-gradient(135deg,#671f2c,#16090d);border-color:var(--gold)}
+.form-card{border-color:#dfc9a6;background:#fffaf3}
+.section-head>span{background:#4a1019;color:#f4dfb4}
+button.primary,.primary-button{background:#4a1019}
+.upload-field input[type=file]{display:block;width:100%;padding:12px;background:#fff;border:1px dashed #b68b50;border-radius:8px;color:#4a1019}
+.upload-field small{display:block;color:#74696a;font-weight:400;margin-top:5px}
+
+.upload-preview{display:block;max-width:220px;max-height:180px;object-fit:cover;border:2px solid #d6ad68;border-radius:10px;margin-top:10px}
