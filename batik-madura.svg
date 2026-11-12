@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280" viewBox="0 0 280 280">
+  <defs>
+    <g id="flower" fill="none" stroke="#f0d9ad" stroke-width="2.3" stroke-linecap="round">
+      <path d="M0-42 C-24-54-25-22 0-8 C25-22 24-54 0-42Z" fill="#b53635" stroke="#f1c98c"/>
+      <path d="M40-12 C54-36 23-48 9-20 C23 3 54 12 40-12Z" fill="#b53635" stroke="#f1c98c"/>
+      <path d="M25 34 C48 52 57 22 28 8 C4 22 2 52 25 34Z" fill="#b53635" stroke="#f1c98c"/>
+      <path d="M-25 34 C-48 52-57 22-28 8 C-4 22-2 52-25 34Z" fill="#b53635" stroke="#f1c98c"/>
+      <path d="M-40-12 C-54-36-23-48-9-20 C-23 3-54 12-40-12Z" fill="#b53635" stroke="#f1c98c"/>
+      <circle r="10" fill="#d9a84e" stroke="#f7e8c8"/>
+      <circle r="3" fill="#233e48" stroke="none"/>
+    </g>
+    <g id="leaf" fill="#1e7772" stroke="#e8c98f" stroke-width="1.5">
+      <path d="M0 0 C-18-26-42-21-45-2 C-25 15-8 12 0 0Z"/>
+      <path d="M-3-1 Q-24-7-41-3" fill="none"/>
+    </g>
+  </defs>
+  <g opacity=".96">
+    <path d="M140 0V280M0 140H280M0 0L280 280M280 0L0 280" stroke="#e5bf7a" stroke-width="1.2" opacity=".48" fill="none"/>
+    <path d="M140 14L266 140 140 266 14 140Z" fill="none" stroke="#d8a657" stroke-width="2" stroke-dasharray="3 5"/>
+    <path d="M140 38L242 140 140 242 38 140Z" fill="none" stroke="#f0d9ad" stroke-width="1.4" opacity=".7"/>
+    <use href="#flower" transform="translate(140 140) scale(.78)"/>
+    <use href="#flower" transform="translate(0 0) scale(.43)"/>
+    <use href="#flower" transform="translate(280 0) scale(.43)"/>
+    <use href="#flower" transform="translate(0 280) scale(.43)"/>
+    <use href="#flower" transform="translate(280 280) scale(.43)"/>
+    <g fill="none" stroke="#d9a84e" stroke-width="2" stroke-linecap="round">
+      <path d="M0 140 C33 110 46 80 68 65 C80 57 91 64 91 76 C89 90 73 91 68 79 C64 69 75 57 90 58 C108 60 117 83 140 90"/>
+      <path d="M280 140 C247 110 234 80 212 65 C200 57 189 64 189 76 C191 90 207 91 212 79 C216 69 205 57 190 58 C172 60 163 83 140 90"/>
+      <path d="M0 140 C33 170 46 200 68 215 C80 223 91 216 91 204 C89 190 73 189 68 201 C64 211 75 223 90 222 C108 220 117 197 140 190"/>
+      <path d="M280 140 C247 170 234 200 212 215 C200 223 189 216 189 204 C191 190 207 189 212 201 C216 211 205 223 190 222 C172 220 163 197 140 190"/>
+    </g>
+    <use href="#leaf" transform="translate(77 76) rotate(-35) scale(.55)"/>
+    <use href="#leaf" transform="translate(203 76) rotate(215) scale(.55)"/>
+    <use href="#leaf" transform="translate(77 204) rotate(35) scale(.55)"/>
+    <use href="#leaf" transform="translate(203 204) rotate(145) scale(.55)"/>
+    <g fill="#f1d39b">
+      <circle cx="140" cy="18" r="3"/><circle cx="140" cy="262" r="3"/><circle cx="18" cy="140" r="3"/><circle cx="262" cy="140" r="3"/>
+      <circle cx="140" cy="60" r="2"/><circle cx="140" cy="220" r="2"/><circle cx="60" cy="140" r="2"/><circle cx="220" cy="140" r="2"/>
+    </g>
+  </g>
+</svg>

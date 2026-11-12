@@ -1,36 +1,33 @@
-/* EDIT DATA UNDANGAN DI FILE INI SAJA UNTUK SETIAP PASANGAN BARU. */
+/* EDIT BAGIAN INI SAJA UNTUK MEMBUAT UNDANGAN PASANGAN BERIKUTNYA. */
 const INVITATION = {
   groom: "Nama Mempelai Pria",
   bride: "Nama Mempelai Wanita",
   groomParents: "Putra dari Bapak ... dan Ibu ...",
   brideParents: "Putri dari Bapak ... dan Ibu ...",
 
-  dateLabel: "Minggu, 20 Desember 2026",
+  dateLabel: "Hari, tanggal pernikahan",
   dateISO: "2026-12-20T08:00:00+07:00",
-
-  akadDate: "Minggu, 20 Desember 2026",
+  akadDate: "Hari, tanggal akad",
   akadTime: "08.00 WIB",
-  receptionDate: "Minggu, 20 Desember 2026",
+  receptionDate: "Hari, tanggal resepsi",
   receptionTime: "10.00–13.00 WIB",
 
-  /* Jam resmi yang diminta kepada tamu untuk hadir. */
+  /* Jam resmi yang dicantumkan untuk tamu undangan. */
   guestArrival: "10.00 WIB",
 
-  venue: "Nama tempat, desa, kecamatan, kabupaten",
+  venue: "Nama gedung/desa, kecamatan, kabupaten",
   mapsUrl: "https://maps.google.com/",
 
-  /* Isi dengan nomor WhatsApp penyelenggara, format internasional tanpa + atau spasi.
-     Contoh Indonesia: 6281234567890 */
+  /* Nomor WhatsApp panitia: format internasional tanpa + atau spasi. */
   whatsappNumber: "",
 
-  /* Informasi rekening hadiah. Isi jika ingin ditampilkan. */
+  /* Data rekening hadiah. */
   bankName: "Nama Bank",
-  accountNumber: "0000000000",
+  accountNumber: "Isi Nomor Rekening",
   accountHolder: "Nama Pemilik Rekening",
 
-  /* Ganti dengan path foto, contoh: assets/foto/mempelai.jpg */
+  /* Contoh: assets/foto/mempelai.jpg */
   heroImage: "",
-
-  /* Ganti dengan path musik milik Anda yang boleh digunakan, contoh: assets/musik/islami.mp3 */
+  /* Contoh: assets/musik/islami.mp3 */
   musicFile: ""
 };
