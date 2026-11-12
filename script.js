@@ -6,6 +6,7 @@ $("guestName").textContent = guest;
 $("coverNames").innerHTML = `${INVITATION.groom} <em>&</em> ${INVITATION.bride}`;
 $("heroNames").innerHTML = `${INVITATION.groom} <em>&</em> ${INVITATION.bride}`;
 $("heroDate").textContent = INVITATION.dateLabel;
+$("coverDate").textContent = INVITATION.dateLabel;
 $("groomName").textContent = INVITATION.groom;
 $("brideName").textContent = INVITATION.bride;
 $("groomParents").textContent = INVITATION.groomParents;
