@@ -4,7 +4,7 @@
   const $ = id => document.getElementById(id);
   const get = name => form.elements.namedItem(name);
   const value = name => (get(name)?.value || "").trim();
-  const STORAGE_KEY = "undanganMadura.v6.drafts";
+  const STORAGE_KEY = "undanganMadura.v7.drafts";
   let currentConfig = null;
   let currentPreviewUrl = "";
 
@@ -96,47 +96,59 @@
   $("addBankAccount").addEventListener("click", () => addBankRow());
 
   async function compressPhoto(file) {
-    if (!file || !file.type.startsWith("image/")) throw new Error("File bukan gambar.");
-    if (file.size > 12 * 1024 * 1024) throw new Error("Ukuran foto lebih dari 12 MB.");
+    if (!file || !file.type.startsWith("image/")) throw new Error("File bukan gambar. Pilih JPG, PNG, atau WebP.");
+    if (file.size > 15 * 1024 * 1024) throw new Error("Ukuran foto lebih dari 15 MB. Pilih foto yang lebih kecil.");
+
     const objectUrl = URL.createObjectURL(file);
     const preview = $("photoPreview");
+    preview.onload = () => { preview.hidden = false; };
+    preview.onerror = () => { preview.hidden = true; };
     preview.src = objectUrl;
     preview.hidden = false;
     if (currentPreviewUrl) URL.revokeObjectURL(currentPreviewUrl);
     currentPreviewUrl = objectUrl;
 
+    // Fallback ke Image() jika browser tidak dapat membaca createImageBitmap.
     let bitmap;
-    if (window.createImageBitmap) {
-      bitmap = await createImageBitmap(file);
-    } else {
+    try {
+      if (window.createImageBitmap) bitmap = await createImageBitmap(file);
+    } catch (_) {
+      bitmap = null;
+    }
+    if (!bitmap) {
       bitmap = await new Promise((resolve,reject) => {
         const img = new Image();
         img.onload = () => resolve(img);
-        img.onerror = reject;
+        img.onerror = () => reject(new Error("Foto tidak dapat dibaca. Coba simpan ulang sebagai JPG atau PNG."));
         img.src = objectUrl;
       });
     }
-    let maxSide = 900;
-    const qualities = [0.72,0.62,0.54,0.46,0.40,0.34];
+
+    let maxSide = 760;
+    const qualities = [0.68,0.60,0.52,0.44,0.36,0.30];
     let result = "";
-    for (let attempt=0; attempt<9; attempt++) {
+    for (let attempt=0; attempt<10; attempt++) {
       const scale = Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height));
       const canvas = document.createElement("canvas");
       canvas.width = Math.max(1,Math.round(bitmap.width*scale));
       canvas.height = Math.max(1,Math.round(bitmap.height*scale));
       const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,canvas.width,canvas.height);
+      if (!ctx) throw new Error("Browser tidak mendukung pemrosesan foto.");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
       ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
       for (const q of qualities) {
-        result = canvas.toDataURL("image/jpeg",q);
-        if (result.length <= 95000) break;
+        // WebP biasanya jauh lebih kecil; jika tidak didukung, browser akan menghasilkan PNG.
+        result = canvas.toDataURL("image/webp",q);
+        if (!result.startsWith("data:image/webp")) result = canvas.toDataURL("image/jpeg",q);
+        if (result.length <= 56000) break;
       }
-      if (result.length <= 95000) break;
-      maxSide = Math.round(maxSide*0.82);
+      if (result.length <= 56000) break;
+      maxSide = Math.round(maxSide*0.84);
     }
-    bitmap.close?.();
-    if (!result || result.length > 115000) throw new Error("Foto terlalu besar setelah diperkecil. Pilih foto lain atau potong terlebih dahulu.");
-    $("photoStatus").textContent = `Foto dipilih: ${file.name}. Ukuran tautan foto sekitar ${Math.round(result.length/1024)} KB.`;
+    if (bitmap.close) bitmap.close();
+    if (!result || result.length > 72000) throw new Error("Foto masih terlalu besar setelah diperkecil. Pilih foto lain atau potong foto terlebih dahulu.");
+    $("photoStatus").textContent = `Foto berhasil dipilih: ${file.name}. Ukuran foto dalam tautan sekitar ${Math.round(result.length/1024)} KB.`;
     return result;
   }
 
@@ -166,8 +178,8 @@
   $("musicPicker").addEventListener("change", async () => {
     const file = $("musicPicker").files?.[0];
     if (!file) return;
-    if (file.size > 95 * 1024) {
-      alert("Agar tautan tidak terlalu panjang, pilih musik pendek maksimal 95 KB atau kosongkan musik.");
+    if (file.size > 40 * 1024) {
+      alert("Untuk menjaga tautan tetap ringan, pilih audio pendek maksimal 40 KB. Anda juga dapat membuat undangan tanpa musik.");
       $("musicPicker").value = "";
       return;
     }
@@ -205,6 +217,8 @@
       eventMode:mode,
       dateLabel:dateLabel(mainDate) || "Hari, tanggal pernikahan",
       dateISO:`${mainDate}T${timeForCountdown}:00+07:00`,
+      akadDateISO:akadDateStr,
+      receptionDateISO:receptionDateStr,
       akadDate:dateLabel(akadDateStr) || dateLabel(mainDate),
       akadTime:formatTime(value("akadTimeInput") || "08:00"),
       receptionDate:dateLabel(receptionDateStr) || dateLabel(mainDate),
@@ -220,10 +234,40 @@
     };
   }
 
-  function makeLink(config, guestName="") {
+  function bytesToBase64Url(bytes) {
+    let binary = "";
+    const chunkSize = 0x8000;
+    for (let i=0; i<bytes.length; i+=chunkSize) {
+      binary += String.fromCharCode(...bytes.subarray(i, i+chunkSize));
+    }
+    return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");
+  }
+
+  async function encodeConfig(config) {
+    const json = JSON.stringify(config);
+    const source = new TextEncoder().encode(json);
+    if (typeof CompressionStream === "function" && typeof DecompressionStream === "function") {
+      try {
+        const stream = new Blob([source]).stream().pipeThrough(new CompressionStream("gzip"));
+        const compressed = new Uint8Array(await new Response(stream).arrayBuffer());
+        return {payload:bytesToBase64Url(compressed), zipped:true};
+      } catch (err) {
+        console.warn("Kompresi gzip tidak tersedia, memakai format biasa.",err);
+      }
+    }
+    return {payload:bytesToBase64Url(source), zipped:false};
+  }
+
+  async function makeLink(config, guestName="") {
     const url = new URL("./index.html",location.href);
-    url.searchParams.set("data",JSON.stringify(config));
-    if (guestName) url.searchParams.set("to",guestName);
+    const encoded = await encodeConfig(config);
+    const hash = new URLSearchParams();
+    hash.set("v","7");
+    hash.set("p",encoded.payload);
+    hash.set("z",encoded.zipped ? "1" : "0");
+    if (guestName) hash.set("to",guestName);
+    // Fragment tidak dikirim ke server GitHub Pages, tetapi tetap dibawa saat tautan dibagikan.
+    url.hash = hash.toString();
     return url.href;
   }
 
@@ -241,8 +285,8 @@
     const values = {
       groom:config.groom, bride:config.bride, groomParents:config.groomParents, brideParents:config.brideParents,
       eventMode:config.eventMode || "akad_resepsi",
-      akadDateInput:(config.akadDate && config.akadDate.length===10)?config.akadDate:(config.dateISO||"").slice(0,10),
-      receptionDateInput:(config.receptionDate && config.receptionDate.length===10)?config.receptionDate:(config.dateISO||"").slice(0,10),
+      akadDateInput:config.akadDateISO || (config.dateISO||"").slice(0,10),
+      receptionDateInput:config.receptionDateISO || (config.dateISO||"").slice(0,10),
       akadTimeInput:(config.akadTime||"08.00").replace(" WIB","").replace(".",":"),
       receptionTimeInput:config.receptionTime,
       guestArrivalInput:(config.guestArrival||"10.00").replace(" WIB","").replace(".",":"),
@@ -255,6 +299,7 @@
     $("bankAccountList").replaceChildren();
     (config.bankAccounts||[]).forEach(account=>addBankRow(account));
     if(config.heroImage){$("photoPreview").src=config.heroImage;$("photoPreview").hidden=false;$("photoStatus").textContent="Pratinjau foto dari data draf.";}
+    else {$("photoPreview").removeAttribute("src");$("photoPreview").hidden=true;$("photoStatus").textContent="Belum ada foto dipilih.";}
     TEXT_GROUPS.forEach(group=>group.fields.forEach(([key])=>{if(get(`text_${key}`))get(`text_${key}`).value=(config.texts && config.texts[key]!==undefined)?config.texts[key]:(DEFAULT_INVITATION.texts[key]||"");}));
   }
 
@@ -269,18 +314,26 @@
     link.click(); URL.revokeObjectURL(url);
   }
 
-  form.addEventListener("submit", event => {
+  form.addEventListener("submit", async event => {
     event.preventDefault();
     if (!form.reportValidity()) return;
-    currentConfig = collectConfig();
-    const guest = value("guestName");
-    const link = makeLink(currentConfig,guest);
-    $("generatedLink").value=link;
-    $("resultPanel").hidden=false;
-    const sizeKb = Math.round(new Blob([link]).size/1024);
-    $("resultMessage").textContent = `Tautan berhasil dibuat (${sizeKb} KB). Simpan tautan ini; data pasangan sudah ikut di dalamnya.`;
-    if (link.length>180000) $("resultMessage").textContent += " Perhatian: tautan sangat panjang. Kurangi ukuran foto atau hilangkan musik agar lebih mudah dibagikan.";
-    $("resultPanel").scrollIntoView({behavior:"smooth",block:"center"});
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton) { submitButton.disabled = true; submitButton.textContent = "Sedang membuat tautan…"; }
+    try {
+      currentConfig = collectConfig();
+      const guest = value("guestName");
+      const link = await makeLink(currentConfig,guest);
+      $("generatedLink").value=link;
+      $("resultPanel").hidden=false;
+      const sizeKb = Math.round(new Blob([link]).size/1024);
+      $("resultMessage").textContent = `Tautan berhasil dibuat (${sizeKb} KB). Data pasangan disertakan pada tautan. Simpan tautan dan unduh cadangan JSON.`;
+      if (link.length>100000) $("resultMessage").textContent += " Tautan masih panjang; pertimbangkan tidak menyertakan musik atau pilih foto lebih kecil.";
+      $("resultPanel").scrollIntoView({behavior:"smooth",block:"center"});
+    } catch (error) {
+      alert(`Tautan belum berhasil dibuat: ${error.message || error}`);
+    } finally {
+      if (submitButton) { submitButton.disabled = false; submitButton.textContent = "Buat tautan undangan"; }
+    }
   });
 
   $("copyLink").addEventListener("click",async()=>{

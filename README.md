@@ -11,6 +11,10 @@ Template statis untuk GitHub Pages dengan:
 - Upload foto langsung dari galeri HP/komputer; foto diperkecil dan ditampilkan sebagai pratinjau lokal.
 - Upload musik singkat langsung dari perangkat.
 - Seluruh tulisan undangan dapat diubah di halaman admin.
+- Tautan undangan memakai data terkompresi di bagian fragment URL agar data tidak dikirim sebagai query ke server GitHub Pages.
+- Tautan versi lama V4-V6 dengan `?data=` tetap bisa dibaca.
+- Pratinjau foto mempunyai fallback untuk browser tanpa `createImageBitmap`.
+- Tanggal akad dan resepsi disimpan terpisah saat membuat/memuat draf.
 
 ## Unggah ke GitHub Pages
 Ekstrak ZIP lalu unggah semua file dan folder ke root repository yang sama. Timpa file lama jika diminta. Pastikan file `rumah-adat-madura-illustration.svg` ikut diunggah di root repository.
@@ -32,4 +36,4 @@ Ekstrak ZIP lalu unggah semua file dan folder ke root repository yang sama. Timp
 10. Unduh JSON sebagai cadangan dan simpan tautan yang sudah dibuat.
 
 ## Batasan hosting gratis statis
-GitHub Pages tidak menjalankan database atau server. Data draf tersimpan di browser yang digunakan, bukan tersinkron antar perangkat. Data setiap undangan dibawa melalui parameter tautan. Foto diperkecil agar tautan lebih pendek; tetap simpan JSON dan tautan sebagai cadangan. RSVP diteruskan ke WhatsApp panitia; tidak ada rekap otomatis ke server.
+GitHub Pages tidak menjalankan database atau server. Data draf tersimpan di browser yang digunakan, bukan tersinkron antar perangkat. Data setiap undangan dibawa melalui parameter tautan. Foto dikompresi ke WebP/JPEG dan audio dibatasi agar tautan lebih pendek. Bagian fragment tidak dikirim ke server GitHub Pages, tetapi tetap menjadi bagian tautan yang dibagikan. Tautan masih dapat panjang bila foto dan audio sama-sama disertakan; simpan JSON dan tautan sebagai cadangan. RSVP diteruskan ke WhatsApp panitia; tidak ada rekap otomatis ke server.

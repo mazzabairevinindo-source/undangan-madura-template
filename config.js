@@ -7,6 +7,8 @@ const DEFAULT_INVITATION = {
   eventMode: "akad_resepsi", // akad_resepsi atau resepsi_saja
   dateLabel: "Hari, tanggal pernikahan",
   dateISO: "2026-12-20T10:00:00+07:00",
+  akadDateISO: "2026-12-20",
+  receptionDateISO: "2026-12-20",
   akadDate: "Hari, tanggal akad",
   akadTime: "08.00 WIB",
   receptionDate: "Hari, tanggal resepsi",
@@ -39,6 +41,7 @@ const DEFAULT_INVITATION = {
     musicOffButton: "Matikan",
     heroTopline: "THE WEDDING CELEBRATION",
     heroDateLabel: "Hari istimewa kami",
+    heroBlessing: "بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا",
     photoPlaceholderTitle: "Foto Kedua Mempelai",
     photoPlaceholderNote: "Foto pasangan akan ditampilkan di sini",
     introSalutation: "Assalamu’alaikum Warahmatullahi Wabarakatuh",

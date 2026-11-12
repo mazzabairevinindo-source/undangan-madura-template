@@ -1,25 +1,50 @@
-(() => {
+(async () => {
   const $ = (id) => document.getElementById(id);
   const params = new URLSearchParams(location.search);
+  const hashParams = new URLSearchParams(location.hash.replace(/^#/, ""));
 
-  function getData() {
+  function decodeBase64Url(value) {
+    const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized + "=".repeat((4 - normalized.length % 4) % 4);
+    const binary = atob(padded);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes;
+  }
+
+  async function readPayload() {
+    const payload = hashParams.get("p");
+    if (payload) {
+      const bytes = decodeBase64Url(payload);
+      if (hashParams.get("z") === "1" && typeof DecompressionStream === "function") {
+        const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+        return JSON.parse(await new Response(stream).text());
+      }
+      return JSON.parse(new TextDecoder().decode(bytes));
+    }
+    // Kompatibilitas dengan tautan versi V4-V6 yang memakai ?data=JSON.
+    const raw = params.get("data");
+    return raw ? JSON.parse(raw) : {};
+  }
+
+  async function getData() {
     let data = {};
     try {
-      const raw = params.get("data");
-      if (raw) data = JSON.parse(raw);
+      data = await readPayload();
     } catch (err) {
-      console.warn("Data undangan pada tautan tidak terbaca.", err);
+      console.error("Data undangan pada tautan tidak dapat dibaca.", err);
+      document.body.insertAdjacentHTML("afterbegin", '<p style="padding:12px;background:#fff0e8;color:#7b1d24;text-align:center">Data undangan tidak terbaca. Minta tautan terbaru dari penyelenggara.</p>');
     }
     if (!data || typeof data !== "object" || Array.isArray(data)) data = {};
     const safe = {};
     const stringKeys = [
       "groom","bride","groomParents","brideParents","eventMode","dateLabel","dateISO",
-      "akadDate","akadTime","receptionDate","receptionTime","guestArrival","venueName",
-      "venue","mapsUrl","whatsappNumber","heroImage","musicFile"
+      "akadDateISO","receptionDateISO","akadDate","akadTime","receptionDate","receptionTime",
+      "guestArrival","venueName","venue","mapsUrl","whatsappNumber","heroImage","musicFile"
     ];
     stringKeys.forEach(k => {
       if (typeof data[k] === "string") {
-        const max = k === "heroImage" ? 180000 : (k === "musicFile" ? 140000 : 4000);
+        const max = k === "heroImage" ? 120000 : (k === "musicFile" ? 90000 : 4000);
         safe[k] = data[k].slice(0, max);
       }
     });
@@ -45,9 +70,9 @@
     return {...DEFAULT_INVITATION, ...safe, texts: {...DEFAULT_INVITATION.texts, ...(safe.texts || {})}};
   }
 
-  const data = getData();
+  const data = await getData();
   const TEXT = data.texts || {};
-  const guestName = params.get("to") || TEXT.guestFallback || "Tamu Undangan";
+  const guestName = hashParams.get("to") || params.get("to") || TEXT.guestFallback || "Tamu Undangan";
   const set = (id, value) => { const el = $(id); if (el) el.textContent = value ?? ""; };
 
   document.querySelectorAll("[data-copy]").forEach(el => {
@@ -139,8 +164,8 @@
       select.appendChild(opt);
     });
   };
-  fillSelect("arrivalTime", data.arrivalSlots || DEFAULT_INVITATION.arrivalSlots);
-  fillSelect("guestCount", data.guestCountOptions || DEFAULT_INVITATION.guestCountOptions);
+  fillSelect("arrivalTime", (data.arrivalSlots && data.arrivalSlots.length) ? data.arrivalSlots : DEFAULT_INVITATION.arrivalSlots);
+  fillSelect("guestCount", (data.guestCountOptions && data.guestCountOptions.length) ? data.guestCountOptions : DEFAULT_INVITATION.guestCountOptions);
 
   // One active account card at a time; only accounts completed in admin appear.
   const PROVIDERS = {
@@ -190,7 +215,12 @@
       const button = document.createElement("button");
       button.type = "button";
       button.className = "bank-pick";
-      button.innerHTML = `<span class="bank-pick-logo">${meta.short}</span><span>${meta.label}</span>`;
+      const logo = document.createElement("span");
+      logo.className = "bank-pick-logo";
+      logo.textContent = meta.short;
+      const label = document.createElement("span");
+      label.textContent = meta.label;
+      button.append(logo, label);
       button.addEventListener("click", () => showAccount(account, button));
       picker.appendChild(button);
       if (index === 0) showAccount(account, button);
@@ -215,12 +245,14 @@
   const cover = $("cover");
   const invitation = $("invitation");
   const revealItems = document.querySelectorAll(".reveal");
-  const observer = new IntersectionObserver(entries => entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add("is-visible");
-      observer.unobserve(entry.target);
-    }
-  }), {threshold:0.12});
+  const observer = ("IntersectionObserver" in window)
+    ? new IntersectionObserver(entries => entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      }), {threshold:0.12})
+    : null;
 
   $("openInvitation").addEventListener("click", async () => {
     cover.classList.add("cover-opening");
@@ -228,7 +260,10 @@
       cover.hidden = true;
       invitation.classList.remove("hidden");
       document.body.classList.add("invitation-open");
-      revealItems.forEach(item => observer.observe(item));
+      revealItems.forEach(item => {
+        if (observer) observer.observe(item);
+        else item.classList.add("is-visible");
+      });
       window.scrollTo({top:0,behavior:"smooth"});
     }, 700);
     if (audio && audio.src) {
