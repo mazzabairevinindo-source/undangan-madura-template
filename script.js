@@ -1,93 +1,288 @@
-/* Renderer undangan: data pasangan dan seluruh teks dapat dikirim melalui parameter ?data=. */
-const $ = (id) => document.getElementById(id);
-const params = new URLSearchParams(window.location.search);
-function readInvitationData() {
-  const allowed = ["groom","bride","groomParents","brideParents","dateLabel","dateISO","akadDate","akadTime","receptionDate","receptionTime","guestArrival","venue","venueName","mapsUrl","whatsappNumber","bankName","accountNumber","accountHolder","heroImage","musicFile"];
-  const incoming = {};
-  try {
-    const raw=params.get("data"), parsed=raw?JSON.parse(raw):{};
-    if(parsed && typeof parsed === "object" && !Array.isArray(parsed)){
-      allowed.forEach(k=>{if(typeof parsed[k]==="string"){const limit=(k==="heroImage"?350000:(k==="musicFile"?420000:4000));incoming[k]=parsed[k].slice(0,limit);}});
-      if(parsed.texts && typeof parsed.texts==="object" && !Array.isArray(parsed.texts)){
-        incoming.texts={};Object.entries(DEFAULT_INVITATION.texts||{}).forEach(([k])=>{if(typeof parsed.texts[k]==="string")incoming.texts[k]=parsed.texts[k].slice(0,5000);});
-      }
-      ["arrivalSlots","guestCountOptions"].forEach(k=>{if(Array.isArray(parsed[k]))incoming[k]=parsed[k].filter(v=>typeof v==="string").slice(0,20).map(v=>v.slice(0,100));});
-      if(Array.isArray(parsed.bankAccounts)) incoming.bankAccounts=parsed.bankAccounts.filter(x=>x&&["DANA","BRI"].includes(x.provider)).slice(0,4).map(x=>({provider:x.provider,accountNumber:String(x.accountNumber||"").slice(0,80),accountHolder:String(x.accountHolder||"").slice(0,120)}));
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const params = new URLSearchParams(location.search);
+
+  function getData() {
+    let data = {};
+    try {
+      const raw = params.get("data");
+      if (raw) data = JSON.parse(raw);
+    } catch (err) {
+      console.warn("Data undangan pada tautan tidak terbaca.", err);
     }
-  } catch(e){console.warn("Data undangan tidak dapat dibaca; menggunakan data dasar.",e);}
-  return {...DEFAULT_INVITATION,...incoming,texts:{...(DEFAULT_INVITATION.texts||{}),...(incoming.texts||{})}};
-}
-const INVITATION=readInvitationData(), TEXT=INVITATION.texts||{};
-const guestName=params.get("to")||((DEFAULT_INVITATION.texts||{}).guestFallback||"Tamu Undangan");
-function setText(id,value){const el=$(id);if(el)el.textContent=value||"";}
-function applyEditableTexts(){
-  document.querySelectorAll("[data-copy]").forEach(el=>{const key=el.dataset.copy;if(Object.prototype.hasOwnProperty.call(TEXT,key))el.textContent=TEXT[key];});
-  document.querySelectorAll("[data-placeholder]").forEach(el=>{const key=el.dataset.placeholder;if(Object.prototype.hasOwnProperty.call(TEXT,key))el.setAttribute("placeholder",TEXT[key]);});
-}
-function safeUrl(value,fallback="#"){
-  if(!value)return fallback;
-  try{const u=new URL(value,window.location.href);return ["https:","http:"].includes(u.protocol)?u.href:fallback;}catch(_){return fallback;}
-}
-function safeMediaUrl(value,fallback=""){
-  if(!value)return fallback;
-  if(/^data:image\/(jpeg|png|webp);base64,/i.test(value)||/^data:audio\/(mpeg|ogg|mp4|wav);base64,/i.test(value))return value;
-  return safeUrl(value,fallback);
-}
-applyEditableTexts();
-setText("guestName",guestName);
-setText("coverNames",`${INVITATION.groom}\n&\n${INVITATION.bride}`);
-setText("coverDate",INVITATION.dateLabel);
-setText("heroNames",`${INVITATION.groom} & ${INVITATION.bride}`);
-setText("heroDate",INVITATION.dateLabel);
-setText("groomName",INVITATION.groom);setText("brideName",INVITATION.bride);
-setText("groomParents",INVITATION.groomParents);setText("brideParents",INVITATION.brideParents);
-setText("groomInitial",(INVITATION.groom.trim()[0]||"P").toUpperCase());setText("brideInitial",(INVITATION.bride.trim()[0]||"W").toUpperCase());
-setText("akadDate",INVITATION.akadDate);setText("akadTime",INVITATION.akadTime);
-setText("receptionDate",INVITATION.receptionDate);setText("receptionTime",INVITATION.receptionTime);
-setText("guestArrival",INVITATION.guestArrival);setText("venue",INVITATION.venue);
-setText("venueName",INVITATION.venueName||"Lokasi Acara");
-setText("footerNames",`${INVITATION.groom} & ${INVITATION.bride}`);
-document.title=`Undangan ${INVITATION.groom} & ${INVITATION.bride}`;
-const mapsLink=$("mapsLink");if(mapsLink)mapsLink.href=safeUrl(INVITATION.mapsUrl);
-const mapFrame=$("mapFrame");if(mapFrame){const q=INVITATION.venueName+" "+INVITATION.venue;mapFrame.src="https://www.google.com/maps?q="+encodeURIComponent(q||"Madura, Indonesia")+"&output=embed";}
-const heroPhoto=$("heroPhoto");
-if(heroPhoto&&INVITATION.heroImage){const img=document.createElement("img");img.src=safeMediaUrl(INVITATION.heroImage,"");img.alt=`Foto ${INVITATION.groom} dan ${INVITATION.bride}`;img.loading="eager";img.onerror=()=>{heroPhoto.classList.remove("has-image");heroPhoto.innerHTML=`<span class="photo-placeholder"><b>✿</b> ${TEXT.photoPlaceholderTitle||"Foto Kedua Mempelai"}</span>`;};if(img.src){heroPhoto.replaceChildren(img);heroPhoto.classList.add("has-image");}}
-const audio=$("backgroundMusic");if(audio&&INVITATION.musicFile)audio.src=safeMediaUrl(INVITATION.musicFile,"");
-const fillOptions=(select,values)=>{if(!select)return;select.replaceChildren();(values||[]).forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;select.appendChild(o);});};
-fillOptions($("arrivalTime"),INVITATION.arrivalSlots||[]);fillOptions($("guestCount"),INVITATION.guestCountOptions||["1","2","3","4","5"]);
-const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("is-visible");observer.unobserve(entry.target);}}),{threshold:.12});
-$("openInvitation").addEventListener("click",async()=>{
-  const cover=$("cover");cover.classList.add("cover-close");
-  window.setTimeout(()=>{cover.classList.add("hidden");$("invitation").classList.remove("hidden");document.body.classList.add("invitation-open");document.querySelectorAll(".reveal").forEach(el=>observer.observe(el));window.scrollTo({top:0,behavior:"smooth"});},650);
-  if(audio&&audio.src){try{await audio.play();const s=$("musicToggle").querySelector("[data-copy]");if(s)s.textContent=TEXT.musicOffButton||"Matikan";}catch(_){}}
-});
-$("musicToggle").addEventListener("click",async()=>{
-  if(!audio||!audio.src){alert(TEXT.musicMissingMessage||"Tambahkan alamat file musik melalui Pembuat Undangan terlebih dahulu.");return;}
-  const s=$("musicToggle").querySelector("[data-copy]");
-  if(audio.paused){try{await audio.play();if(s)s.textContent=TEXT.musicOffButton||"Matikan";}catch(_){alert(TEXT.musicErrorMessage||"Musik belum dapat diputar. Periksa alamat file audio.");}}
-  else{audio.pause();if(s)s.textContent=TEXT.musicButton||"Musik";}
-});
-function updateCountdown(){const t=new Date(INVITATION.dateISO).getTime(),diff=Number.isFinite(t)?Math.max(0,t-Date.now()):0;setText("days",String(Math.floor(diff/86400000)).padStart(2,"0"));setText("hours",String(Math.floor(diff/3600000)%24).padStart(2,"0"));setText("minutes",String(Math.floor(diff/60000)%60).padStart(2,"0"));setText("seconds",String(Math.floor(diff/1000)%60).padStart(2,"0"));}
-updateCountdown();window.setInterval(updateCountdown,1000);
-const configuredBankAccounts=(INVITATION.bankAccounts||[]).filter(x=>x.accountNumber);
-const bankAccounts=configuredBankAccounts.length?configuredBankAccounts:[{provider:INVITATION.bankName||"DANA",accountNumber:INVITATION.accountNumber||"",accountHolder:INVITATION.accountHolder||""}];
-let activeBank=bankAccounts.find(x=>x.accountNumber)||bankAccounts[0]||{provider:"DANA",accountNumber:"",accountHolder:""};
-function showBank(account){
-  activeBank=account;setText("bankBrand",account.provider);
-  const brand=$("bankBrand");if(brand)brand.className="bank-card-brand "+(account.provider==="DANA"?"dana-logo":"bri-logo");
-  setText("accountNumber",account.accountNumber||"Nomor belum diisi");
-  setText("accountHolder",account.accountHolder?`${TEXT.accountHolderPrefix||"Atas nama:"} ${account.accountHolder}`:"");
-  document.querySelectorAll(".bank-tab").forEach(b=>b.classList.toggle("active",b.dataset.bank===account.provider));
-}
-document.querySelectorAll(".bank-tab").forEach(btn=>btn.addEventListener("click",()=>{const a=bankAccounts.find(x=>x.provider===btn.dataset.bank);if(a)showBank(a);}));
-const bankTabs=$("bankTabs");if(bankTabs){const available=bankAccounts.filter(x=>x.accountNumber);bankTabs.hidden=!available.length;const bankCard=$("bankCard");if(bankCard)bankCard.hidden=!available.length;document.querySelectorAll(".bank-tab").forEach(b=>{const a=bankAccounts.find(x=>x.provider===b.dataset.bank);b.hidden=!a||!a.accountNumber;});if(available.length)showBank(available[0]);}
-$("copyAccount").addEventListener("click",async()=>{const n=(activeBank.accountNumber||"").trim();if(!n){setText("copyNotice",TEXT.copyMissingMessage||"Nomor rekening belum diatur.");return;}try{await navigator.clipboard.writeText(n);setText("copyNotice",TEXT.copySuccessMessage||"Nomor berhasil disalin.");}catch(_){setText("copyNotice",TEXT.copyFailedMessage||"Silakan salin nomor secara manual.");}});
-const attendance=$("attendance"),arrivalField=$("arrivalTime");
-if(attendance&&arrivalField){const update=()=>{arrivalField.disabled=attendance.value!=="Hadir";arrivalField.closest("label").classList.toggle("field-muted",arrivalField.disabled);};attendance.addEventListener("change",update);update();}
-$("rsvpForm").addEventListener("submit",event=>{
-  event.preventDefault();const phone=(INVITATION.whatsappNumber||"").replace(/\D/g,"");if(!phone){alert(TEXT.whatsappMissingMessage||"Nomor WhatsApp panitia belum diisi melalui Pembuat Undangan.");return;}
-  const status=attendance.value, t=TEXT;
-  const intro=(t.rsvpWhatsappIntro||"Konfirmasi undangan {groom} & {bride}.").replaceAll("{groom}",INVITATION.groom).replaceAll("{bride}",INVITATION.bride);
-  const lines=[intro,`${t.rsvpWhatsappName||"Nama"}: ${$("rsvpName").value.trim()}`,`${t.rsvpWhatsappAttendance||"Kehadiran"}: ${status}`,`${t.rsvpWhatsappGuestCount||"Jumlah tamu"}: ${$("guestCount").value}`,`${t.rsvpWhatsappArrival||"Perkiraan kedatangan"}: ${status==="Hadir"?arrivalField.value:"-"}`,`${t.rsvpWhatsappMessage||"Ucapan"}: ${$("message").value.trim()||"-"}`,t.rsvpWhatsappThanks||"Terima kasih."];
-  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(lines.join("\n"))}`,"_blank","noopener,noreferrer");
-});
+    if (!data || typeof data !== "object" || Array.isArray(data)) data = {};
+    const safe = {};
+    const stringKeys = [
+      "groom","bride","groomParents","brideParents","eventMode","dateLabel","dateISO",
+      "akadDate","akadTime","receptionDate","receptionTime","guestArrival","venueName",
+      "venue","mapsUrl","whatsappNumber","heroImage","musicFile"
+    ];
+    stringKeys.forEach(k => {
+      if (typeof data[k] === "string") {
+        const max = k === "heroImage" ? 180000 : (k === "musicFile" ? 140000 : 4000);
+        safe[k] = data[k].slice(0, max);
+      }
+    });
+    if (data.texts && typeof data.texts === "object" && !Array.isArray(data.texts)) {
+      safe.texts = {};
+      Object.keys(DEFAULT_INVITATION.texts).forEach(k => {
+        if (typeof data.texts[k] === "string") safe.texts[k] = data.texts[k].slice(0, 5000);
+      });
+    }
+    ["arrivalSlots","guestCountOptions"].forEach(k => {
+      if (Array.isArray(data[k])) safe[k] = data[k].filter(v => typeof v === "string").slice(0, 20).map(v => v.slice(0, 100));
+    });
+    if (Array.isArray(data.bankAccounts)) {
+      safe.bankAccounts = data.bankAccounts
+        .filter(x => x && typeof x === "object" && typeof x.provider === "string")
+        .slice(0, 12)
+        .map(x => ({
+          provider: String(x.provider).slice(0, 40),
+          accountNumber: String(x.accountNumber || "").slice(0, 80),
+          accountHolder: String(x.accountHolder || "").slice(0, 120)
+        }));
+    }
+    return {...DEFAULT_INVITATION, ...safe, texts: {...DEFAULT_INVITATION.texts, ...(safe.texts || {})}};
+  }
+
+  const data = getData();
+  const TEXT = data.texts || {};
+  const guestName = params.get("to") || TEXT.guestFallback || "Tamu Undangan";
+  const set = (id, value) => { const el = $(id); if (el) el.textContent = value ?? ""; };
+
+  document.querySelectorAll("[data-copy]").forEach(el => {
+    const key = el.dataset.copy;
+    if (Object.prototype.hasOwnProperty.call(TEXT, key)) el.textContent = TEXT[key];
+  });
+  document.querySelectorAll("[data-placeholder]").forEach(el => {
+    const key = el.dataset.placeholder;
+    if (Object.prototype.hasOwnProperty.call(TEXT, key)) el.placeholder = TEXT[key];
+  });
+
+  set("guestName", guestName);
+  set("posterGuest", guestName);
+  set("coverNames", `${data.groom}\n&\n${data.bride}`);
+  set("coverDate", data.dateLabel);
+  set("posterNames", `${data.groom} & ${data.bride}`);
+  set("posterDate", data.dateLabel);
+  set("groomName", data.groom);
+  set("brideName", data.bride);
+  set("groomParents", data.groomParents);
+  set("brideParents", data.brideParents);
+  set("groomInitial", (data.groom || "P").trim().charAt(0).toUpperCase());
+  set("brideInitial", (data.bride || "W").trim().charAt(0).toUpperCase());
+  set("akadDate", data.akadDate || data.dateLabel);
+  set("akadTime", data.akadTime);
+  set("receptionDate", data.receptionDate || data.dateLabel);
+  set("receptionTime", data.receptionTime);
+  set("guestArrival", data.guestArrival);
+  set("venueName", data.venueName || "Lokasi Acara");
+  set("venueAddress", data.venue);
+  set("footerNames", `${data.groom} & ${data.bride}`);
+  document.title = `Undangan ${data.groom} & ${data.bride}`;
+
+  const posterImg = $("heroPhoto");
+  const posterPlaceholder = $("posterPlaceholder");
+  const imageValue = data.heroImage || "";
+  if (posterImg && imageValue) {
+    posterImg.src = imageValue;
+    posterImg.alt = `Foto ${data.groom} dan ${data.bride}`;
+    posterImg.hidden = false;
+    posterImg.onerror = () => {
+      posterImg.hidden = true;
+      posterPlaceholder.hidden = false;
+    };
+    posterPlaceholder.hidden = true;
+  } else {
+    posterImg.hidden = true;
+    posterPlaceholder.hidden = false;
+  }
+
+  const audio = $("backgroundMusic");
+  if (audio && data.musicFile) audio.src = data.musicFile;
+
+  const akadCard = $("akadCard");
+  if (data.eventMode === "resepsi_saja" && akadCard) akadCard.hidden = true;
+
+  const eventDate = new Date(data.dateISO || DEFAULT_INVITATION.dateISO).getTime();
+  function updateCountdown() {
+    const diff = Math.max(0, (Number.isFinite(eventDate) ? eventDate : Date.now()) - Date.now());
+    set("days", String(Math.floor(diff / 86400000)).padStart(2,"0"));
+    set("hours", String(Math.floor(diff / 3600000) % 24).padStart(2,"0"));
+    set("minutes", String(Math.floor(diff / 60000) % 60).padStart(2,"0"));
+    set("seconds", String(Math.floor(diff / 1000) % 60).padStart(2,"0"));
+  }
+  updateCountdown();
+  window.setInterval(updateCountdown, 1000);
+
+  const mapFrame = $("mapFrame");
+  const addressQuery = [data.venueName, data.venue].filter(Boolean).join(" ");
+  if (mapFrame) mapFrame.src = `https://www.google.com/maps?q=${encodeURIComponent(addressQuery || "Madura, Indonesia")}&output=embed`;
+  const mapLink = $("mapsLink");
+  if (mapLink) {
+    try {
+      const u = new URL(data.mapsUrl || "https://maps.google.com/", location.href);
+      mapLink.href = ["https:","http:"].includes(u.protocol) ? u.href : "https://maps.google.com/";
+    } catch (_) {
+      mapLink.href = "https://maps.google.com/";
+    }
+  }
+
+  const fillSelect = (id, values) => {
+    const select = $(id);
+    if (!select) return;
+    select.replaceChildren();
+    (values || []).forEach(value => {
+      const opt = document.createElement("option");
+      opt.value = value;
+      opt.textContent = value;
+      select.appendChild(opt);
+    });
+  };
+  fillSelect("arrivalTime", data.arrivalSlots || DEFAULT_INVITATION.arrivalSlots);
+  fillSelect("guestCount", data.guestCountOptions || DEFAULT_INVITATION.guestCountOptions);
+
+  // One active account card at a time; only accounts completed in admin appear.
+  const PROVIDERS = {
+    "DANA": {label:"DANA", kind:"DOMPET DIGITAL", short:"DANA", color:"#087fce", text:"#ffffff"},
+    "OVO": {label:"OVO", kind:"DOMPET DIGITAL", short:"OVO", color:"#4b238c", text:"#ffffff"},
+    "GOPAY": {label:"GoPay", kind:"DOMPET DIGITAL", short:"GoPay", color:"#00a5e5", text:"#ffffff"},
+    "SHOPEEPAY": {label:"ShopeePay", kind:"DOMPET DIGITAL", short:"ShopeePay", color:"#ee4d2d", text:"#ffffff"},
+    "LINKAJA": {label:"LinkAja", kind:"DOMPET DIGITAL", short:"LinkAja", color:"#e21d2b", text:"#ffffff"},
+    "BRI": {label:"BRI", kind:"BANK", short:"BRI", color:"#07529a", text:"#ffffff"},
+    "BCA": {label:"BCA", kind:"BANK", short:"BCA", color:"#0876bd", text:"#ffffff"},
+    "BNI": {label:"BNI", kind:"BANK", short:"BNI", color:"#ed7c24", text:"#ffffff"},
+    "MANDIRI": {label:"Mandiri", kind:"BANK", short:"Mandiri", color:"#173d78", text:"#ffffff"},
+    "BSI": {label:"BSI", kind:"BANK", short:"BSI", color:"#16845b", text:"#ffffff"},
+    "BTN": {label:"BTN", kind:"BANK", short:"BTN", color:"#12549a", text:"#ffffff"},
+    "CIMB": {label:"CIMB Niaga", kind:"BANK", short:"CIMB", color:"#c71d31", text:"#ffffff"},
+    "PERMATA": {label:"PermataBank", kind:"BANK", short:"PERMATA", color:"#194b8a", text:"#ffffff"},
+    "DANAMON": {label:"Danamon", kind:"BANK", short:"DANAMON", color:"#ed3038", text:"#ffffff"},
+    "JATIM": {label:"Bank Jatim", kind:"BANK", short:"JATIM", color:"#164f90", text:"#ffffff"}
+  };
+  const accounts = (data.bankAccounts || []).filter(a => a && a.provider && a.accountNumber);
+  const picker = $("bankPicker");
+  const bankCard = $("bankCard");
+  const copyButton = $("copyAccount");
+  let activeAccount = null;
+
+  function showAccount(account, button) {
+    activeAccount = account;
+    const meta = PROVIDERS[account.provider] || {label:account.provider,kind:"BANK",short:account.provider,color:"#51121b",text:"#fff"};
+    set("bankCardType", meta.kind);
+    set("bankLogo", meta.short);
+    $("bankLogo").style.background = meta.color;
+    $("bankLogo").style.color = meta.text;
+    set("accountNumber", account.accountNumber);
+    set("accountHolder", `${TEXT.accountHolderPrefix || "Atas nama"}: ${account.accountHolder || "-"}`);
+    if (button) {
+      picker.querySelectorAll("button").forEach(b => b.classList.toggle("active", b === button));
+    }
+    bankCard.style.setProperty("--bank-color", meta.color);
+    bankCard.hidden = false;
+  }
+
+  if (accounts.length && picker && bankCard) {
+    $("giftSection").hidden = false;
+    picker.replaceChildren();
+    accounts.forEach((account, index) => {
+      const meta = PROVIDERS[account.provider] || {label:account.provider,short:account.provider,color:"#51121b",text:"#fff"};
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "bank-pick";
+      button.innerHTML = `<span class="bank-pick-logo">${meta.short}</span><span>${meta.label}</span>`;
+      button.addEventListener("click", () => showAccount(account, button));
+      picker.appendChild(button);
+      if (index === 0) showAccount(account, button);
+    });
+  }
+
+  copyButton?.addEventListener("click", async () => {
+    if (!activeAccount) return;
+    try {
+      await navigator.clipboard.writeText(activeAccount.accountNumber);
+      set("copyNotice", TEXT.copySuccessMessage || "Nomor berhasil disalin.");
+    } catch (_) {
+      const tmp = document.createElement("textarea");
+      tmp.value = activeAccount.accountNumber;
+      document.body.appendChild(tmp); tmp.select();
+      const ok = document.execCommand("copy");
+      tmp.remove();
+      set("copyNotice", ok ? (TEXT.copySuccessMessage || "Nomor berhasil disalin.") : (TEXT.copyFailedMessage || "Salin nomor secara manual."));
+    }
+  });
+
+  const cover = $("cover");
+  const invitation = $("invitation");
+  const revealItems = document.querySelectorAll(".reveal");
+  const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("is-visible");
+      observer.unobserve(entry.target);
+    }
+  }), {threshold:0.12});
+
+  $("openInvitation").addEventListener("click", async () => {
+    cover.classList.add("cover-opening");
+    window.setTimeout(() => {
+      cover.hidden = true;
+      invitation.classList.remove("hidden");
+      document.body.classList.add("invitation-open");
+      revealItems.forEach(item => observer.observe(item));
+      window.scrollTo({top:0,behavior:"smooth"});
+    }, 700);
+    if (audio && audio.src) {
+      try { await audio.play(); } catch (_) { /* Browser may require the music button. */ }
+    }
+  });
+
+  $("musicToggle").addEventListener("click", async () => {
+    if (!audio || !audio.src) {
+      alert(TEXT.musicMissingMessage || "Musik belum ditambahkan.");
+      return;
+    }
+    const label = $("musicToggle").querySelector("[data-copy]");
+    if (audio.paused) {
+      try {
+        await audio.play();
+        if (label) label.textContent = TEXT.musicOffButton || "Matikan";
+      } catch (_) {
+        alert(TEXT.musicErrorMessage || "Musik belum dapat diputar.");
+      }
+    } else {
+      audio.pause();
+      if (label) label.textContent = TEXT.musicButton || "Musik";
+    }
+  });
+
+  const arrival = $("arrivalTime");
+  const attendance = $("attendance");
+  function updateArrivalEnabled() {
+    if (!arrival || !attendance) return;
+    arrival.disabled = attendance.value !== "Hadir";
+  }
+  attendance?.addEventListener("change", updateArrivalEnabled);
+  updateArrivalEnabled();
+
+  $("rsvpForm").addEventListener("submit", event => {
+    event.preventDefault();
+    const phone = (data.whatsappNumber || "").replace(/\D/g, "");
+    if (!phone) {
+      alert(TEXT.whatsappMissingMessage || "Nomor WhatsApp panitia belum diisi.");
+      return;
+    }
+    const status = attendance.value;
+    const intro = (TEXT.rsvpWhatsappIntro || "Konfirmasi undangan {groom} & {bride}.")
+      .replaceAll("{groom}", data.groom || "").replaceAll("{bride}", data.bride || "");
+    const lines = [
+      intro,
+      `${TEXT.rsvpWhatsappName || "Nama"}: ${$("rsvpName").value.trim()}`,
+      `${TEXT.rsvpWhatsappAttendance || "Kehadiran"}: ${status}`,
+      `${TEXT.rsvpWhatsappGuestCount || "Jumlah tamu"}: ${$("guestCount").value}`,
+      `${TEXT.rsvpWhatsappArrival || "Perkiraan kedatangan"}: ${status === "Hadir" ? arrival.value : "-"}`,
+      `${TEXT.rsvpWhatsappMessage || "Ucapan"}: ${$("message").value.trim() || "-"}`,
+      TEXT.rsvpWhatsappThanks || "Terima kasih."
+    ];
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener,noreferrer");
+  });
+})();

@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1600" role="img" aria-label="Ilustrasi vektor rumah adat Madura">
+<defs>
+  <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#22060d"/><stop offset=".6" stop-color="#4a0b17"/><stop offset="1" stop-color="#1b060b"/></linearGradient>
+  <linearGradient id="gold" x2="1" y2="1"><stop stop-color="#fff0b9"/><stop offset=".42" stop-color="#d7a64d"/><stop offset="1" stop-color="#8d5b20"/></linearGradient>
+  <linearGradient id="wood" x2="0" y2="1"><stop stop-color="#6a251e"/><stop offset=".55" stop-color="#351016"/><stop offset="1" stop-color="#1d080d"/></linearGradient>
+  <linearGradient id="roof" x2="0" y2="1"><stop stop-color="#d65b37"/><stop offset=".55" stop-color="#8d251e"/><stop offset="1" stop-color="#3e1017"/></linearGradient>
+  <linearGradient id="stone" x2="0" y2="1"><stop stop-color="#d7b37a"/><stop offset="1" stop-color="#6d4b37"/></linearGradient>
+  <pattern id="tile" width="48" height="27" patternUnits="userSpaceOnUse">
+    <path d="M0 0 Q24 13 48 0 M-24 27 Q0 13 24 27 M24 27 Q48 13 72 27" fill="none" stroke="#ef9a62" stroke-width="2" opacity=".65"/>
+    <path d="M0 1 V26 M24 1 V26" stroke="#451018" stroke-width="1.4" opacity=".55"/>
+  </pattern>
+  <pattern id="woodgrain" width="26" height="80" patternUnits="userSpaceOnUse">
+    <path d="M6 0 Q1 30 7 80 M18 0 Q23 32 18 80" stroke="#b77748" stroke-width="1" opacity=".24" fill="none"/>
+  </pattern>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="12"/></filter>
+  <g id="flower" stroke="url(#gold)" stroke-width="3" fill="none">
+    <ellipse cx="0" cy="-18" rx="9" ry="17"/><ellipse cx="17" cy="-5" rx="9" ry="17" transform="rotate(72 17 -5)"/>
+    <ellipse cx="11" cy="15" rx="9" ry="17" transform="rotate(144 11 15)"/><ellipse cx="-11" cy="15" rx="9" ry="17" transform="rotate(216 -11 15)"/>
+    <ellipse cx="-17" cy="-5" rx="9" ry="17" transform="rotate(288 -17 -5)"/><circle r="7" fill="#d4a34e"/>
+  </g>
+  <g id="leaf" fill="none" stroke="url(#gold)" stroke-width="3">
+    <path d="M0 0 C-25 -40 -14 -62 18 -74 C28 -39 23 -15 0 0 Z"/>
+    <path d="M0 0 Q7 -36 18 -74"/>
+  </g>
+</defs>
+<rect width="900" height="1600" fill="url(#bg)"/>
+<!-- fine woven/batik background -->
+<g opacity=".12" stroke="#e1b96a" fill="none">
+  <path d="M0 250 Q225 190 450 250 T900 250 M0 340 Q225 280 450 340 T900 340" stroke-width="2"/>
+  <path d="M0 420 L450 300 900 420 M0 500 L450 380 900 500" stroke-width="1"/>
+  <path d="M0 260 L450 520 900 260 M0 345 L450 605 900 345" stroke-width="1"/>
+  <circle cx="450" cy="380" r="105" stroke-dasharray="4 12" stroke-width="2"/>
+  <circle cx="450" cy="380" r="72" stroke-width="1"/>
+</g>
+<!-- ornamental frame -->
+<rect x="20" y="20" width="860" height="1560" rx="12" fill="none" stroke="url(#gold)" stroke-width="3"/>
+<rect x="34" y="34" width="832" height="1532" rx="8" fill="none" stroke="#d6aa5c" stroke-width="1.5" opacity=".55"/>
+<!-- corner florals -->
+<g transform="translate(85 100) scale(1.35)"><use href="#flower"/><use href="#leaf" transform="rotate(-55) translate(17 12)"/><use href="#leaf" transform="rotate(48) translate(-5 10)"/></g>
+<g transform="translate(815 100) scale(1.35)"><use href="#flower"/><use href="#leaf" transform="rotate(-55) translate(17 12)"/><use href="#leaf" transform="rotate(48) translate(-5 10)"/></g>
+<g transform="translate(85 1495) scale(1.4)"><use href="#flower"/><use href="#leaf" transform="rotate(-55) translate(17 12)"/><use href="#leaf" transform="rotate(48) translate(-5 10)"/></g>
+<g transform="translate(815 1495) scale(1.4)"><use href="#flower"/><use href="#leaf" transform="rotate(-55) translate(17 12)"/><use href="#leaf" transform="rotate(48) translate(-5 10)"/></g>
+<!-- ambient lanterns -->
+<g stroke="url(#gold)" fill="none" opacity=".75">
+  <path d="M170 170 V260 M730 170 V260" stroke-width="2"/>
+  <path d="M150 255 L170 285 190 255 182 230 158 230 Z M710 255 L730 285 750 255 742 230 718 230 Z" fill="#d4a04b22" stroke-width="3"/>
+  <path d="M170 285 V302 M730 285 V302"/>
+</g>
+<!-- ground glow -->
+<ellipse cx="450" cy="1338" rx="390" ry="55" fill="#060306" opacity=".55" filter="url(#shadow)"/>
+<!-- greenery and tropical flowers -->
+<g>
+ <path d="M30 1295 Q22 1190 76 1100 Q54 1212 103 1254 Q81 1151 160 1085 Q117 1212 145 1290" fill="#193e2c" stroke="#b18d4d" stroke-width="3"/>
+ <path d="M870 1295 Q878 1190 824 1100 Q846 1212 797 1254 Q819 1151 740 1085 Q783 1212 755 1290" fill="#193e2c" stroke="#b18d4d" stroke-width="3"/>
+ <g fill="#a42730" stroke="#e4bd75" stroke-width="2">
+  <circle cx="75" cy="1260" r="17"/><circle cx="125" cy="1205" r="13"/><circle cx="830" cy="1260" r="17"/><circle cx="780" cy="1205" r="13"/>
+ </g>
+ <g fill="#eac47c"><circle cx="75" cy="1260" r="5"/><circle cx="125" cy="1205" r="4"/><circle cx="830" cy="1260" r="5"/><circle cx="780" cy="1205" r="4"/></g>
+</g>
+<!-- traditional Madurese wooden house -->
+<g>
+  <!-- rear shadow -->
+  <path d="M106 1010 L450 725 794 1010 775 1048 125 1048 Z" fill="#090409" opacity=".55"/>
+  <!-- large roof plane -->
+  <path d="M90 1010 L450 750 810 1010 L780 1062 120 1062 Z" fill="url(#roof)" stroke="url(#gold)" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M90 1010 L450 750 810 1010 L780 1062 120 1062 Z" fill="url(#tile)" opacity=".92"/>
+  <!-- roof ridge ornament -->
+  <path d="M415 774 Q450 718 485 774 Q467 766 450 746 Q433 766 415 774 Z" fill="url(#gold)" stroke="#4a1218" stroke-width="4"/>
+  <path d="M450 747 C430 715 423 699 450 676 C477 699 470 715 450 747 Z" fill="#9c2c29" stroke="url(#gold)" stroke-width="4"/>
+  <path d="M450 681 Q438 650 450 632 Q462 650 450 681 M434 699 Q405 678 405 660 Q428 667 434 699 M466 699 Q495 678 495 660 Q472 667 466 699" fill="none" stroke="url(#gold)" stroke-width="5" stroke-linecap="round"/>
+  <!-- front edge/roof fascia -->
+  <path d="M101 1007 Q450 1060 799 1007 L790 1050 Q450 1092 110 1050 Z" fill="#351017" stroke="url(#gold)" stroke-width="5"/>
+  <path d="M124 1022 Q450 1062 776 1022" fill="none" stroke="#e9c67e" stroke-width="3" stroke-dasharray="6 9"/>
+  <!-- carved front gable -->
+  <path d="M350 920 Q450 820 550 920 L532 1005 368 1005 Z" fill="#4b101b" stroke="url(#gold)" stroke-width="4"/>
+  <path d="M380 946 Q450 865 520 946 Q493 934 475 955 Q450 925 425 955 Q407 934 380 946 Z" fill="none" stroke="#e9c77c" stroke-width="4"/>
+  <path d="M450 868 C435 900 438 913 450 928 C462 913 465 900 450 868 Z" fill="#d9ae61"/>
+  <circle cx="450" cy="942" r="7" fill="#f4d99e"/>
+  <!-- house body -->
+  <rect x="150" y="1045" width="600" height="202" fill="url(#wood)" stroke="url(#gold)" stroke-width="5"/>
+  <rect x="150" y="1045" width="600" height="202" fill="url(#woodgrain)" opacity=".8"/>
+  <!-- wall panels -->
+  <rect x="182" y="1074" width="144" height="140" fill="#260d13" stroke="#b88643" stroke-width="3"/>
+  <rect x="574" y="1074" width="144" height="140" fill="#260d13" stroke="#b88643" stroke-width="3"/>
+  <g fill="#7d2928" stroke="url(#gold)" stroke-width="3">
+    <rect x="195" y="1087" width="52" height="115"/><rect x="261" y="1087" width="52" height="115"/>
+    <rect x="587" y="1087" width="52" height="115"/><rect x="653" y="1087" width="52" height="115"/>
+  </g>
+  <g stroke="#e3bd74" stroke-width="2" opacity=".9">
+    <path d="M207 1100 V1190 M220 1100 V1190 M273 1100 V1190 M286 1100 V1190 M599 1100 V1190 M612 1100 V1190 M665 1100 V1190 M678 1100 V1190"/>
+    <path d="M195 1130 H313 M587 1130 H705"/>
+  </g>
+  <!-- central double door -->
+  <rect x="375" y="1057" width="150" height="190" fill="#1b080d" stroke="url(#gold)" stroke-width="5"/>
+  <rect x="390" y="1074" width="57" height="158" fill="#65201c" stroke="#c49a56" stroke-width="3"/>
+  <rect x="453" y="1074" width="57" height="158" fill="#65201c" stroke="#c49a56" stroke-width="3"/>
+  <g fill="none" stroke="#e1b96c" stroke-width="2.5">
+    <path d="M400 1090 Q418 1100 437 1090 V1218 Q418 1228 400 1218 Z"/>
+    <path d="M463 1090 Q481 1100 500 1090 V1218 Q481 1228 463 1218 Z"/>
+    <path d="M418 1110 C405 1124 430 1136 418 1152 C406 1168 430 1180 418 1200 M481 1110 C468 1124 493 1136 481 1152 C469 1168 493 1180 481 1200"/>
+  </g>
+  <circle cx="443" cy="1150" r="4" fill="#f5d99a"/><circle cx="457" cy="1150" r="4" fill="#f5d99a"/>
+  <!-- carved side beams -->
+  <g stroke="url(#gold)" stroke-width="3" fill="none">
+    <path d="M158 1060 Q250 1038 342 1060 M558 1060 Q650 1038 742 1060"/>
+    <path d="M170 1230 Q450 1262 730 1230"/>
+  </g>
+  <!-- veranda posts and bases -->
+  <g>
+    <g fill="#321018" stroke="url(#gold)" stroke-width="4">
+      <rect x="138" y="1015" width="25" height="236"/><rect x="285" y="1025" width="22" height="224"/>
+      <rect x="593" y="1025" width="22" height="224"/><rect x="737" y="1015" width="25" height="236"/>
+    </g>
+    <g fill="url(#gold)">
+      <path d="M132 1015 L170 1015 165 1002 137 1002 Z M279 1025 L313 1025 309 1013 283 1013 Z M587 1025 L621 1025 617 1013 591 1013 Z M730 1015 L768 1015 763 1002 735 1002 Z"/>
+      <rect x="130" y="1238" width="41" height="14" rx="2"/><rect x="278" y="1238" width="36" height="14" rx="2"/><rect x="586" y="1238" width="36" height="14" rx="2"/><rect x="728" y="1238" width="42" height="14" rx="2"/>
+    </g>
+  </g>
+  <!-- balustrade -->
+  <path d="M115 1227 Q450 1255 785 1227" fill="none" stroke="#e6bd6f" stroke-width="8"/>
+  <path d="M115 1227 V1270 M785 1227 V1270" stroke="#e6bd6f" stroke-width="7"/>
+  <g stroke="#c18a45" stroke-width="4" fill="#632027">
+    <path d="M190 1234 L190 1270 Q205 1242 220 1270 V1236 M255 1239 L255 1274 Q270 1245 285 1274 V1241 M615 1241 L615 1274 Q630 1245 645 1274 V1239 M680 1236 L680 1270 Q695 1242 710 1270 V1234"/>
+  </g>
+  <path d="M115 1270 Q450 1292 785 1270" fill="none" stroke="url(#gold)" stroke-width="8"/>
+  <!-- stairs -->
+  <path d="M342 1252 H558 L578 1310 H322 Z" fill="#5a3026" stroke="url(#gold)" stroke-width="4"/>
+  <path d="M326 1290 H574 L592 1330 H308 Z" fill="url(#stone)" stroke="#e0bf7a" stroke-width="4"/>
+  <path d="M304 1330 H596 L612 1352 H288 Z" fill="#6f4a36" stroke="url(#gold)" stroke-width="3"/>
+</g>
+<!-- stone path to house -->
+<path d="M360 1350 L540 1350 L615 1580 H285 Z" fill="#4b3932" opacity=".9" stroke="#b9955c" stroke-width="2"/>
+<g fill="none" stroke="#d1b179" stroke-width="2" opacity=".7">
+  <path d="M330 1390 L570 1390 M318 1450 L582 1450 M304 1515 L596 1515"/>
+  <path d="M370 1353 L350 1390 M450 1353 L450 1390 M530 1353 L550 1390 M345 1410 L325 1450 M450 1410 L450 1450 M555 1410 L575 1450 M320 1470 L305 1515 M450 1470 L450 1515 M580 1470 L595 1515"/>
+</g>
+<!-- base ornamental floral band -->
+<g fill="none" stroke="url(#gold)" stroke-width="3" opacity=".9">
+  <path d="M60 1545 Q170 1470 280 1545 T500 1545 T720 1545 T840 1545"/>
+  <path d="M60 1570 Q170 1495 280 1570 T500 1570 T720 1570 T840 1570"/>
+</g>
+</svg>

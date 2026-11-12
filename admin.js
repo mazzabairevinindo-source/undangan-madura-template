@@ -1,47 +1,58 @@
 (() => {
+  "use strict";
   const form = document.getElementById("builderForm");
-  const resultPanel = document.getElementById("resultPanel");
-  const output = document.getElementById("generatedLink");
-  const resultMessage = document.getElementById("resultMessage");
-  const STORAGE_KEY = "undanganMadura.savedEvents.v2";
+  const $ = id => document.getElementById(id);
+  const get = name => form.elements.namedItem(name);
+  const value = name => (get(name)?.value || "").trim();
+  const STORAGE_KEY = "undanganMadura.v6.drafts";
   let currentConfig = null;
-  const get = (name) => form.elements.namedItem(name);
-  const val = (name) => (get(name)?.value || "").trim();
-  const DEFAULT_TEXTS = (typeof DEFAULT_INVITATION !== "undefined" && DEFAULT_INVITATION.texts) ? DEFAULT_INVITATION.texts : {};
+  let currentPreviewUrl = "";
 
-  const TEXT_GROUPS = [
-    {title:"Sampul dan navigasi", fields:[
-      ["coverEyebrow","Tulisan kecil sampul"],["coverSalutation","Salam pembuka Arab"],["guestFallback","Nama tamu bawaan jika tautan tanpa nama"],["coverRecipientPrefix","Awalan nama tamu"],["coverRecipientSuffix","Tulisan di bawah nama tamu"],["openButton","Teks tombol buka undangan"],["coverFootnote","Kalimat kecil sampul"],["navBrand","Nama pada navigasi"],["musicButton","Tombol musik"],["musicOffButton","Tombol saat musik aktif"]]},
-    {title:"Bagian pembuka dan mempelai", fields:[
-      ["heroBlessing","Doa di bagian pembuka"],["heroEyebrow","Judul kecil pembuka"],["photoPlaceholderTitle","Tulisan jika foto belum dipasang"],["photoPlaceholderNote","Petunjuk foto"],["introParagraph","Paragraf pengantar"],["coupleEyebrow","Judul kecil bagian mempelai"],["coupleTitle","Judul bagian mempelai"],["groomLabel","Label mempelai pria"],["brideLabel","Label mempelai wanita"],["quranQuote","Kutipan ayat"],["quranSource","Sumber kutipan"]]},
-    {title:"Acara dan lokasi", fields:[
-      ["eventsEyebrow","Judul kecil bagian acara"],["eventsTitle","Judul bagian acara"],["akadEyebrow","Label kecil akad"],["akadTitle","Nama acara akad"],["receptionEyebrow","Label kecil resepsi"],["receptionTitle","Nama acara resepsi"],["arrivalEyebrow","Judul jam kehadiran"],["arrivalDescription","Keterangan jam kehadiran"],["venueEyebrow","Judul lokasi"],["mapsButton","Teks tombol Google Maps"]]},
-    {title:"Hitung mundur dan hadiah", fields:[
-      ["countdownEyebrow","Judul kecil hitung mundur"],["countdownTitle","Judul hitung mundur"],["countdownDays","Label hari"],["countdownHours","Label jam"],["countdownMinutes","Label menit"],["countdownSeconds","Label detik"],["giftEyebrow","Judul kecil hadiah"],["giftTitle","Judul hadiah"],["giftIntro","Keterangan hadiah/rekening"],["accountHolderPrefix","Awalan nama pemilik rekening"],["copyAccountButton","Teks tombol salin rekening"],["copyMissingMessage","Pesan jika rekening kosong"],["copySuccessMessage","Pesan setelah nomor disalin"],["copyFailedMessage","Pesan jika salin otomatis gagal"],["musicMissingMessage","Pesan jika musik belum diatur"],["musicErrorMessage","Pesan jika musik gagal diputar"]]},
-    {title:"Konfirmasi kehadiran (RSVP)", fields:[
-      ["rsvpEyebrow","Judul kecil RSVP"],["rsvpTitle","Judul RSVP"],["rsvpNameLabel","Label nama tamu"],["rsvpNamePlaceholder","Contoh/placeholder nama"],["rsvpAttendanceLabel","Label konfirmasi"],["rsvpAttendOption","Pilihan hadir"],["rsvpAbsentOption","Pilihan tidak hadir"],["rsvpGuestCountLabel","Label jumlah tamu"],["rsvpArrivalLabel","Label jam kedatangan"],["rsvpMessageLabel","Label ucapan dan doa"],["rsvpMessagePlaceholder","Placeholder ucapan"],["rsvpSubmitButton","Teks tombol kirim"],["rsvpNote","Keterangan di bawah formulir"],["whatsappMissingMessage","Pesan jika WhatsApp panitia kosong"],["rsvpWhatsappIntro","Kalimat pembuka pesan WhatsApp"],["rsvpWhatsappName","Label nama pada pesan WhatsApp"],["rsvpWhatsappAttendance","Label status kehadiran pada pesan WhatsApp"],["rsvpWhatsappGuestCount","Label jumlah tamu pada pesan WhatsApp"],["rsvpWhatsappArrival","Label perkiraan kedatangan pada pesan WhatsApp"],["rsvpWhatsappMessage","Label ucapan pada pesan WhatsApp"],["rsvpWhatsappThanks","Kalimat penutup pesan WhatsApp"]]},
-    {title:"Penutup undangan", fields:[
-      ["footerBlessing","Doa penutup Arab"],["footerMessage","Paragraf penutup"],["footerThanks","Ucapan terima kasih"]]}
+  const BANKS = [
+    ["BRI","Bank BRI"],["BCA","Bank BCA"],["BNI","Bank BNI"],["MANDIRI","Bank Mandiri"],
+    ["BSI","Bank Syariah Indonesia"],["BTN","Bank BTN"],["CIMB","CIMB Niaga"],
+    ["PERMATA","PermataBank"],["DANAMON","Bank Danamon"],["JATIM","Bank Jatim"],
+    ["DANA","DANA"],["OVO","OVO"],["GOPAY","GoPay"],["SHOPEEPAY","ShopeePay"],["LINKAJA","LinkAja"]
   ];
 
-  function renderTextEditor() {
-    const host = document.getElementById("textEditor");
-    TEXT_GROUPS.forEach((group, groupIndex) => {
+  const TEXT_GROUPS = [
+    {title:"Sampul dan navigasi",fields:[
+      ["coverEyebrow","Tulisan kecil sampul"],["coverSalutation","Salam Arab sampul"],["coverRecipientPrefix","Awalan nama tamu"],["coverRecipientSuffix","Tulisan bawah nama tamu"],["openButton","Teks tombol buka"],["coverFootnote","Kalimat kecil sampul"],["navBrand","Nama navigasi"],["musicButton","Tombol musik"],["musicOffButton","Tombol saat musik aktif"]]},
+    {title:"Foto pembuka dan pengantar",fields:[
+      ["heroTopline","Tulisan kecil pada foto pasangan"],["heroDateLabel","Label tanggal pada foto pasangan"],["photoPlaceholderTitle","Tulisan jika foto belum dipilih"],["photoPlaceholderNote","Keterangan jika foto belum dipilih"],["introSalutation","Salam pengantar"],["heroBlessing","Doa pembuka Arab"],["introParagraph","Paragraf pengantar"]]},
+    {title:"Profil kedua mempelai",fields:[
+      ["coupleEyebrow","Tulisan kecil profil"],["coupleTitle","Judul profil"],["groomLabel","Label mempelai pria"],["brideLabel","Label mempelai wanita"],["quranQuote","Kutipan ayat"],["quranSource","Sumber kutipan"]]},
+    {title:"Acara dan lokasi",fields:[
+      ["eventsEyebrow","Tulisan kecil acara"],["eventsTitle","Judul rangkaian acara"],["akadEyebrow","Label kecil akad"],["akadTitle","Nama acara akad"],["receptionEyebrow","Label kecil resepsi"],["receptionTitle","Nama acara resepsi"],["arrivalEyebrow","Judul jam kehadiran"],["arrivalDescription","Keterangan jam kehadiran"],["venueEyebrow","Judul lokasi"],["venueAddressLabel","Label alamat"],["mapsButton","Teks tombol Google Maps"]]},
+    {title:"Hitung mundur dan hadiah",fields:[
+      ["countdownEyebrow","Tulisan kecil countdown"],["countdownTitle","Judul countdown"],["countdownDays","Label hari"],["countdownHours","Label jam"],["countdownMinutes","Label menit"],["countdownSeconds","Label detik"],["giftEyebrow","Tulisan kecil hadiah"],["giftTitle","Judul hadiah"],["giftIntro","Keterangan hadiah"],["accountHolderPrefix","Awalan nama pemilik"],["accountNumberLabel","Label nomor rekening"],["copyAccountButton","Teks tombol salin"],["copyMissingMessage","Pesan rekening kosong"],["copySuccessMessage","Pesan setelah disalin"],["copyFailedMessage","Pesan jika gagal menyalin"]]},
+    {title:"Konfirmasi kehadiran",fields:[
+      ["rsvpEyebrow","Tulisan kecil RSVP"],["rsvpTitle","Judul RSVP"],["rsvpNameLabel","Label nama"],["rsvpNamePlaceholder","Placeholder nama"],["rsvpAttendanceLabel","Label kehadiran"],["rsvpAttendOption","Pilihan hadir"],["rsvpAbsentOption","Pilihan tidak hadir"],["rsvpGuestCountLabel","Label jumlah tamu"],["rsvpArrivalLabel","Label jam kedatangan"],["rsvpMessageLabel","Label ucapan"],["rsvpMessagePlaceholder","Placeholder ucapan"],["rsvpSubmitButton","Teks tombol kirim"],["rsvpNote","Keterangan RSVP"],["whatsappMissingMessage","Pesan jika nomor WhatsApp kosong"],["rsvpWhatsappIntro","Kalimat awal WhatsApp"],["rsvpWhatsappName","Label nama WhatsApp"],["rsvpWhatsappAttendance","Label status WhatsApp"],["rsvpWhatsappGuestCount","Label jumlah tamu WhatsApp"],["rsvpWhatsappArrival","Label jam kedatangan WhatsApp"],["rsvpWhatsappMessage","Label ucapan WhatsApp"],["rsvpWhatsappThanks","Penutup pesan WhatsApp"]]},
+    {title:"Penutup",fields:[
+      ["footerBlessing","Doa penutup Arab"],["footerMessage","Kalimat penutup"],["footerThanks","Ucapan terima kasih"]]},
+    {title:"Pesan sistem",fields:[
+      ["guestFallback","Nama tamu jika tidak dicantumkan"],["musicMissingMessage","Pesan musik belum tersedia"],["musicErrorMessage","Pesan musik gagal diputar"]]}
+  ];
+
+  function renderTextFields() {
+    const host = $("textEditor");
+    TEXT_GROUPS.forEach((group, index) => {
       const details = document.createElement("details");
-      details.open = groupIndex === 0;
+      details.open = index === 0;
       const summary = document.createElement("summary");
       summary.textContent = group.title;
       details.appendChild(summary);
       const grid = document.createElement("div");
-      grid.className = "form-grid";
+      grid.className = "form-grid text-grid";
       group.fields.forEach(([key,label]) => {
         const wrap = document.createElement("label");
         wrap.textContent = label;
-        const field = (key === "introParagraph" || key === "quranQuote" || key === "giftIntro" || key === "arrivalDescription" || key === "rsvpNote" || key === "footerMessage" || key === "rsvpWhatsappIntro") ? document.createElement("textarea") : document.createElement("input");
+        const multiline = /Paragraph|Quote|Intro|Message|Thanks|Note|Description|Blessing|Salutation|Footnote|Keterangan|Kalimat|doa|Arab|Penutup/i.test(key + " " + label);
+        const field = document.createElement(multiline ? "textarea" : "input");
         field.name = `text_${key}`;
-        field.value = DEFAULT_TEXTS[key] || "";
-        if (field.tagName === "TEXTAREA") field.rows = 3;
-        else field.type = "text";
+        field.value = DEFAULT_INVITATION.texts[key] || "";
+        if (multiline) field.rows = 3;
+        field.type = "text";
         wrap.appendChild(field);
         grid.appendChild(wrap);
       });
@@ -49,127 +60,268 @@
       host.appendChild(details);
     });
   }
-  renderTextEditor();
+  renderTextFields();
 
-  async function imageAsCompactDataUrl(file) {
-    const bitmap = await createImageBitmap(file);
-    const scale = Math.min(1, 850 / Math.max(bitmap.width, bitmap.height));
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.round(bitmap.width * scale); canvas.height = Math.round(bitmap.height * scale);
-    canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  function addBankRow(account={provider:"BRI",accountNumber:"",accountHolder:""}) {
+    const host = $("bankAccountList");
+    const row = document.createElement("div");
+    row.className = "bank-account-row";
+    const providerLabel = document.createElement("label");
+    providerLabel.textContent = "Pilih bank / e-wallet";
+    const select = document.createElement("select");
+    select.className = "bank-provider";
+    BANKS.forEach(([id,label]) => {
+      const o = document.createElement("option");
+      o.value = id; o.textContent = label;
+      select.appendChild(o);
+    });
+    select.value = BANKS.some(b=>b[0]===account.provider) ? account.provider : "BRI";
+    providerLabel.appendChild(select);
+    const numberLabel = document.createElement("label");
+    numberLabel.textContent = "Nomor rekening / akun";
+    const number = document.createElement("input");
+    number.className = "bank-number"; number.placeholder = "Masukkan nomor rekening"; number.inputMode = "numeric"; number.value = account.accountNumber || "";
+    numberLabel.appendChild(number);
+    const holderLabel = document.createElement("label");
+    holderLabel.textContent = "Nama pemilik";
+    const holder = document.createElement("input");
+    holder.className = "bank-holder"; holder.placeholder = "Nama sesuai rekening"; holder.value = account.accountHolder || "";
+    holderLabel.appendChild(holder);
+    const remove = document.createElement("button");
+    remove.type = "button"; remove.className = "danger remove-bank"; remove.textContent = "Hapus";
+    remove.addEventListener("click", () => row.remove());
+    row.append(providerLabel, numberLabel, holderLabel, remove);
+    host.appendChild(row);
+  }
+  $("addBankAccount").addEventListener("click", () => addBankRow());
+
+  async function compressPhoto(file) {
+    if (!file || !file.type.startsWith("image/")) throw new Error("File bukan gambar.");
+    if (file.size > 12 * 1024 * 1024) throw new Error("Ukuran foto lebih dari 12 MB.");
+    const objectUrl = URL.createObjectURL(file);
+    const preview = $("photoPreview");
+    preview.src = objectUrl;
+    preview.hidden = false;
+    if (currentPreviewUrl) URL.revokeObjectURL(currentPreviewUrl);
+    currentPreviewUrl = objectUrl;
+
+    let bitmap;
+    if (window.createImageBitmap) {
+      bitmap = await createImageBitmap(file);
+    } else {
+      bitmap = await new Promise((resolve,reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = objectUrl;
+      });
+    }
+    let maxSide = 900;
+    const qualities = [0.72,0.62,0.54,0.46,0.40,0.34];
+    let result = "";
+    for (let attempt=0; attempt<9; attempt++) {
+      const scale = Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1,Math.round(bitmap.width*scale));
+      canvas.height = Math.max(1,Math.round(bitmap.height*scale));
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
+      for (const q of qualities) {
+        result = canvas.toDataURL("image/jpeg",q);
+        if (result.length <= 95000) break;
+      }
+      if (result.length <= 95000) break;
+      maxSide = Math.round(maxSide*0.82);
+    }
     bitmap.close?.();
-    let data=canvas.toDataURL("image/jpeg", 0.68);
-    if(data.length>260000){const c2=document.createElement("canvas");c2.width=Math.round(canvas.width*.72);c2.height=Math.round(canvas.height*.72);c2.getContext("2d").drawImage(canvas,0,0,c2.width,c2.height);data=c2.toDataURL("image/jpeg",0.58);}
-    return data;
+    if (!result || result.length > 115000) throw new Error("Foto terlalu besar setelah diperkecil. Pilih foto lain atau potong terlebih dahulu.");
+    $("photoStatus").textContent = `Foto dipilih: ${file.name}. Ukuran tautan foto sekitar ${Math.round(result.length/1024)} KB.`;
+    return result;
   }
-  function fileAsDataUrl(file) {
-    return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});
+
+  function readAsDataUrl(file) {
+    return new Promise((resolve,reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
   }
-  const photoPicker=document.getElementById("photoPicker"), musicPicker=document.getElementById("musicPicker");
-  photoPicker?.addEventListener("change",async()=>{
-    const file=photoPicker.files?.[0]; if(!file)return;
-    try { const data=await imageAsCompactDataUrl(file); get("heroImage").value=data; const preview=document.getElementById("photoPreview"); if(preview){preview.src=data;preview.hidden=false;} resultMessage.textContent="Foto berhasil dipilih dan disiapkan."; resultPanel.hidden=false; }
-    catch(e){alert("Foto tidak dapat diproses. Coba pilih file JPG atau PNG.");}
-  });
-  musicPicker?.addEventListener("change",async()=>{
-    const file=musicPicker.files?.[0]; if(!file)return;
-    if(file.size>300*1024){alert("Ukuran musik terlalu besar. Pilih MP3 pendek maksimal 300 KB agar tautan undangan tetap mudah dibagikan.");musicPicker.value="";return;}
-    try { get("musicFile").value=await fileAsDataUrl(file); resultMessage.textContent="Musik berhasil dipilih."; resultPanel.hidden=false; }
-    catch(e){alert("File musik tidak dapat dibaca.");}
+
+  $("photoPicker").addEventListener("change", async () => {
+    const file = $("photoPicker").files?.[0];
+    if (!file) return;
+    try {
+      get("heroImage").value = await compressPhoto(file);
+      $("photoStatus").textContent += " Pratinjau di atas menggunakan file pilihan dari perangkat.";
+    } catch (error) {
+      get("heroImage").value = "";
+      $("photoPreview").hidden = true;
+      $("photoStatus").textContent = error.message || "Foto tidak dapat diproses.";
+      alert($("photoStatus").textContent);
+    }
   });
 
-  if (get("arrivalSlotsRows")) get("arrivalSlotsRows").value = (DEFAULT_INVITATION.arrivalSlots || []).join("\n");
-  if (get("guestCountRows")) get("guestCountRows").value = (DEFAULT_INVITATION.guestCountOptions || ["1","2","3","4","5"]).join("\n");
+  $("musicPicker").addEventListener("change", async () => {
+    const file = $("musicPicker").files?.[0];
+    if (!file) return;
+    if (file.size > 95 * 1024) {
+      alert("Agar tautan tidak terlalu panjang, pilih musik pendek maksimal 95 KB atau kosongkan musik.");
+      $("musicPicker").value = "";
+      return;
+    }
+    try {
+      get("musicFile").value = await readAsDataUrl(file);
+      $("musicStatus").textContent = `Musik dipilih: ${file.name} (${Math.round(file.size/1024)} KB).`;
+    } catch (_) {
+      $("musicStatus").textContent = "File musik tidak dapat dibaca.";
+    }
+  });
 
-  const formatDate = (dateString) => {
+  function dateLabel(dateString) {
     if (!dateString) return "";
-    const date = new Date(`${dateString}T12:00:00+07:00`);
-    return new Intl.DateTimeFormat("id-ID", { weekday:"long", day:"numeric", month:"long", year:"numeric", timeZone:"Asia/Jakarta" }).format(date);
-  };
-  const formatTime = (time) => time ? `${time.slice(0,2)}.${time.slice(3,5)} WIB` : "";
-  const safePhone = (phone) => phone.replace(/\D/g, "");
+    return new Intl.DateTimeFormat("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"Asia/Jakarta"})
+      .format(new Date(`${dateString}T12:00:00+07:00`));
+  }
+  const formatTime = t => t ? `${t.slice(0,2)}.${t.slice(3,5)} WIB` : "";
+  const cleanPhone = v => (v || "").replace(/\D/g,"");
 
   function collectConfig() {
-    const eventDate = val("eventDate");
-    const akadTimeInput = val("akadTimeInput") || "08:00";
-    const dateLabel = formatDate(eventDate) || "Hari, tanggal pernikahan";
-    const dateISO = `${eventDate}T${akadTimeInput}:00+07:00`;
+    const mode = value("eventMode") || "akad_resepsi";
+    const receptionDateStr = value("receptionDateInput");
+    const akadDateStr = value("akadDateInput") || receptionDateStr;
+    const mainDate = mode === "resepsi_saja" ? receptionDateStr : (akadDateStr || receptionDateStr);
+    const timeForCountdown = mode === "resepsi_saja" ? (value("guestArrivalInput") || "10:00") : (value("akadTimeInput") || "08:00");
     const texts = {};
-    TEXT_GROUPS.forEach(group => group.fields.forEach(([key]) => { texts[key] = val(`text_${key}`); }));
+    TEXT_GROUPS.forEach(group => group.fields.forEach(([key]) => { texts[key] = value(`text_${key}`); }));
+    const accounts = [...$("bankAccountList").querySelectorAll(".bank-account-row")].map(row => ({
+      provider: row.querySelector(".bank-provider").value,
+      accountNumber: row.querySelector(".bank-number").value.trim(),
+      accountHolder: row.querySelector(".bank-holder").value.trim()
+    })).filter(a => a.accountNumber);
     return {
-      groom:val("groom"), bride:val("bride"), groomParents:val("groomParents"), brideParents:val("brideParents"),
-      dateLabel, dateISO, akadDate:dateLabel, akadTime:formatTime(akadTimeInput), receptionDate:dateLabel,
-      receptionTime:val("receptionTimeInput"), guestArrival:formatTime(val("guestArrivalInput")),
-      venueName:val("venueName"), venue:val("venue"), mapsUrl:val("mapsUrl") || "https://maps.google.com/", whatsappNumber:safePhone(val("whatsappNumber")),
-      bankName:"", accountNumber:"", accountHolder:"",
-      bankAccounts:[
-        {provider:"DANA",accountNumber:val("danaNumber"),accountHolder:val("danaHolder")},
-        {provider:"BRI",accountNumber:val("briNumber"),accountHolder:val("briHolder")}
-      ],
-      heroImage:val("heroImage"), musicFile:val("musicFile"), texts,
-      arrivalSlots:val("arrivalSlotsRows").split(/\r?\n/).map(s=>s.trim()).filter(Boolean),
-      guestCountOptions:val("guestCountRows").split(/\r?\n/).map(s=>s.trim()).filter(Boolean)
+      groom:value("groom"), bride:value("bride"), groomParents:value("groomParents"), brideParents:value("brideParents"),
+      eventMode:mode,
+      dateLabel:dateLabel(mainDate) || "Hari, tanggal pernikahan",
+      dateISO:`${mainDate}T${timeForCountdown}:00+07:00`,
+      akadDate:dateLabel(akadDateStr) || dateLabel(mainDate),
+      akadTime:formatTime(value("akadTimeInput") || "08:00"),
+      receptionDate:dateLabel(receptionDateStr) || dateLabel(mainDate),
+      receptionTime:value("receptionTimeInput"),
+      guestArrival:formatTime(value("guestArrivalInput")),
+      venueName:value("venueName"), venue:value("venue"),
+      mapsUrl:value("mapsUrl") || "https://maps.google.com/",
+      whatsappNumber:cleanPhone(value("whatsappNumber")),
+      heroImage:value("heroImage"), musicFile:value("musicFile"),
+      bankAccounts:accounts, texts,
+      arrivalSlots:value("arrivalSlotsRows").split(/\r?\n/).map(s=>s.trim()).filter(Boolean),
+      guestCountOptions:value("guestCountRows").split(/\r?\n/).map(s=>s.trim()).filter(Boolean)
     };
   }
-  function buildLink(config,guest="") {
-    const url = new URL("./index.html",window.location.href);
+
+  function makeLink(config, guestName="") {
+    const url = new URL("./index.html",location.href);
     url.searchParams.set("data",JSON.stringify(config));
-    if(guest) url.searchParams.set("to",guest);
+    if (guestName) url.searchParams.set("to",guestName);
     return url.href;
   }
-  function readSaved(){try{const x=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");return Array.isArray(x)?x:[];}catch(_){return[];}}
-  function refreshSavedList(){
-    const select=document.getElementById("savedList"),saved=readSaved();
-    select.innerHTML='<option value="">Pilih data undangan tersimpan</option>';
-    saved.forEach((item,index)=>{const o=document.createElement("option");o.value=String(index);o.textContent=`${item.title} · ${item.savedAt}`;select.appendChild(o);});
+
+  function drafts() {
+    try { const x=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]"); return Array.isArray(x)?x:[]; }
+    catch (_) { return []; }
   }
-  function fillForm(c){
-    const v={groom:c.groom,bride:c.bride,groomParents:c.groomParents,brideParents:c.brideParents,
-      eventDate:(c.dateISO||"").slice(0,10),akadTimeInput:(c.dateISO||"").slice(11,16)||"08:00",
-      receptionTimeInput:c.receptionTime,guestArrivalInput:(c.guestArrival||"10.00").replace(" WIB","").replace(".",":"),
-      venueName:c.venueName,venue:c.venue,mapsUrl:c.mapsUrl,whatsappNumber:c.whatsappNumber,
-      danaNumber:(c.bankAccounts||[]).find(x=>x.provider==="DANA")?.accountNumber||"",
-      danaHolder:(c.bankAccounts||[]).find(x=>x.provider==="DANA")?.accountHolder||"",
-      briNumber:(c.bankAccounts||[]).find(x=>x.provider==="BRI")?.accountNumber||"",
-      briHolder:(c.bankAccounts||[]).find(x=>x.provider==="BRI")?.accountHolder||"",
-      heroImage:c.heroImage,musicFile:c.musicFile,
-      arrivalSlotsRows:(c.arrivalSlots||[]).join("\n"),guestCountRows:(c.guestCountOptions||[]).join("\n")};
-    Object.entries(v).forEach(([k,value])=>{if(get(k))get(k).value=value||"";});
-    const preview=document.getElementById("photoPreview");if(preview&&c.heroImage){preview.src=c.heroImage;preview.hidden=false;}
-    TEXT_GROUPS.forEach(g=>g.fields.forEach(([key])=>{if(get(`text_${key}`))get(`text_${key}`).value=(c.texts&&c.texts[key]!==undefined)?c.texts[key]:(DEFAULT_TEXTS[key]||"");}));
+  function refreshDrafts() {
+    const select=$("savedList"), list=drafts();
+    select.replaceChildren(new Option("Pilih draf tersimpan",""));
+    list.forEach((entry,i)=>select.add(new Option(`${entry.title} • ${entry.savedAt}`,String(i))));
   }
-  form.addEventListener("submit",e=>{
-    e.preventDefault();if(!form.reportValidity())return;
-    currentConfig=collectConfig();output.value=buildLink(currentConfig,val("guestName"));resultPanel.hidden=false;
-    resultMessage.textContent="Tautan berhasil dibuat. Ubah nama tamu lalu buat tautan lagi untuk penerima lainnya.";
-    resultPanel.scrollIntoView({behavior:"smooth",block:"center"});
+
+  function fillForm(config) {
+    const values = {
+      groom:config.groom, bride:config.bride, groomParents:config.groomParents, brideParents:config.brideParents,
+      eventMode:config.eventMode || "akad_resepsi",
+      akadDateInput:(config.akadDate && config.akadDate.length===10)?config.akadDate:(config.dateISO||"").slice(0,10),
+      receptionDateInput:(config.receptionDate && config.receptionDate.length===10)?config.receptionDate:(config.dateISO||"").slice(0,10),
+      akadTimeInput:(config.akadTime||"08.00").replace(" WIB","").replace(".",":"),
+      receptionTimeInput:config.receptionTime,
+      guestArrivalInput:(config.guestArrival||"10.00").replace(" WIB","").replace(".",":"),
+      venueName:config.venueName, venue:config.venue, mapsUrl:config.mapsUrl, whatsappNumber:config.whatsappNumber,
+      heroImage:config.heroImage, musicFile:config.musicFile,
+      arrivalSlotsRows:(config.arrivalSlots||[]).join("\n"),
+      guestCountRows:(config.guestCountOptions||[]).join("\n")
+    };
+    Object.entries(values).forEach(([k,v]) => { if(get(k)) get(k).value=v||""; });
+    $("bankAccountList").replaceChildren();
+    (config.bankAccounts||[]).forEach(account=>addBankRow(account));
+    if(config.heroImage){$("photoPreview").src=config.heroImage;$("photoPreview").hidden=false;$("photoStatus").textContent="Pratinjau foto dari data draf.";}
+    TEXT_GROUPS.forEach(group=>group.fields.forEach(([key])=>{if(get(`text_${key}`))get(`text_${key}`).value=(config.texts && config.texts[key]!==undefined)?config.texts[key]:(DEFAULT_INVITATION.texts[key]||"");}));
+  }
+
+  function slug(v) {
+    return (v||"undangan").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,35)||"undangan";
+  }
+  function saveAsJson(config) {
+    const blob = new Blob([JSON.stringify(config,null,2)],{type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href=url; link.download=`data-undangan-${slug(config.groom)}-${slug(config.bride)}.json`;
+    link.click(); URL.revokeObjectURL(url);
+  }
+
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    currentConfig = collectConfig();
+    const guest = value("guestName");
+    const link = makeLink(currentConfig,guest);
+    $("generatedLink").value=link;
+    $("resultPanel").hidden=false;
+    const sizeKb = Math.round(new Blob([link]).size/1024);
+    $("resultMessage").textContent = `Tautan berhasil dibuat (${sizeKb} KB). Simpan tautan ini; data pasangan sudah ikut di dalamnya.`;
+    if (link.length>180000) $("resultMessage").textContent += " Perhatian: tautan sangat panjang. Kurangi ukuran foto atau hilangkan musik agar lebih mudah dibagikan.";
+    $("resultPanel").scrollIntoView({behavior:"smooth",block:"center"});
   });
-  document.getElementById("copyLink").addEventListener("click",async()=>{
-    if(!output.value)return;
-    try{await navigator.clipboard.writeText(output.value);resultMessage.textContent="Tautan berhasil disalin. Silakan bagikan melalui WhatsApp.";}
-    catch(_){output.focus();output.select();resultMessage.textContent="Tautan dipilih. Tekan Ctrl+C untuk menyalin.";}
+
+  $("copyLink").addEventListener("click",async()=>{
+    if(!$("generatedLink").value)return;
+    try { await navigator.clipboard.writeText($("generatedLink").value); $("resultMessage").textContent="Tautan berhasil disalin. Bagikan melalui WhatsApp."; }
+    catch (_) { $("generatedLink").focus();$("generatedLink").select();$("resultMessage").textContent="Tautan dipilih. Tekan Ctrl+C untuk menyalin."; }
   });
-  document.getElementById("openPreview").addEventListener("click",()=>{if(output.value)window.open(output.value,"_blank","noopener,noreferrer");});
-  document.getElementById("downloadData").addEventListener("click",()=>{
-    if(!currentConfig)return;
-    const blob=new Blob([JSON.stringify(currentConfig,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
-    a.href=url;a.download=`data-undangan-${slug(currentConfig.groom)}-${slug(currentConfig.bride)}.json`;a.click();URL.revokeObjectURL(url);
-  });
-  document.getElementById("saveDraft").addEventListener("click",()=>{
+  $("openPreview").addEventListener("click",()=>{if($("generatedLink").value)window.open($("generatedLink").value,"_blank","noopener,noreferrer");});
+  $("downloadData").addEventListener("click",()=>{if(currentConfig)saveAsJson(currentConfig);});
+  $("saveDraft").addEventListener("click",()=>{
     if(!form.reportValidity())return;
-    const c=collectConfig(),saved=readSaved(),title=`${c.groom} & ${c.bride}`,entry={title,config:c,savedAt:new Date().toLocaleString("id-ID")};
-    const existing=saved.findIndex(x=>x.title===title);if(existing>=0)saved[existing]=entry;else saved.push(entry);
-    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(saved));refreshSavedList();resultMessage.textContent=`Data ${title} disimpan pada browser ini.`;resultPanel.hidden=false;}
-    catch(_){alert("Penyimpanan browser penuh atau tidak tersedia. Unduh data JSON sebagai cadangan.");}
+    const config=collectConfig();
+    const title=`${config.groom} & ${config.bride}`;
+    const list=drafts();
+    const entry={title,config,savedAt:new Date().toLocaleString("id-ID")};
+    const index=list.findIndex(x=>x.title===title);
+    if(index>=0)list[index]=entry;else list.push(entry);
+    try {localStorage.setItem(STORAGE_KEY,JSON.stringify(list));refreshDrafts();$("resultMessage").textContent=`Draf ${title} disimpan di perangkat ini.`;$("resultPanel").hidden=false;}
+    catch (_) {alert("Penyimpanan browser penuh. Unduh JSON sebagai cadangan.");}
   });
-  document.getElementById("loadDraft").addEventListener("click",()=>{
-    const i=Number(document.getElementById("savedList").value),s=readSaved();if(!Number.isInteger(i)||!s[i])return alert("Pilih data undangan terlebih dahulu.");
-    fillForm(s[i].config);resultMessage.textContent=`Data ${s[i].title} dimuat.`;resultPanel.hidden=false;
+  $("loadDraft").addEventListener("click",()=>{
+    const index=Number($("savedList").value),list=drafts();
+    if(!Number.isInteger(index)||!list[index])return alert("Pilih draf terlebih dahulu.");
+    fillForm(list[index].config);
+    $("resultMessage").textContent=`Draf ${list[index].title} dimuat.`;
+    $("resultPanel").hidden=false;
   });
-  document.getElementById("deleteDraft").addEventListener("click",()=>{
-    const select=document.getElementById("savedList"),i=Number(select.value),s=readSaved();if(!Number.isInteger(i)||!s[i])return alert("Pilih data undangan yang akan dihapus.");
-    s.splice(i,1);localStorage.setItem(STORAGE_KEY,JSON.stringify(s));refreshSavedList();resultMessage.textContent="Data undangan dihapus dari penyimpanan browser ini.";
+  $("deleteDraft").addEventListener("click",()=>{
+    const index=Number($("savedList").value),list=drafts();
+    if(!Number.isInteger(index)||!list[index])return alert("Pilih draf yang akan dihapus.");
+    list.splice(index,1);
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(list));
+    refreshDrafts();
   });
-  function slug(v){return(v||"undangan").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,35)||"undangan";}
-  refreshSavedList();
+
+  $("eventMode").addEventListener("change",()=>{
+    const onlyReception=$("eventMode").value==="resepsi_saja";
+    $("akadDateWrap").hidden=onlyReception;
+    $("akadTimeWrap").hidden=onlyReception;
+  });
+  $("eventMode").dispatchEvent(new Event("change"));
+  $("addBankAccount").click();
+  refreshDrafts();
 })();
