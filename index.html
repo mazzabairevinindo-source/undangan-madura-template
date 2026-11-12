@@ -1,197 +1,179 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#3a0710">
-  <meta name="description" content="Undangan pernikahan bernuansa adat Madura, marun, hitam, dan emas.">
-  <title>Undangan Pernikahan</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#4b101b">
+<meta name="description" content="Undangan pernikahan bernuansa adat Madura.">
+<title>Undangan Pernikahan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <section id="cover" class="cover" aria-label="Sampul undangan">
-    <img class="cover-house" src="rumah-adat-madura-illustration.svg" alt="Ilustrasi vektor rumah adat Madura">
-    <div class="cover-overlay"></div>
-    <div class="cover-ornament top-left">✿ ❧</div>
-    <div class="cover-ornament top-right">❧ ✿</div>
-    <div class="cover-ornament bottom-left">✿ ❧</div>
-    <div class="cover-ornament bottom-right">❧ ✿</div>
-    <div class="cover-content">
-      <div class="mini-emblem">✦</div>
-      <p class="eyebrow" data-copy="coverEyebrow">UNDANGAN PERNIKAHAN</p>
-      <p class="arabic" data-copy="coverSalutation">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
-      <div class="ornament-line"><span>❖</span></div>
-      <h1 id="coverNames">Nama Mempelai Pria <i>&</i> Nama Mempelai Wanita</h1>
-      <p id="coverDate" class="cover-date">Hari, tanggal pernikahan</p>
-      <div class="guest-panel">
-        <small data-copy="coverRecipientPrefix">Kepada Yth.</small>
-        <strong id="guestName">Tamu Undangan</strong>
-        <small data-copy="coverRecipientSuffix">Di tempat</small>
-      </div>
-      <button id="openInvitation" class="open-button"><span data-copy="openButton">Buka Undangan</span><b>↗</b></button>
-      <p class="cover-footnote" data-copy="coverFootnote">Dengan penuh rasa hormat dan kebahagiaan</p>
+<section id="cover" class="cover">
+  <div class="cover-art"></div>
+  <div class="cover-darken"></div>
+  <div class="cover-copy">
+    <div class="seal">✦</div>
+    <p class="eyebrow" data-text="coverEyebrow">UNDANGAN PERNIKAHAN</p>
+    <p class="arabic cover-arabic" data-text="coverBismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+    <div class="ornament-rule"><span>❖</span></div>
+    <h1 id="coverNames">Nama Mempelai Pria <i>&</i> Nama Mempelai Wanita</h1>
+    <p id="coverDate" class="cover-date">Hari, tanggal pernikahan</p>
+    <div class="recipient">
+      <span data-text="coverRecipient">Kepada Yth.</span>
+      <strong id="coverGuest">Tamu Undangan</strong>
+      <span data-text="coverPlace">Di tempat</span>
     </div>
-    <div class="cover-bottom-shape"></div>
+    <button id="openInvitation" class="open-button" type="button"><span data-text="openButton">Buka Undangan</span><b>➜</b></button>
+    <p class="cover-footer" data-text="coverFooter">Dengan penuh rasa hormat dan kebahagiaan</p>
+  </div>
+</section>
+
+<main id="invitation" class="invitation hidden">
+  <header class="top-nav">
+    <a href="#top" class="brand"><span>✦</span><span data-text="brand">UNDANGAN PERNIKAHAN MADURA</span></a>
+    <button id="musicToggle" type="button" class="music-btn">♫ <span data-text="musicButton">Musik</span></button>
+  </header>
+
+  <section id="top" class="photo-cover">
+    <img id="couplePhoto" class="couple-photo" alt="Foto kedua mempelai" hidden>
+    <div id="photoFallback" class="photo-fallback"><span>✿</span><p data-text="noPhotoText">Foto kedua mempelai</p></div>
+    <div class="photo-gradient"></div>
+    <div class="photo-frame">
+      <span class="corner c1">❧</span><span class="corner c2">❧</span><span class="corner c3">❧</span><span class="corner c4">❧</span>
+    </div>
+    <div class="photo-title">
+      <p class="eyebrow" data-text="afterOpenEyebrow">THE WEDDING OF</p>
+      <h1 id="photoNames">Nama Mempelai & Nama Mempelai</h1>
+      <div class="ornament-rule"><span>✦</span></div>
+      <p id="photoDate">Hari, tanggal pernikahan</p>
+      <small data-text="afterOpenCaption">Kami mengundang Anda untuk merayakan hari bahagia kami</small>
+    </div>
   </section>
 
-  <main id="invitation" class="hidden">
-    <header class="music-bar">
-      <a class="nav-brand" href="#home"><span>✦</span><span data-copy="navBrand">UNDANGAN ✦ MADURA</span></a>
-      <button id="musicToggle" class="music-button" type="button"><span>♫</span><span data-copy="musicButton">Musik</span></button>
-    </header>
+  <section class="paper-section intro-section reveal">
+    <div class="paper-ornament"></div>
+    <p class="arabic">بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا</p>
+    <p class="eyebrow" data-text="introSalam">Assalamu’alaikum Warahmatullahi Wabarakatuh</p>
+    <p class="body-copy" data-text="introText">Dengan memohon rahmat dan ridha Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami.</p>
+    <div class="flower-divider">✿ ❖ ✿</div>
+  </section>
 
-    <!-- Full-portrait photo cover after the first cover is opened -->
-    <section id="home" class="poster-hero">
-      <img id="heroPhoto" class="poster-photo" alt="Foto kedua mempelai">
-      <div class="poster-placeholder" id="posterPlaceholder">
-        <span class="placeholder-flower">✿</span>
-        <span data-copy="photoPlaceholderTitle">Foto Kedua Mempelai</span>
-        <small data-copy="photoPlaceholderNote">Foto pasangan akan ditampilkan di sini</small>
-      </div>
-      <div class="poster-shade"></div>
-      <div class="poster-frame">
-        <span class="poster-corner poster-corner-a">❧</span><span class="poster-corner poster-corner-b">❧</span>
-        <span class="poster-corner poster-corner-c">❧</span><span class="poster-corner poster-corner-d">❧</span>
-      </div>
-      <div class="poster-copy">
-        <p class="poster-kicker" data-copy="heroTopline">THE WEDDING CELEBRATION</p>
-        <p class="poster-date-label" data-copy="heroDateLabel">Hari istimewa kami</p>
-        <h1 id="posterNames">Nama Mempelai & Nama Mempelai</h1>
-        <div class="poster-divider">✦</div>
-        <p id="posterDate">Hari, tanggal pernikahan</p>
-        <p class="poster-greeting" data-copy="coverRecipientPrefix">Kepada Yth.</p>
-        <strong id="posterGuest">Tamu Undangan</strong>
-      </div>
-    </section>
-
-    <section class="section intro-section reveal">
-      <p class="arabic section-arabic" data-copy="heroBlessing">بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا</p>
-      <p class="eyebrow" data-copy="introSalutation">Assalamu’alaikum Warahmatullahi Wabarakatuh</p>
-      <p class="intro-copy" data-copy="introParagraph">Dengan memohon rahmat dan ridha Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami.</p>
-      <div class="ornament-line"><span>✿</span></div>
-    </section>
-
-    <section class="section couple-section reveal">
-      <p class="eyebrow" data-copy="coupleEyebrow">DENGAN MEMOHON RIDHA ALLAH SWT</p>
-      <h2 data-copy="coupleTitle">Ikatan Suci Dua Hati</h2>
-      <div class="couple-grid">
-        <article class="person">
-          <div class="person-initial" id="groomInitial">P</div>
-          <p class="person-label" data-copy="groomLabel">Mempelai Pria</p>
-          <h3 id="groomName">Nama Mempelai Pria</h3>
-          <p id="groomParents" class="parents"></p>
-        </article>
-        <div class="couple-and">&</div>
-        <article class="person">
-          <div class="person-initial" id="brideInitial">W</div>
-          <p class="person-label" data-copy="brideLabel">Mempelai Wanita</p>
-          <h3 id="brideName">Nama Mempelai Wanita</h3>
-          <p id="brideParents" class="parents"></p>
-        </article>
-      </div>
-      <blockquote class="quote"><p data-copy="quranQuote">“Dan di antara tanda-tanda kekuasaan-Nya...”</p><cite data-copy="quranSource">QS. Ar-Rum: 21</cite></blockquote>
-    </section>
-
-    <section id="eventsSection" class="section event-section reveal">
-      <p class="eyebrow" data-copy="eventsEyebrow">CATAT DAN HADIRILAH</p>
-      <h2 data-copy="eventsTitle">Rangkaian Acara</h2>
-      <div class="event-cards">
-        <article id="akadCard" class="event-card">
-          <span class="event-symbol">۞</span>
-          <p class="event-label" data-copy="akadEyebrow">ACARA PERTAMA</p>
-          <h3 data-copy="akadTitle">Akad Nikah</h3>
-          <p id="akadDate">Hari, tanggal akad</p>
-          <strong id="akadTime">08.00 WIB</strong>
-        </article>
-        <article class="event-card">
-          <span class="event-symbol">✿</span>
-          <p class="event-label" data-copy="receptionEyebrow">ACARA RESEPSI</p>
-          <h3 data-copy="receptionTitle">Resepsi</h3>
-          <p id="receptionDate">Hari, tanggal resepsi</p>
-          <strong id="receptionTime">10.00–13.00 WIB</strong>
-        </article>
-      </div>
-      <div class="arrival-card">
-        <p class="eyebrow" data-copy="arrivalEyebrow">WAKTU KEHADIRAN TAMU</p>
-        <h3 id="guestArrival">10.00 WIB</h3>
-        <p data-copy="arrivalDescription">Kami mengharapkan kehadiran Bapak/Ibu/Saudara/i pada waktu tersebut.</p>
-      </div>
-      <div class="venue-card">
-        <div class="venue-heading">
-          <span class="venue-symbol">⌖</span>
-          <p class="eyebrow" data-copy="venueEyebrow">LOKASI ACARA</p>
-          <h2 id="venueName">Nama Tempat Acara</h2>
-        </div>
-        <div class="map-frame">
-          <iframe id="mapFrame" title="Peta lokasi acara" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        </div>
-        <p class="venue-address-label" data-copy="venueAddressLabel">Alamat</p>
-        <p id="venueAddress" class="venue-address">Alamat lengkap lokasi acara</p>
-        <a id="mapsLink" class="map-button" href="#" target="_blank" rel="noopener"><span data-copy="mapsButton">Buka Google Maps</span><b>↗</b></a>
-      </div>
-    </section>
-
-    <section class="section countdown-section reveal">
-      <p class="eyebrow" data-copy="countdownEyebrow">MENUJU HARI BAHAGIA</p>
-      <h2 data-copy="countdownTitle">Hitung Mundur</h2>
-      <div class="countdown">
-        <div><strong id="days">00</strong><span data-copy="countdownDays">Hari</span></div>
-        <div><strong id="hours">00</strong><span data-copy="countdownHours">Jam</span></div>
-        <div><strong id="minutes">00</strong><span data-copy="countdownMinutes">Menit</span></div>
-        <div><strong id="seconds">00</strong><span data-copy="countdownSeconds">Detik</span></div>
-      </div>
-    </section>
-
-    <section id="giftSection" class="section gift-section reveal" hidden>
-      <p class="eyebrow" data-copy="giftEyebrow">TANDA KASIH</p>
-      <h2 data-copy="giftTitle">Hadiah Pernikahan</h2>
-      <p class="gift-intro" data-copy="giftIntro">Doa restu Anda merupakan hadiah terindah bagi kami.</p>
-      <div id="bankPicker" class="bank-picker" aria-label="Pilih bank atau dompet digital"></div>
-      <article id="bankCard" class="bank-card" hidden>
-        <div class="bank-card-head">
-          <span id="bankCardType">BANK</span>
-          <span id="bankLogo" class="bank-logo">BRI</span>
-        </div>
-        <div class="bank-chip" aria-hidden="true"><i></i></div>
-        <p class="bank-account-label" data-copy="accountNumberLabel">NOMOR REKENING / E-WALLET</p>
-        <strong id="accountNumber" class="account-number">0000000000</strong>
-        <div class="bank-card-bottom">
-          <span id="accountHolder">Atas nama pemilik rekening</span>
-          <button type="button" id="copyAccount" class="copy-account" data-copy="copyAccountButton">Salin Nomor</button>
-        </div>
-        <p id="copyNotice" class="copy-notice" aria-live="polite"></p>
+  <section class="paper-section couple-section reveal">
+    <p class="eyebrow" data-text="coupleEyebrow">DENGAN MEMOHON RIDHA ALLAH SWT</p>
+    <h2 data-text="coupleTitle">Ikatan Suci Dua Hati</h2>
+    <div class="couple-pair">
+      <article class="person">
+        <div class="person-photo-wrap"><img id="groomPhoto" alt="Foto mempelai pria" hidden><span id="groomMonogram">P</span></div>
+        <p class="person-role" data-text="groomLabel">Mempelai Pria</p>
+        <h3 id="groomName">Nama Mempelai Pria</h3>
+        <p id="groomParents" class="parents"></p>
       </article>
-    </section>
+      <div class="and-mark">&</div>
+      <article class="person">
+        <div class="person-photo-wrap"><img id="bridePhoto" alt="Foto mempelai wanita" hidden><span id="brideMonogram">W</span></div>
+        <p class="person-role" data-text="brideLabel">Mempelai Wanita</p>
+        <h3 id="brideName">Nama Mempelai Wanita</h3>
+        <p id="brideParents" class="parents"></p>
+      </article>
+    </div>
+    <blockquote class="quote"><p data-text="quoteText">“Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan hidup...”</p><cite data-text="quoteSource">QS. Ar-Rum: 21</cite></blockquote>
+  </section>
 
-    <section class="section rsvp-section reveal">
-      <p class="eyebrow" data-copy="rsvpEyebrow">KAMI MENANTIKAN KEHADIRAN ANDA</p>
-      <h2 data-copy="rsvpTitle">Konfirmasi Kehadiran</h2>
-      <form id="rsvpForm">
-        <label><span data-copy="rsvpNameLabel">Nama lengkap</span><input id="rsvpName" required data-placeholder="rsvpNamePlaceholder" placeholder="Tuliskan nama Anda"></label>
-        <label><span data-copy="rsvpAttendanceLabel">Konfirmasi kehadiran</span><select id="attendance"><option value="Hadir" data-copy="rsvpAttendOption">Insyaallah hadir</option><option value="Tidak hadir" data-copy="rsvpAbsentOption">Mohon maaf, belum bisa hadir</option></select></label>
-        <div class="form-row">
-          <label><span data-copy="rsvpGuestCountLabel">Jumlah tamu</span><select id="guestCount"></select></label>
-          <label><span data-copy="rsvpArrivalLabel">Perkiraan jam kedatangan</span><select id="arrivalTime"></select></label>
+  <section class="event-section reveal">
+    <div class="section-inner">
+      <p class="eyebrow light" data-text="eventEyebrow">CATAT DAN HADIRILAH</p>
+      <h2 data-text="eventTitle">Rangkaian Acara</h2>
+      <div class="event-grid">
+        <article id="akadCard" class="event-card">
+          <div class="event-icon">۞</div>
+          <p class="event-kicker">AKAD NIKAH</p>
+          <h3 data-text="akadTitle">Akad Nikah</h3>
+          <p id="akadDate"></p><strong id="akadTime"></strong>
+        </article>
+        <article id="receptionCard" class="event-card">
+          <div class="event-icon">❀</div>
+          <p class="event-kicker">RESEPSI</p>
+          <h3 data-text="receptionTitle">Resepsi</h3>
+          <p id="receptionDate"></p><strong id="receptionTime"></strong>
+        </article>
+      </div>
+      <div class="arrival-panel">
+        <p class="eyebrow light" data-text="arrivalTitle">WAKTU KEHADIRAN TAMU</p>
+        <strong id="guestArrival">10.00 WIB</strong>
+        <p data-text="arrivalText">Kami mengharapkan kehadiran Bapak/Ibu/Saudara/i pada waktu tersebut.</p>
+      </div>
+
+      <div class="venue-panel">
+        <div class="venue-top">
+          <span class="map-icon">⌖</span>
+          <p class="eyebrow" data-text="venueTitle">Lokasi Acara</p>
+          <h2 id="venueName">Nama tempat acara</h2>
         </div>
-        <label><span data-copy="rsvpMessageLabel">Ucapan dan doa</span><textarea id="message" rows="3" data-placeholder="rsvpMessagePlaceholder" placeholder="Tuliskan doa terbaik untuk kedua mempelai"></textarea></label>
-        <button class="submit-button" type="submit"><span data-copy="rsvpSubmitButton">Kirim Konfirmasi</span><b>➜</b></button>
-      </form>
-      <p class="rsvp-note" data-copy="rsvpNote">Konfirmasi akan diteruskan melalui WhatsApp kepada pihak penyelenggara.</p>
-    </section>
+        <div class="map-box"><iframe id="mapFrame" title="Peta lokasi acara" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+        <p class="address-label" data-text="venueAddressLabel">Alamat lengkap</p>
+        <p id="venueAddress" class="venue-address"></p>
+        <a id="mapsLink" class="maps-button" href="https://maps.google.com/" target="_blank" rel="noopener"><span data-text="mapsButton">Buka Google Maps</span><b>↗</b></a>
+      </div>
+    </div>
+  </section>
 
-    <footer class="footer">
-      <div class="footer-ornament">✿ ❧ ✦ ❧ ✿</div>
-      <p class="arabic" data-copy="footerBlessing">وَبَارَكَ اللَّهُ لَكُمَا</p>
-      <p data-copy="footerMessage">Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.</p>
-      <h2 id="footerNames">Nama Mempelai & Nama Mempelai</h2>
-      <small data-copy="footerThanks">Terima kasih atas doa dan restunya.</small>
-    </footer>
-  </main>
-  <audio id="backgroundMusic" loop></audio>
-  <script src="config.js"></script>
-  <script src="script.js"></script>
+  <section class="paper-section countdown-section reveal">
+    <p class="eyebrow" data-text="countdownEyebrow">MENUJU HARI BAHAGIA</p>
+    <h2 data-text="countdownTitle">Hitung Mundur</h2>
+    <div class="countdown">
+      <div><strong id="days">00</strong><span data-text="daysLabel">Hari</span></div>
+      <div><strong id="hours">00</strong><span data-text="hoursLabel">Jam</span></div>
+      <div><strong id="minutes">00</strong><span data-text="minutesLabel">Menit</span></div>
+      <div><strong id="seconds">00</strong><span data-text="secondsLabel">Detik</span></div>
+    </div>
+  </section>
+
+  <section id="giftSection" class="paper-section gift-section reveal" hidden>
+    <p class="eyebrow" data-text="giftEyebrow">TANDA KASIH</p>
+    <h2 data-text="giftTitle">Hadiah Pernikahan</h2>
+    <p class="body-copy" data-text="giftText">Doa restu Anda merupakan hadiah terindah bagi kami.</p>
+    <div id="paymentChoices" class="payment-choices"></div>
+    <article id="paymentCard" class="payment-card" hidden>
+      <div class="payment-card-head"><span id="paymentType">BANK</span><span id="paymentLogo" class="payment-logo">BRI</span></div>
+      <div class="chip-art"><span></span><span></span><span></span></div>
+      <small>NOMOR REKENING / E-WALLET</small>
+      <strong id="paymentNumber" class="payment-number"></strong>
+      <div class="payment-bottom"><span id="paymentOwner"></span><button id="copyPayment" type="button" data-text="accountCopyButton">Salin Nomor</button></div>
+      <p id="paymentNotice" class="payment-notice" aria-live="polite"></p>
+    </article>
+  </section>
+
+  <section class="paper-section rsvp-section reveal">
+    <p class="eyebrow" data-text="rsvpEyebrow">KAMI MENANTIKAN KEHADIRAN ANDA</p>
+    <h2 data-text="rsvpTitle">Konfirmasi Kehadiran</h2>
+    <form id="rsvpForm">
+      <label><span data-text="rsvpNameLabel">Nama lengkap</span><input id="rsvpName" required data-placeholder="rsvpNamePlaceholder" placeholder="Tuliskan nama Anda"></label>
+      <label><span data-text="rsvpStatusLabel">Konfirmasi kehadiran</span><select id="rsvpStatus"><option value="Hadir" data-text="rsvpYes">Insyaallah hadir</option><option value="Tidak hadir" data-text="rsvpNo">Mohon maaf, belum bisa hadir</option></select></label>
+      <div class="form-row">
+        <label><span data-text="rsvpCountLabel">Jumlah tamu</span><select id="rsvpCount"></select></label>
+        <label><span data-text="rsvpTimeLabel">Perkiraan jam kedatangan</span><select id="rsvpTime"></select></label>
+      </div>
+      <label><span data-text="rsvpMessageLabel">Ucapan dan doa</span><textarea id="rsvpMessage" rows="3" data-placeholder="rsvpMessagePlaceholder" placeholder="Tuliskan doa terbaik untuk kedua mempelai"></textarea></label>
+      <button type="submit" class="rsvp-submit"><span data-text="rsvpSendButton">Kirim Konfirmasi</span><b>➜</b></button>
+    </form>
+    <p class="rsvp-note" data-text="rsvpNote">Konfirmasi akan diteruskan melalui WhatsApp kepada pihak penyelenggara.</p>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-floral">✿ ❧ ✦ ❧ ✿</div>
+    <p class="arabic" data-text="footerBlessing">وَبَارَكَ اللَّهُ لَكُمَا</p>
+    <p data-text="footerText">Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.</p>
+    <h2 id="footerNames"></h2>
+    <small data-text="footerThanks">Terima kasih atas doa dan restunya.</small>
+    <img class="footer-house" src="rumah-adat-madura-cover.jpg" alt="" aria-hidden="true">
+  </footer>
+</main>
+<audio id="backgroundMusic" loop preload="none"></audio>
+<script src="config.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

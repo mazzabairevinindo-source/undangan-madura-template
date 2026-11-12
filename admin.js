@@ -1,380 +1,505 @@
 (() => {
-  "use strict";
-  const form = document.getElementById("builderForm");
-  const $ = id => document.getElementById(id);
-  const get = name => form.elements.namedItem(name);
-  const value = name => (get(name)?.value || "").trim();
-  const STORAGE_KEY = "undanganMadura.v7.drafts";
-  let currentConfig = null;
-  let currentPreviewUrl = "";
+"use strict";
+const form = document.getElementById("builderForm");
+const $ = id => document.getElementById(id);
+const field = name => form.elements.namedItem(name);
+const val = name => {
+  const el = field(name);
+  return el ? String(el.value || "").trim() : "";
+};
+const STORAGE_KEY = "maduraWedding.v8.drafts";
 
-  const BANKS = [
-    ["BRI","Bank BRI"],["BCA","Bank BCA"],["BNI","Bank BNI"],["MANDIRI","Bank Mandiri"],
-    ["BSI","Bank Syariah Indonesia"],["BTN","Bank BTN"],["CIMB","CIMB Niaga"],
-    ["PERMATA","PermataBank"],["DANAMON","Bank Danamon"],["JATIM","Bank Jatim"],
-    ["DANA","DANA"],["OVO","OVO"],["GOPAY","GoPay"],["SHOPEEPAY","ShopeePay"],["LINKAJA","LinkAja"]
-  ];
+const PROVIDERS = [
+  {id:"BRI",name:"Bank BRI",mark:"BRI",color:"#07529a",type:"BANK"},
+  {id:"BCA",name:"Bank BCA",mark:"BCA",color:"#0876bd",type:"BANK"},
+  {id:"BNI",name:"Bank BNI",mark:"BNI",color:"#ed7c24",type:"BANK"},
+  {id:"MANDIRI",name:"Bank Mandiri",mark:"Mandiri",color:"#173d78",type:"BANK"},
+  {id:"BSI",name:"Bank Syariah Indonesia",mark:"BSI",color:"#16845b",type:"BANK"},
+  {id:"BTN",name:"Bank BTN",mark:"BTN",color:"#12549a",type:"BANK"},
+  {id:"CIMB",name:"CIMB Niaga",mark:"CIMB",color:"#c71d31",type:"BANK"},
+  {id:"PERMATA",name:"PermataBank",mark:"PERMATA",color:"#194b8a",type:"BANK"},
+  {id:"DANAMON",name:"Bank Danamon",mark:"DANAMON",color:"#ed3038",type:"BANK"},
+  {id:"JATIM",name:"Bank Jatim",mark:"JATIM",color:"#164f90",type:"BANK"},
+  {id:"DANA",name:"DANA",mark:"DANA",color:"#087fce",type:"E-WALLET"},
+  {id:"OVO",name:"OVO",mark:"OVO",color:"#4b238c",type:"E-WALLET"},
+  {id:"GOPAY",name:"GoPay",mark:"GoPay",color:"#00a5e5",type:"E-WALLET"},
+  {id:"SHOPEEPAY",name:"ShopeePay",mark:"ShopeePay",color:"#ee4d2d",type:"E-WALLET"},
+  {id:"LINKAJA",name:"LinkAja",mark:"LinkAja",color:"#e21d2b",type:"E-WALLET"}
+];
 
-  const TEXT_GROUPS = [
-    {title:"Sampul dan navigasi",fields:[
-      ["coverEyebrow","Tulisan kecil sampul"],["coverSalutation","Salam Arab sampul"],["coverRecipientPrefix","Awalan nama tamu"],["coverRecipientSuffix","Tulisan bawah nama tamu"],["openButton","Teks tombol buka"],["coverFootnote","Kalimat kecil sampul"],["navBrand","Nama navigasi"],["musicButton","Tombol musik"],["musicOffButton","Tombol saat musik aktif"]]},
-    {title:"Foto pembuka dan pengantar",fields:[
-      ["heroTopline","Tulisan kecil pada foto pasangan"],["heroDateLabel","Label tanggal pada foto pasangan"],["photoPlaceholderTitle","Tulisan jika foto belum dipilih"],["photoPlaceholderNote","Keterangan jika foto belum dipilih"],["introSalutation","Salam pengantar"],["heroBlessing","Doa pembuka Arab"],["introParagraph","Paragraf pengantar"]]},
-    {title:"Profil kedua mempelai",fields:[
-      ["coupleEyebrow","Tulisan kecil profil"],["coupleTitle","Judul profil"],["groomLabel","Label mempelai pria"],["brideLabel","Label mempelai wanita"],["quranQuote","Kutipan ayat"],["quranSource","Sumber kutipan"]]},
-    {title:"Acara dan lokasi",fields:[
-      ["eventsEyebrow","Tulisan kecil acara"],["eventsTitle","Judul rangkaian acara"],["akadEyebrow","Label kecil akad"],["akadTitle","Nama acara akad"],["receptionEyebrow","Label kecil resepsi"],["receptionTitle","Nama acara resepsi"],["arrivalEyebrow","Judul jam kehadiran"],["arrivalDescription","Keterangan jam kehadiran"],["venueEyebrow","Judul lokasi"],["venueAddressLabel","Label alamat"],["mapsButton","Teks tombol Google Maps"]]},
-    {title:"Hitung mundur dan hadiah",fields:[
-      ["countdownEyebrow","Tulisan kecil countdown"],["countdownTitle","Judul countdown"],["countdownDays","Label hari"],["countdownHours","Label jam"],["countdownMinutes","Label menit"],["countdownSeconds","Label detik"],["giftEyebrow","Tulisan kecil hadiah"],["giftTitle","Judul hadiah"],["giftIntro","Keterangan hadiah"],["accountHolderPrefix","Awalan nama pemilik"],["accountNumberLabel","Label nomor rekening"],["copyAccountButton","Teks tombol salin"],["copyMissingMessage","Pesan rekening kosong"],["copySuccessMessage","Pesan setelah disalin"],["copyFailedMessage","Pesan jika gagal menyalin"]]},
-    {title:"Konfirmasi kehadiran",fields:[
-      ["rsvpEyebrow","Tulisan kecil RSVP"],["rsvpTitle","Judul RSVP"],["rsvpNameLabel","Label nama"],["rsvpNamePlaceholder","Placeholder nama"],["rsvpAttendanceLabel","Label kehadiran"],["rsvpAttendOption","Pilihan hadir"],["rsvpAbsentOption","Pilihan tidak hadir"],["rsvpGuestCountLabel","Label jumlah tamu"],["rsvpArrivalLabel","Label jam kedatangan"],["rsvpMessageLabel","Label ucapan"],["rsvpMessagePlaceholder","Placeholder ucapan"],["rsvpSubmitButton","Teks tombol kirim"],["rsvpNote","Keterangan RSVP"],["whatsappMissingMessage","Pesan jika nomor WhatsApp kosong"],["rsvpWhatsappIntro","Kalimat awal WhatsApp"],["rsvpWhatsappName","Label nama WhatsApp"],["rsvpWhatsappAttendance","Label status WhatsApp"],["rsvpWhatsappGuestCount","Label jumlah tamu WhatsApp"],["rsvpWhatsappArrival","Label jam kedatangan WhatsApp"],["rsvpWhatsappMessage","Label ucapan WhatsApp"],["rsvpWhatsappThanks","Penutup pesan WhatsApp"]]},
-    {title:"Penutup",fields:[
-      ["footerBlessing","Doa penutup Arab"],["footerMessage","Kalimat penutup"],["footerThanks","Ucapan terima kasih"]]},
-    {title:"Pesan sistem",fields:[
-      ["guestFallback","Nama tamu jika tidak dicantumkan"],["musicMissingMessage","Pesan musik belum tersedia"],["musicErrorMessage","Pesan musik gagal diputar"]]}
-  ];
+const TEXT_GROUPS = [
+ {title:"Sampul dan navigasi",fields:[
+  ["brand","Nama merek undangan"],["coverEyebrow","Judul kecil sampul"],["coverBismillah","Bismillah pada sampul"],["coverRecipient","Awalan nama tamu"],["coverPlace","Tulisan di bawah nama tamu"],["openButton","Teks tombol buka undangan"],["coverFooter","Kalimat penutup sampul"],["musicButton","Tombol musik"],["musicStop","Tombol saat musik menyala"]
+ ]},
+ {title:"Foto pembuka dan pengantar",fields:[
+  ["afterOpenEyebrow","Judul kecil di foto mempelai"],["afterOpenCaption","Keterangan pada foto mempelai"],["introSalam","Salam pembuka"],["introText","Paragraf pengantar"],["noPhotoText","Tulisan jika foto belum dipilih"]
+ ]},
+ {title:"Profil kedua mempelai",fields:[
+  ["coupleEyebrow","Tulisan kecil profil"],["coupleTitle","Judul profil"],["groomLabel","Label mempelai pria"],["brideLabel","Label mempelai wanita"],["quoteText","Kutipan ayat"],["quoteSource","Sumber kutipan"]
+ ]},
+ {title:"Acara dan lokasi",fields:[
+  ["eventEyebrow","Tulisan kecil acara"],["eventTitle","Judul rangkaian acara"],["akadTitle","Nama acara akad"],["receptionTitle","Nama acara resepsi"],["arrivalTitle","Judul waktu kehadiran"],["arrivalText","Keterangan waktu kehadiran"],["venueTitle","Judul lokasi"],["venueAddressLabel","Label alamat"],["mapsButton","Teks tombol Google Maps"]
+ ]},
+ {title:"Hitung mundur dan hadiah",fields:[
+  ["countdownEyebrow","Tulisan kecil countdown"],["countdownTitle","Judul countdown"],["daysLabel","Label hari"],["hoursLabel","Label jam"],["minutesLabel","Label menit"],["secondsLabel","Label detik"],["giftEyebrow","Tulisan kecil hadiah"],["giftTitle","Judul hadiah"],["giftText","Keterangan hadiah"],["accountHolderPrefix","Awalan nama pemilik rekening"],["accountCopyButton","Teks tombol salin rekening"],["accountCopySuccess","Pesan berhasil disalin"],["accountCopyFail","Pesan gagal menyalin"]
+ ]},
+ {title:"Konfirmasi kehadiran",fields:[
+  ["rsvpEyebrow","Tulisan kecil RSVP"],["rsvpTitle","Judul RSVP"],["rsvpNameLabel","Label nama"],["rsvpNamePlaceholder","Placeholder nama"],["rsvpStatusLabel","Label status kehadiran"],["rsvpYes","Pilihan hadir"],["rsvpNo","Pilihan tidak hadir"],["rsvpCountLabel","Label jumlah tamu"],["rsvpTimeLabel","Label jam kedatangan"],["rsvpMessageLabel","Label ucapan"],["rsvpMessagePlaceholder","Placeholder ucapan"],["rsvpSendButton","Teks tombol kirim"],["rsvpNote","Keterangan RSVP"],["rsvpMissingPhone","Pesan jika nomor panitia kosong"],["whatsappIntro","Kalimat pembuka WhatsApp"],["whatsappName","Label nama WhatsApp"],["whatsappStatus","Label status WhatsApp"],["whatsappCount","Label jumlah tamu WhatsApp"],["whatsappTime","Label jam WhatsApp"],["whatsappMessage","Label ucapan WhatsApp"],["whatsappThanks","Penutup pesan WhatsApp"]
+ ]},
+ {title:"Penutup dan pesan sistem",fields:[
+  ["footerBlessing","Doa penutup"],["footerText","Kalimat penutup"],["footerThanks","Ucapan terima kasih"],["guestFallback","Nama tamu jika tidak dicantumkan"],["noMusicText","Pesan musik belum tersedia"],["photoErrorText","Pesan jika foto gagal tampil"],["createValidationText","Pesan validasi data"]
+ ]}
+];
 
-  function renderTextFields() {
-    const host = $("textEditor");
-    TEXT_GROUPS.forEach((group, index) => {
-      const details = document.createElement("details");
-      details.open = index === 0;
-      const summary = document.createElement("summary");
-      summary.textContent = group.title;
-      details.appendChild(summary);
-      const grid = document.createElement("div");
-      grid.className = "form-grid text-grid";
-      group.fields.forEach(([key,label]) => {
-        const wrap = document.createElement("label");
-        wrap.textContent = label;
-        const multiline = /Paragraph|Quote|Intro|Message|Thanks|Note|Description|Blessing|Salutation|Footnote|Keterangan|Kalimat|doa|Arab|Penutup/i.test(key + " " + label);
-        const field = document.createElement(multiline ? "textarea" : "input");
-        field.name = `text_${key}`;
-        field.value = DEFAULT_INVITATION.texts[key] || "";
-        if (multiline) field.rows = 3;
-        field.type = "text";
-        wrap.appendChild(field);
-        grid.appendChild(wrap);
-      });
-      details.appendChild(grid);
-      host.appendChild(details);
+function renderTextEditor() {
+  const host = $("textEditor");
+  TEXT_GROUPS.forEach((group,index) => {
+    const details = document.createElement("details");
+    details.className = "text-group";
+    if (index === 0) details.open = true;
+    const summary = document.createElement("summary");
+    summary.textContent = group.title;
+    details.appendChild(summary);
+    const grid = document.createElement("div");
+    grid.className = "text-field-grid";
+    group.fields.forEach(([key,label]) => {
+      const wrap = document.createElement("label");
+      wrap.className = "text-field";
+      const title = document.createElement("span");
+      title.textContent = label;
+      const multiline = ["introText","quoteText","arrivalText","giftText","rsvpNote","whatsappIntro","footerText","footerThanks","coverFooter","createValidationText"].includes(key);
+      const control = document.createElement(multiline ? "textarea" : "input");
+      control.name = `text_${key}`;
+      control.value = (DEFAULT_INVITATION.texts && DEFAULT_INVITATION.texts[key]) || "";
+      if (multiline) control.rows = 3;
+      else control.type = "text";
+      wrap.append(title,control);
+      grid.appendChild(wrap);
     });
-  }
-  renderTextFields();
+    details.appendChild(grid);
+    host.appendChild(details);
+  });
+}
+renderTextEditor();
 
-  function addBankRow(account={provider:"BRI",accountNumber:"",accountHolder:""}) {
-    const host = $("bankAccountList");
-    const row = document.createElement("div");
-    row.className = "bank-account-row";
-    const providerLabel = document.createElement("label");
-    providerLabel.textContent = "Pilih bank / e-wallet";
-    const select = document.createElement("select");
-    select.className = "bank-provider";
-    BANKS.forEach(([id,label]) => {
-      const o = document.createElement("option");
-      o.value = id; o.textContent = label;
-      select.appendChild(o);
+function providerMeta(id) {
+  return PROVIDERS.find(p => p.id === id) || PROVIDERS[0];
+}
+function addPaymentRow(existing={}) {
+  const host = $("paymentRows");
+  const row = document.createElement("div");
+  row.className = "payment-row";
+  row.dataset.provider = PROVIDERS.some(p => p.id === existing.provider) ? existing.provider : "BRI";
+
+  const top = document.createElement("div");
+  top.className = "payment-row-top";
+  const rowTitle = document.createElement("strong");
+  rowTitle.textContent = "Metode pembayaran";
+  const remove = document.createElement("button");
+  remove.type = "button";
+  remove.className = "remove-payment";
+  remove.textContent = "Hapus metode";
+  remove.addEventListener("click", () => row.remove());
+  top.append(rowTitle,remove);
+
+  const providerGrid = document.createElement("div");
+  providerGrid.className = "provider-grid";
+  PROVIDERS.forEach(provider => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "provider-choice";
+    btn.dataset.provider = provider.id;
+    const mark = document.createElement("span");
+    mark.className = "provider-mark";
+    mark.textContent = provider.mark;
+    mark.style.backgroundColor = provider.color;
+    const label = document.createElement("span");
+    label.className = "provider-label";
+    label.textContent = provider.name;
+    btn.append(mark,label);
+    btn.addEventListener("click",() => {
+      row.dataset.provider = provider.id;
+      providerGrid.querySelectorAll(".provider-choice").forEach(b => b.classList.toggle("selected", b === btn));
+      typeLabel.textContent = provider.type === "E-WALLET" ? "Nomor e-wallet" : "Nomor rekening";
+      numberInput.placeholder = provider.type === "E-WALLET" ? "Nomor akun e-wallet" : "Nomor rekening bank";
     });
-    select.value = BANKS.some(b=>b[0]===account.provider) ? account.provider : "BRI";
-    providerLabel.appendChild(select);
-    const numberLabel = document.createElement("label");
-    numberLabel.textContent = "Nomor rekening / akun";
-    const number = document.createElement("input");
-    number.className = "bank-number"; number.placeholder = "Masukkan nomor rekening"; number.inputMode = "numeric"; number.value = account.accountNumber || "";
-    numberLabel.appendChild(number);
-    const holderLabel = document.createElement("label");
-    holderLabel.textContent = "Nama pemilik";
-    const holder = document.createElement("input");
-    holder.className = "bank-holder"; holder.placeholder = "Nama sesuai rekening"; holder.value = account.accountHolder || "";
-    holderLabel.appendChild(holder);
-    const remove = document.createElement("button");
-    remove.type = "button"; remove.className = "danger remove-bank"; remove.textContent = "Hapus";
-    remove.addEventListener("click", () => row.remove());
-    row.append(providerLabel, numberLabel, holderLabel, remove);
-    host.appendChild(row);
+    if (provider.id === row.dataset.provider) btn.classList.add("selected");
+    providerGrid.appendChild(btn);
+  });
+
+  const fieldGrid = document.createElement("div");
+  fieldGrid.className = "payment-field-grid";
+  const numberWrap = document.createElement("label");
+  const typeLabel = document.createElement("span");
+  typeLabel.textContent = providerMeta(row.dataset.provider).type === "E-WALLET" ? "Nomor e-wallet" : "Nomor rekening";
+  const numberInput = document.createElement("input");
+  numberInput.className = "payment-number";
+  numberInput.type = "text";
+  numberInput.inputMode = "numeric";
+  numberInput.placeholder = "Nomor rekening / akun";
+  numberInput.value = existing.accountNumber || "";
+  numberWrap.append(typeLabel,numberInput);
+  const ownerWrap = document.createElement("label");
+  const ownerLabel = document.createElement("span");
+  ownerLabel.textContent = "Nama pemilik";
+  const ownerInput = document.createElement("input");
+  ownerInput.className = "payment-owner";
+  ownerInput.type = "text";
+  ownerInput.placeholder = "Nama sesuai rekening";
+  ownerInput.value = existing.accountHolder || "";
+  ownerWrap.append(ownerLabel,ownerInput);
+  fieldGrid.append(numberWrap,ownerWrap);
+  row.append(top,providerGrid,fieldGrid);
+  host.appendChild(row);
+}
+$("addPayment").addEventListener("click",() => addPaymentRow());
+addPaymentRow();
+
+function setPreview(previewId,statusId,dataUrl,status) {
+  const preview = $(previewId);
+  if (!dataUrl) {
+    preview.removeAttribute("src");
+    preview.hidden = true;
+    $(statusId).textContent = status || "Belum ada foto.";
+    return;
   }
-  $("addBankAccount").addEventListener("click", () => addBankRow());
+  preview.onload = () => { preview.hidden = false; };
+  preview.onerror = () => { preview.hidden = true; $(statusId).textContent = "Pratinjau tidak dapat dibuka. Pilih file lain."; };
+  preview.src = dataUrl;
+  preview.hidden = false;
+  $(statusId).textContent = status || "Foto siap digunakan.";
+}
 
-  async function compressPhoto(file) {
-    if (!file || !file.type.startsWith("image/")) throw new Error("File bukan gambar. Pilih JPG, PNG, atau WebP.");
-    if (file.size > 15 * 1024 * 1024) throw new Error("Ukuran foto lebih dari 15 MB. Pilih foto yang lebih kecil.");
-
+function loadImageForCanvas(file) {
+  return new Promise((resolve,reject) => {
     const objectUrl = URL.createObjectURL(file);
-    const preview = $("photoPreview");
-    preview.onload = () => { preview.hidden = false; };
-    preview.onerror = () => { preview.hidden = true; };
-    preview.src = objectUrl;
-    preview.hidden = false;
-    if (currentPreviewUrl) URL.revokeObjectURL(currentPreviewUrl);
-    currentPreviewUrl = objectUrl;
-
-    // Fallback ke Image() jika browser tidak dapat membaca createImageBitmap.
-    let bitmap;
-    try {
-      if (window.createImageBitmap) bitmap = await createImageBitmap(file);
-    } catch (_) {
-      bitmap = null;
-    }
-    if (!bitmap) {
-      bitmap = await new Promise((resolve,reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error("Foto tidak dapat dibaca. Coba simpan ulang sebagai JPG atau PNG."));
-        img.src = objectUrl;
-      });
-    }
-
-    let maxSide = 760;
-    const qualities = [0.68,0.60,0.52,0.44,0.36,0.30];
-    let result = "";
-    for (let attempt=0; attempt<10; attempt++) {
-      const scale = Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.max(1,Math.round(bitmap.width*scale));
-      canvas.height = Math.max(1,Math.round(bitmap.height*scale));
-      const ctx = canvas.getContext("2d");
-      if (!ctx) throw new Error("Browser tidak mendukung pemrosesan foto.");
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0,0,canvas.width,canvas.height);
-      ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
-      for (const q of qualities) {
-        // WebP biasanya jauh lebih kecil; jika tidak didukung, browser akan menghasilkan PNG.
-        result = canvas.toDataURL("image/webp",q);
-        if (!result.startsWith("data:image/webp")) result = canvas.toDataURL("image/jpeg",q);
-        if (result.length <= 56000) break;
-      }
-      if (result.length <= 56000) break;
-      maxSide = Math.round(maxSide*0.84);
-    }
-    if (bitmap.close) bitmap.close();
-    if (!result || result.length > 72000) throw new Error("Foto masih terlalu besar setelah diperkecil. Pilih foto lain atau potong foto terlebih dahulu.");
-    $("photoStatus").textContent = `Foto berhasil dipilih: ${file.name}. Ukuran foto dalam tautan sekitar ${Math.round(result.length/1024)} KB.`;
-    return result;
-  }
-
-  function readAsDataUrl(file) {
-    return new Promise((resolve,reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(file);
-    });
-  }
-
-  $("photoPicker").addEventListener("change", async () => {
-    const file = $("photoPicker").files?.[0];
-    if (!file) return;
-    try {
-      get("heroImage").value = await compressPhoto(file);
-      $("photoStatus").textContent += " Pratinjau di atas menggunakan file pilihan dari perangkat.";
-    } catch (error) {
-      get("heroImage").value = "";
-      $("photoPreview").hidden = true;
-      $("photoStatus").textContent = error.message || "Foto tidak dapat diproses.";
-      alert($("photoStatus").textContent);
-    }
-  });
-
-  $("musicPicker").addEventListener("change", async () => {
-    const file = $("musicPicker").files?.[0];
-    if (!file) return;
-    if (file.size > 40 * 1024) {
-      alert("Untuk menjaga tautan tetap ringan, pilih audio pendek maksimal 40 KB. Anda juga dapat membuat undangan tanpa musik.");
-      $("musicPicker").value = "";
-      return;
-    }
-    try {
-      get("musicFile").value = await readAsDataUrl(file);
-      $("musicStatus").textContent = `Musik dipilih: ${file.name} (${Math.round(file.size/1024)} KB).`;
-    } catch (_) {
-      $("musicStatus").textContent = "File musik tidak dapat dibaca.";
-    }
-  });
-
-  function dateLabel(dateString) {
-    if (!dateString) return "";
-    return new Intl.DateTimeFormat("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"Asia/Jakarta"})
-      .format(new Date(`${dateString}T12:00:00+07:00`));
-  }
-  const formatTime = t => t ? `${t.slice(0,2)}.${t.slice(3,5)} WIB` : "";
-  const cleanPhone = v => (v || "").replace(/\D/g,"");
-
-  function collectConfig() {
-    const mode = value("eventMode") || "akad_resepsi";
-    const receptionDateStr = value("receptionDateInput");
-    const akadDateStr = value("akadDateInput") || receptionDateStr;
-    const mainDate = mode === "resepsi_saja" ? receptionDateStr : (akadDateStr || receptionDateStr);
-    const timeForCountdown = mode === "resepsi_saja" ? (value("guestArrivalInput") || "10:00") : (value("akadTimeInput") || "08:00");
-    const texts = {};
-    TEXT_GROUPS.forEach(group => group.fields.forEach(([key]) => { texts[key] = value(`text_${key}`); }));
-    const accounts = [...$("bankAccountList").querySelectorAll(".bank-account-row")].map(row => ({
-      provider: row.querySelector(".bank-provider").value,
-      accountNumber: row.querySelector(".bank-number").value.trim(),
-      accountHolder: row.querySelector(".bank-holder").value.trim()
-    })).filter(a => a.accountNumber);
-    return {
-      groom:value("groom"), bride:value("bride"), groomParents:value("groomParents"), brideParents:value("brideParents"),
-      eventMode:mode,
-      dateLabel:dateLabel(mainDate) || "Hari, tanggal pernikahan",
-      dateISO:`${mainDate}T${timeForCountdown}:00+07:00`,
-      akadDateISO:akadDateStr,
-      receptionDateISO:receptionDateStr,
-      akadDate:dateLabel(akadDateStr) || dateLabel(mainDate),
-      akadTime:formatTime(value("akadTimeInput") || "08:00"),
-      receptionDate:dateLabel(receptionDateStr) || dateLabel(mainDate),
-      receptionTime:value("receptionTimeInput"),
-      guestArrival:formatTime(value("guestArrivalInput")),
-      venueName:value("venueName"), venue:value("venue"),
-      mapsUrl:value("mapsUrl") || "https://maps.google.com/",
-      whatsappNumber:cleanPhone(value("whatsappNumber")),
-      heroImage:value("heroImage"), musicFile:value("musicFile"),
-      bankAccounts:accounts, texts,
-      arrivalSlots:value("arrivalSlotsRows").split(/\r?\n/).map(s=>s.trim()).filter(Boolean),
-      guestCountOptions:value("guestCountRows").split(/\r?\n/).map(s=>s.trim()).filter(Boolean)
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(image);
     };
-  }
-
-  function bytesToBase64Url(bytes) {
-    let binary = "";
-    const chunkSize = 0x8000;
-    for (let i=0; i<bytes.length; i+=chunkSize) {
-      binary += String.fromCharCode(...bytes.subarray(i, i+chunkSize));
-    }
-    return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");
-  }
-
-  async function encodeConfig(config) {
-    const json = JSON.stringify(config);
-    const source = new TextEncoder().encode(json);
-    if (typeof CompressionStream === "function" && typeof DecompressionStream === "function") {
-      try {
-        const stream = new Blob([source]).stream().pipeThrough(new CompressionStream("gzip"));
-        const compressed = new Uint8Array(await new Response(stream).arrayBuffer());
-        return {payload:bytesToBase64Url(compressed), zipped:true};
-      } catch (err) {
-        console.warn("Kompresi gzip tidak tersedia, memakai format biasa.",err);
-      }
-    }
-    return {payload:bytesToBase64Url(source), zipped:false};
-  }
-
-  async function makeLink(config, guestName="") {
-    const url = new URL("./index.html",location.href);
-    const encoded = await encodeConfig(config);
-    const hash = new URLSearchParams();
-    hash.set("v","7");
-    hash.set("p",encoded.payload);
-    hash.set("z",encoded.zipped ? "1" : "0");
-    if (guestName) hash.set("to",guestName);
-    // Fragment tidak dikirim ke server GitHub Pages, tetapi tetap dibawa saat tautan dibagikan.
-    url.hash = hash.toString();
-    return url.href;
-  }
-
-  function drafts() {
-    try { const x=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]"); return Array.isArray(x)?x:[]; }
-    catch (_) { return []; }
-  }
-  function refreshDrafts() {
-    const select=$("savedList"), list=drafts();
-    select.replaceChildren(new Option("Pilih draf tersimpan",""));
-    list.forEach((entry,i)=>select.add(new Option(`${entry.title} • ${entry.savedAt}`,String(i))));
-  }
-
-  function fillForm(config) {
-    const values = {
-      groom:config.groom, bride:config.bride, groomParents:config.groomParents, brideParents:config.brideParents,
-      eventMode:config.eventMode || "akad_resepsi",
-      akadDateInput:config.akadDateISO || (config.dateISO||"").slice(0,10),
-      receptionDateInput:config.receptionDateISO || (config.dateISO||"").slice(0,10),
-      akadTimeInput:(config.akadTime||"08.00").replace(" WIB","").replace(".",":"),
-      receptionTimeInput:config.receptionTime,
-      guestArrivalInput:(config.guestArrival||"10.00").replace(" WIB","").replace(".",":"),
-      venueName:config.venueName, venue:config.venue, mapsUrl:config.mapsUrl, whatsappNumber:config.whatsappNumber,
-      heroImage:config.heroImage, musicFile:config.musicFile,
-      arrivalSlotsRows:(config.arrivalSlots||[]).join("\n"),
-      guestCountRows:(config.guestCountOptions||[]).join("\n")
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Gambar tidak dapat dibaca. Coba simpan ulang sebagai JPG atau PNG."));
     };
-    Object.entries(values).forEach(([k,v]) => { if(get(k)) get(k).value=v||""; });
-    $("bankAccountList").replaceChildren();
-    (config.bankAccounts||[]).forEach(account=>addBankRow(account));
-    if(config.heroImage){$("photoPreview").src=config.heroImage;$("photoPreview").hidden=false;$("photoStatus").textContent="Pratinjau foto dari data draf.";}
-    else {$("photoPreview").removeAttribute("src");$("photoPreview").hidden=true;$("photoStatus").textContent="Belum ada foto dipilih.";}
-    TEXT_GROUPS.forEach(group=>group.fields.forEach(([key])=>{if(get(`text_${key}`))get(`text_${key}`).value=(config.texts && config.texts[key]!==undefined)?config.texts[key]:(DEFAULT_INVITATION.texts[key]||"");}));
-  }
+    image.src = objectUrl;
+  });
+}
 
-  function slug(v) {
-    return (v||"undangan").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,35)||"undangan";
-  }
-  function saveAsJson(config) {
-    const blob = new Blob([JSON.stringify(config,null,2)],{type:"application/json"});
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href=url; link.download=`data-undangan-${slug(config.groom)}-${slug(config.bride)}.json`;
-    link.click(); URL.revokeObjectURL(url);
-  }
-
-  form.addEventListener("submit", async event => {
-    event.preventDefault();
-    if (!form.reportValidity()) return;
-    const submitButton = form.querySelector('button[type="submit"]');
-    if (submitButton) { submitButton.disabled = true; submitButton.textContent = "Sedang membuat tautan…"; }
+async function compressImage(file) {
+  if (!file || !file.type.startsWith("image/")) throw new Error("Pilih file gambar JPG, PNG, atau WebP.");
+  if (file.size > 15 * 1024 * 1024) throw new Error("Foto melebihi 15 MB. Pilih foto yang lebih kecil.");
+  let source;
+  let width,height,draw;
+  if ("createImageBitmap" in window) {
     try {
-      currentConfig = collectConfig();
-      const guest = value("guestName");
-      const link = await makeLink(currentConfig,guest);
-      $("generatedLink").value=link;
-      $("resultPanel").hidden=false;
-      const sizeKb = Math.round(new Blob([link]).size/1024);
-      $("resultMessage").textContent = `Tautan berhasil dibuat (${sizeKb} KB). Data pasangan disertakan pada tautan. Simpan tautan dan unduh cadangan JSON.`;
-      if (link.length>100000) $("resultMessage").textContent += " Tautan masih panjang; pertimbangkan tidak menyertakan musik atau pilih foto lebih kecil.";
-      $("resultPanel").scrollIntoView({behavior:"smooth",block:"center"});
-    } catch (error) {
-      alert(`Tautan belum berhasil dibuat: ${error.message || error}`);
-    } finally {
-      if (submitButton) { submitButton.disabled = false; submitButton.textContent = "Buat tautan undangan"; }
+      source = await createImageBitmap(file);
+      width = source.width; height = source.height;
+      draw = (ctx,w,h) => ctx.drawImage(source,0,0,w,h);
+    } catch (_) {}
+  }
+  if (!source) {
+    source = await loadImageForCanvas(file);
+    width = source.naturalWidth || source.width;
+    height = source.naturalHeight || source.height;
+    draw = (ctx,w,h) => ctx.drawImage(source,0,0,w,h);
+  }
+  const qualities = [0.72,0.62,0.52,0.43,0.35];
+  let result = "";
+  let maxSide = 820;
+  for (let attempt=0; attempt<9; attempt++) {
+    const scale = Math.min(1,maxSide/Math.max(width,height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1,Math.round(width*scale));
+    canvas.height = Math.max(1,Math.round(height*scale));
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Browser tidak mendukung pemrosesan foto.");
+    ctx.fillStyle="#fff"; ctx.fillRect(0,0,canvas.width,canvas.height);
+    draw(ctx,canvas.width,canvas.height);
+    for (const quality of qualities) {
+      result = canvas.toDataURL("image/jpeg",quality);
+      if (result.length <= 52000) break;
+    }
+    if (result.length <= 52000) break;
+    maxSide = Math.round(maxSide*0.78);
+  }
+  if (source.close) source.close();
+  if (!result || result.length > 62000) throw new Error("Ukuran foto masih terlalu besar setelah diperkecil. Coba potong atau pilih foto lain.");
+  return result;
+}
+async function readAsDataUrl(file) {
+  return await new Promise((resolve,reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("File tidak dapat dibaca."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function bindImagePicker(inputId,hiddenName,previewId,statusId,label) {
+  $(inputId).addEventListener("change",async()=>{
+    const file=$(inputId).files && $(inputId).files[0];
+    if(!file)return;
+    $(statusId).textContent="Sedang memperkecil foto…";
+    try {
+      const dataUrl=await compressImage(file);
+      field(hiddenName).value=dataUrl;
+      setPreview(previewId,statusId,dataUrl,`${label}: ${file.name} · ${Math.round(dataUrl.length/1024)} KB`);
+    } catch(error) {
+      field(hiddenName).value="";
+      setPreview(previewId,statusId,"",error.message || "Foto gagal diproses.");
+      alert(error.message || "Foto gagal diproses.");
     }
   });
+}
+bindImagePicker("heroFile","heroImage","heroPreview","heroStatus","Foto pasangan");
+bindImagePicker("groomFile","groomImage","groomPreview","groomStatus","Foto pria");
+bindImagePicker("brideFile","brideImage","bridePreview","brideStatus","Foto wanita");
 
-  $("copyLink").addEventListener("click",async()=>{
-    if(!$("generatedLink").value)return;
-    try { await navigator.clipboard.writeText($("generatedLink").value); $("resultMessage").textContent="Tautan berhasil disalin. Bagikan melalui WhatsApp."; }
-    catch (_) { $("generatedLink").focus();$("generatedLink").select();$("resultMessage").textContent="Tautan dipilih. Tekan Ctrl+C untuk menyalin."; }
+$("musicFile").addEventListener("change",async()=>{
+  const file=$("musicFile").files && $("musicFile").files[0];
+  if(!file)return;
+  if(file.size > 100*1024) {
+    alert("Pilih musik singkat maksimal 100 KB agar tautan undangan tidak terlalu panjang.");
+    $("musicFile").value="";
+    field("musicData").value="";
+    $("musicStatus").textContent="Musik tidak dipilih. Maksimal 100 KB.";
+    return;
+  }
+  try {
+    field("musicData").value=await readAsDataUrl(file);
+    $("musicStatus").textContent=`Musik dipilih: ${file.name} · ${Math.round(file.size/1024)} KB`;
+  } catch(error) {
+    field("musicData").value="";
+    $("musicStatus").textContent=error.message;
+  }
+});
+
+function eventMode() {
+  const selected=form.querySelector('input[name="eventMode"]:checked');
+  return selected ? selected.value : "akad_resepsi";
+}
+function updateEventMode() {
+  const mode=eventMode();
+  $("akadFields").hidden = mode === "resepsi_saja";
+  $("receptionFields").hidden = mode === "akad_saja";
+  const akadDate=field("akadDateInput"), recDate=field("receptionDateInput");
+  if (mode === "akad_saja") {
+    akadDate.required=true; recDate.required=false;
+  } else if (mode === "resepsi_saja") {
+    akadDate.required=false; recDate.required=true;
+  } else {
+    akadDate.required=true; recDate.required=true;
+  }
+}
+form.querySelectorAll('input[name="eventMode"]').forEach(r=>r.addEventListener("change",updateEventMode));
+updateEventMode();
+
+function formatDate(dateStr) {
+  if(!dateStr)return "";
+  const date=new Date(`${dateStr}T12:00:00+07:00`);
+  if(Number.isNaN(date.getTime()))return "";
+  return new Intl.DateTimeFormat("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"Asia/Jakarta"}).format(date);
+}
+const formatTime=t=>t?`${t.slice(0,2)}.${t.slice(3,5)} WIB`:"";
+const cleanPhone=v=>(v||"").replace(/\D/g,"");
+
+function collectConfig() {
+  const mode=eventMode();
+  const akadDateISO=val("akadDateInput");
+  const receptionDateISO=val("receptionDateInput");
+  const targetDate=mode==="resepsi_saja" ? receptionDateISO : akadDateISO;
+  const targetTime=mode==="resepsi_saja" ? val("guestArrivalInput") : val("akadTimeInput");
+  const texts={};
+  TEXT_GROUPS.forEach(group=>group.fields.forEach(([key])=>{
+    const input=field(`text_${key}`);
+    texts[key]=input ? String(input.value).trim() : (DEFAULT_INVITATION.texts[key] || "");
+  }));
+  // Preserve every known text key even if a new editor field is added later.
+  Object.keys(DEFAULT_INVITATION.texts).forEach(key=>{
+    if(texts[key]===undefined)texts[key]=DEFAULT_INVITATION.texts[key];
   });
-  $("openPreview").addEventListener("click",()=>{if($("generatedLink").value)window.open($("generatedLink").value,"_blank","noopener,noreferrer");});
-  $("downloadData").addEventListener("click",()=>{if(currentConfig)saveAsJson(currentConfig);});
-  $("saveDraft").addEventListener("click",()=>{
-    if(!form.reportValidity())return;
-    const config=collectConfig();
-    const title=`${config.groom} & ${config.bride}`;
-    const list=drafts();
-    const entry={title,config,savedAt:new Date().toLocaleString("id-ID")};
-    const index=list.findIndex(x=>x.title===title);
-    if(index>=0)list[index]=entry;else list.push(entry);
-    try {localStorage.setItem(STORAGE_KEY,JSON.stringify(list));refreshDrafts();$("resultMessage").textContent=`Draf ${title} disimpan di perangkat ini.`;$("resultPanel").hidden=false;}
-    catch (_) {alert("Penyimpanan browser penuh. Unduh JSON sebagai cadangan.");}
-  });
-  $("loadDraft").addEventListener("click",()=>{
-    const index=Number($("savedList").value),list=drafts();
-    if(!Number.isInteger(index)||!list[index])return alert("Pilih draf terlebih dahulu.");
-    fillForm(list[index].config);
-    $("resultMessage").textContent=`Draf ${list[index].title} dimuat.`;
-    $("resultPanel").hidden=false;
-  });
-  $("deleteDraft").addEventListener("click",()=>{
-    const index=Number($("savedList").value),list=drafts();
-    if(!Number.isInteger(index)||!list[index])return alert("Pilih draf yang akan dihapus.");
-    list.splice(index,1);
+  const bankAccounts=[...$("paymentRows").querySelectorAll(".payment-row")].map(row=>({
+    provider:row.dataset.provider || "BRI",
+    accountNumber:row.querySelector(".payment-number").value.trim(),
+    accountHolder:row.querySelector(".payment-owner").value.trim()
+  })).filter(a=>a.accountNumber);
+  const arrivalSlots=val("arrivalSlotsRows").split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  const guestCountOptions=val("guestCountRows").split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  return {
+    groom:val("groom"),bride:val("bride"),groomParents:val("groomParents"),brideParents:val("brideParents"),
+    eventMode:mode,akadDateISO,receptionDateISO,akadDate:formatDate(akadDateISO),receptionDate:formatDate(receptionDateISO),
+    akadTime:formatTime(val("akadTimeInput")),receptionTime:val("receptionTimeInput"),
+    dateISO:targetDate ? `${targetDate}T${targetTime || "10:00"}:00+07:00` : "",
+    dateLabel:formatDate(targetDate),guestArrival:formatTime(val("guestArrivalInput")),
+    venueName:val("venueName"),venue:val("venue"),mapsUrl:val("mapsUrl"),
+    whatsappNumber:cleanPhone(val("whatsappNumber")),
+    heroImage:val("heroImage"),groomImage:val("groomImage"),brideImage:val("brideImage"),musicFile:val("musicData"),
+    bankAccounts,texts,arrivalSlots:arrivalSlots.length?arrivalSlots:DEFAULT_INVITATION.arrivalSlots,
+    guestCountOptions:guestCountOptions.length?guestCountOptions:DEFAULT_INVITATION.guestCountOptions
+  };
+}
+
+function bytesToBase64Url(bytes) {
+  let binary="";
+  const chunk=0x6000;
+  for(let i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));
+  return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");
+}
+async function makeInvitationLink(config,guest) {
+  const json=JSON.stringify(config);
+  const raw=new TextEncoder().encode(json);
+  let packed=raw,compressed=false;
+  if(typeof CompressionStream==="function") {
+    try {
+      const stream=new Blob([raw]).stream().pipeThrough(new CompressionStream("gzip"));
+      packed=new Uint8Array(await new Response(stream).arrayBuffer());
+      compressed=true;
+    } catch(_) { packed=raw; compressed=false; }
+  }
+  const token=bytesToBase64Url(packed);
+  const url=new URL("./index.html",location.href);
+  const parts=new URLSearchParams();
+  parts.set("v","8");parts.set("p",token);parts.set("z",compressed?"1":"0");
+  if(guest)parts.set("to",guest);
+  url.hash=parts.toString();
+  return url.href;
+}
+
+function showMessage(text,type="info") {
+  const el=$("formMessage");
+  el.textContent=text;
+  el.className=`form-message ${type}`;
+  if(text)el.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function validateBeforeBuild() {
+  if(!val("groom"))return {ok:false,field:"groom",message:"Nama mempelai pria belum diisi."};
+  if(!val("bride"))return {ok:false,field:"bride",message:"Nama mempelai wanita belum diisi."};
+  const mode=eventMode();
+  if(mode!=="resepsi_saja" && !val("akadDateInput"))return {ok:false,field:"akadDateInput",message:"Tanggal akad belum dipilih."};
+  if(mode!=="akad_saja" && !val("receptionDateInput"))return {ok:false,field:"receptionDateInput",message:"Tanggal resepsi belum dipilih."};
+  if(!val("guestArrivalInput"))return {ok:false,field:"guestArrivalInput",message:"Jam tamu diharapkan hadir belum dipilih."};
+  return {ok:true};
+}
+function drafts() {
+  try {const value=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");return Array.isArray(value)?value:[];}
+  catch(_){return [];}
+}
+function refreshDrafts() {
+  const select=$("draftList");select.replaceChildren(new Option("Pilih draf tersimpan",""));
+  drafts().forEach((draft,index)=>select.add(new Option(`${draft.title} · ${draft.savedAt}`,String(index))));
+}
+function saveDraft() {
+  const config=collectConfig();
+  if(!config.groom && !config.bride)return showMessage("Isi setidaknya salah satu nama sebelum menyimpan draf.","error");
+  const title=`${config.groom || "Mempelai"} & ${config.bride || "Mempelai"}`;
+  const list=drafts(),entry={title,config,savedAt:new Date().toLocaleString("id-ID")};
+  const at=list.findIndex(x=>x.title===title);
+  if(at>=0)list[at]=entry;else list.push(entry);
+  try {
     localStorage.setItem(STORAGE_KEY,JSON.stringify(list));
-    refreshDrafts();
+    refreshDrafts();showMessage(`Draf ${title} tersimpan di browser/perangkat ini.`,"success");
+  } catch(error) {
+    showMessage("Penyimpanan browser penuh. Unduh JSON setelah membuat tautan sebagai cadangan.","error");
+  }
+}
+function fillForm(config) {
+  const set=(name,value)=>{const el=field(name);if(el && "value" in el)el.value=value ?? "";};
+  ["groom","bride","groomParents","brideParents","akadDateISO","receptionDateISO","receptionTime","venueName","venue","mapsUrl","whatsappNumber"].forEach(key=>{
+    const map={akadDateISO:"akadDateInput",receptionDateISO:"receptionDateInput"};
+    set(map[key]||key,config[key]||"");
   });
+  set("akadTimeInput",(config.akadTime||"08.00").replace(" WIB","").replace(".",":"));
+  set("guestArrivalInput",(config.guestArrival||"10.00").replace(" WIB","").replace(".",":"));
+  const radio=form.querySelector(`input[name="eventMode"][value="${config.eventMode || "akad_resepsi"}"]`);
+  if(radio)radio.checked=true;
+  updateEventMode();
+  set("arrivalSlotsRows",(config.arrivalSlots||DEFAULT_INVITATION.arrivalSlots).join("\n"));
+  set("guestCountRows",(config.guestCountOptions||DEFAULT_INVITATION.guestCountOptions).join("\n"));
+  set("heroImage",config.heroImage||"");set("groomImage",config.groomImage||"");set("brideImage",config.brideImage||"");set("musicData",config.musicFile||"");
+  setPreview("heroPreview","heroStatus",config.heroImage||"","Foto pasangan dari draf.");
+  setPreview("groomPreview","groomStatus",config.groomImage||"","Foto mempelai pria dari draf.");
+  setPreview("bridePreview","brideStatus",config.brideImage||"","Foto mempelai wanita dari draf.");
+  if(config.musicFile)$("musicStatus").textContent="Musik dari draf siap digunakan.";
+  else $("musicStatus").textContent="Belum ada musik.";
+  $("paymentRows").replaceChildren();
+  (config.bankAccounts||[]).forEach(addPaymentRow);
+  if(!(config.bankAccounts||[]).length)addPaymentRow();
+  TEXT_GROUPS.forEach(group=>group.fields.forEach(([key])=>{
+    const el=field(`text_${key}`);
+    if(el)el.value=(config.texts && config.texts[key]!==undefined)?config.texts[key]:(DEFAULT_INVITATION.texts[key]||"");
+  }));
+}
+function downloadJson(config) {
+  const blob=new Blob([JSON.stringify(config,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const anchor=document.createElement("a");anchor.href=url;
+  anchor.download=`undangan-${(config.groom+"-"+config.bride).toLowerCase().replace(/[^a-z0-9]+/g,"-")}.json`;
+  document.body.appendChild(anchor);anchor.click();anchor.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
 
-  $("eventMode").addEventListener("change",()=>{
-    const onlyReception=$("eventMode").value==="resepsi_saja";
-    $("akadDateWrap").hidden=onlyReception;
-    $("akadTimeWrap").hidden=onlyReception;
-  });
-  $("eventMode").dispatchEvent(new Event("change"));
-  $("addBankAccount").click();
-  refreshDrafts();
+form.addEventListener("submit",async event=>{
+  event.preventDefault();
+  const validation=validateBeforeBuild();
+  if(!validation.ok) {
+    showMessage(validation.message,"error");
+    const control=field(validation.field);
+    if(control){control.focus();control.scrollIntoView({behavior:"smooth",block:"center"});}
+    return;
+  }
+  const button=$("makeLink");button.disabled=true;button.textContent="Sedang membuat tautan…";
+  try {
+    const config=collectConfig();
+    const guest=val("guestName");
+    const link=await makeInvitationLink(config,guest);
+    $("generatedLink").value=link;
+    $("resultPanel").hidden=false;
+    const size=Math.round(new Blob([link]).size/1024);
+    $("linkMessage").textContent=`Tautan berhasil dibuat (${size} KB). Simpan tautan dan unduh cadangan JSON.`;
+    if(size>100) $("linkMessage").textContent+=" Catatan: tautan cukup panjang karena memuat foto/musik. Untuk berbagi yang lebih ringan, kurangi media atau host foto secara terpisah.";
+    showMessage("Undangan berhasil dibuat. Buka pratinjau untuk memeriksa hasilnya.","success");
+    $("resultPanel").scrollIntoView({behavior:"smooth",block:"center"});
+    window.__lastInvitationConfig=config;
+  } catch(error) {
+    showMessage(`Gagal membuat tautan: ${error.message || error}`,"error");
+  } finally {
+    button.disabled=false;button.textContent="✦ Buat / Perbarui Undangan";
+  }
+});
+
+$("saveDraft").addEventListener("click",saveDraft);
+$("copyLink").addEventListener("click",async()=>{
+  const text=$("generatedLink").value;
+  if(!text)return showMessage("Buat undangan terlebih dahulu.","error");
+  try {await navigator.clipboard.writeText(text);$("linkMessage").textContent="Tautan berhasil disalin.";}
+  catch(_) {$("generatedLink").focus();$("generatedLink").select();$("linkMessage").textContent="Tautan sudah dipilih. Tekan Ctrl+C untuk menyalin.";}
+});
+$("openPreview").addEventListener("click",()=>{
+  const link=$("generatedLink").value;
+  if(!link)return showMessage("Buat undangan terlebih dahulu.","error");
+  window.open(link,"_blank","noopener,noreferrer");
+});
+$("downloadJson").addEventListener("click",()=>{
+  const config=window.__lastInvitationConfig || collectConfig();
+  downloadJson(config);
+});
+$("loadDraft").addEventListener("click",()=>{
+  const index=Number($("draftList").value),list=drafts();
+  if(!Number.isInteger(index)||!list[index])return showMessage("Pilih draf terlebih dahulu.","error");
+  fillForm(list[index].config);showMessage(`Draf ${list[index].title} berhasil dimuat.`,"success");
+});
+$("deleteDraft").addEventListener("click",()=>{
+  const index=Number($("draftList").value),list=drafts();
+  if(!Number.isInteger(index)||!list[index])return showMessage("Pilih draf yang akan dihapus.","error");
+  list.splice(index,1);localStorage.setItem(STORAGE_KEY,JSON.stringify(list));refreshDrafts();showMessage("Draf berhasil dihapus.","success");
+});
+$("importJson").addEventListener("change",async()=>{
+  const file=$("importJson").files && $("importJson").files[0];if(!file)return;
+  try {
+    const data=JSON.parse(await file.text());
+    fillForm(data);showMessage("Cadangan JSON berhasil dimuat. Periksa lalu buat tautan baru.","success");
+  } catch(_) {showMessage("File JSON tidak valid atau rusak.","error");}
+});
+refreshDrafts();
 })();

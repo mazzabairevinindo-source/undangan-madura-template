@@ -1,39 +1,38 @@
-# Template Undangan Digital Adat Madura V6
+# Undangan Digital Adat Madura — V8 Stabil
 
-Template statis untuk GitHub Pages dengan:
-- Sampul ilustrasi rumah adat Madura.
-- Setelah sampul dibuka, tampil poster foto pasangan full-portrait.
-- Tema merah marun, hitam, dan emas.
-- Pilihan jenis acara: akad + resepsi atau resepsi saja.
-- Lokasi acara dengan peta Google Maps, alamat dan tombol petunjuk.
-- Pilihan bank/e-wallet (DANA, BRI, BCA, BNI, Mandiri, BSI, BTN, CIMB, Permata, Danamon, Jatim, OVO, GoPay, ShopeePay, LinkAja).
-- Kartu rekening satu metode pada satu waktu, lengkap dengan logo teks/warna, nomor dan tombol salin.
-- Upload foto langsung dari galeri HP/komputer; foto diperkecil dan ditampilkan sebagai pratinjau lokal.
-- Upload musik singkat langsung dari perangkat.
-- Seluruh tulisan undangan dapat diubah di halaman admin.
-- Tautan undangan memakai data terkompresi di bagian fragment URL agar data tidak dikirim sebagai query ke server GitHub Pages.
-- Tautan versi lama V4-V6 dengan `?data=` tetap bisa dibaca.
-- Pratinjau foto mempunyai fallback untuk browser tanpa `createImageBitmap`.
-- Tanggal akad dan resepsi disimpan terpisah saat membuat/memuat draf.
+Paket ini dibuat ulang dengan acuan tiga gambar desain yang diberikan pengguna:
+- Sampul memakai gambar rumah adat Madura dalam bingkai batik.
+- Setelah tombol buka ditekan, halaman menampilkan foto pasangan sebagai poster potret.
+- Isi undangan menggunakan panel krem, merah marun, hitam, dan emas.
+- Admin bergaya dashboard dengan navigasi bagian dan pilihan bank/e-wallet berbentuk tombol.
 
-## Unggah ke GitHub Pages
-Ekstrak ZIP lalu unggah semua file dan folder ke root repository yang sama. Timpa file lama jika diminta. Pastikan file `rumah-adat-madura-illustration.svg` ikut diunggah di root repository.
+## File
+- `index.html` — halaman publik undangan.
+- `admin.html` — pembuat undangan.
+- `config.js` — teks dan data bawaan.
+- `script.js` — pembacaan tautan, tampilan undangan, lokasi, rekening, countdown, RSVP.
+- `admin.js` — editor semua teks, unggah media, pilihan bank, simpan draf, buat tautan.
+- `style.css`, `admin.css` — desain responsif.
+- `rumah-adat-madura-cover.jpg` — gambar sampul rumah adat Madura yang diberikan pengguna.
 
-## Halaman
-- Website undangan: `index.html`
-- Admin/pembuat: `admin.html`
-
-## Cara menggunakan
+## Cara memakai
 1. Buka `admin.html`.
-2. Masukkan identitas kedua mempelai.
-3. Pilih jenis acara: akad + resepsi atau resepsi saja.
-4. Isi tanggal, jam acara, jam tamu hadir dan lokasi.
-5. Klik bidang pilih foto untuk membuka galeri HP/folder komputer. Lihat pratinjau foto.
-6. Pilih musik singkat jika diperlukan.
-7. Tambahkan metode pembayaran yang ingin ditampilkan. Bisa menambahkan beberapa bank/e-wallet.
-8. Ubah teks pada bagian "Semua tulisan undangan" jika diperlukan.
-9. Klik Buat tautan. Tautan akan membawa data pasangan dan foto/musik terkompresi.
-10. Unduh JSON sebagai cadangan dan simpan tautan yang sudah dibuat.
+2. Isi nama kedua mempelai.
+3. Pilih jenis acara: akad + resepsi, resepsi saja, atau akad saja.
+4. Isi tanggal dan jam sesuai jenis acara.
+5. Isi lokasi dan tautan Google Maps.
+6. Klik tombol pilih foto untuk memilih dari galeri HP / folder komputer.
+7. Pilih metode pembayaran lewat tombol bank/e-wallet, lalu isi nomor dan nama pemilik. Tambahkan metode lain bila perlu.
+8. Buka bagian Semua Teks untuk mengubah judul, salam, paragraf, label, tombol, RSVP dan penutup.
+9. Masukkan nomor WhatsApp panitia.
+10. Klik Buat / Perbarui Undangan, lalu salin tautannya dan unduh JSON sebagai cadangan.
 
-## Batasan hosting gratis statis
-GitHub Pages tidak menjalankan database atau server. Data draf tersimpan di browser yang digunakan, bukan tersinkron antar perangkat. Data setiap undangan dibawa melalui parameter tautan. Foto dikompresi ke WebP/JPEG dan audio dibatasi agar tautan lebih pendek. Bagian fragment tidak dikirim ke server GitHub Pages, tetapi tetap menjadi bagian tautan yang dibagikan. Tautan masih dapat panjang bila foto dan audio sama-sama disertakan; simpan JSON dan tautan sebagai cadangan. RSVP diteruskan ke WhatsApp panitia; tidak ada rekap otomatis ke server.
+## Uji sebelum dibagikan
+- Buka tautan yang dihasilkan di tab baru.
+- Tekan tombol Buka Undangan.
+- Coba tombol Musik jika musik sudah diunggah.
+- Klik pilihan bank/e-wallet pada bagian hadiah.
+- Isi RSVP untuk membuka pesan WhatsApp.
+
+## Catatan teknis
+GitHub Pages adalah hosting statis, tanpa database atau server. Data undangan disimpan di dalam fragmen tautan yang terkompresi; draf admin hanya tersimpan pada browser/perangkat admin. Foto diperkecil otomatis agar tautan tidak terlalu besar. File musik dibatasi 100 KB untuk menghindari tautan yang terlalu panjang. RSVP diteruskan melalui WhatsApp dan tidak direkap otomatis di server.

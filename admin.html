@@ -1,133 +1,181 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#3a0710">
-  <title>Pembuat Undangan Adat Madura V7</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#3b0b15">
+<title>Pembuat Undangan Madura</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
 </head>
 <body>
-  <header class="topbar"><a class="brand" href="index.html">✦ UNDANGAN MADURA</a><a class="view-site" href="index.html" target="_blank" rel="noopener">Lihat template ↗</a></header>
-  <main class="admin-wrap">
-    <section class="intro-card">
-      <p class="eyebrow">TEMPLATE UNDANGAN DIGITAL · V7</p>
-      <h1>Pembuat Undangan Adat Madura</h1>
-      <p>Kelola banyak pasangan dari satu template. Pilih jenis acara, ubah tulisan, pilih foto dari perangkat, lalu buat tautan undangan khusus yang lebih ringan.</p>
-      <div class="intro-pills"><span>✓ Banyak pasangan</span><span>✓ Foto dari perangkat</span><span>✓ Hosting gratis</span></div>
+<header class="admin-top"><a href="index.html" class="admin-brand"><span>✿</span> PEMBUAT UNDANGAN MADURA</a><a href="index.html" target="_blank" rel="noopener" class="view-template">Lihat template ↗</a></header>
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="side-title"><span class="house-mark">⌂</span><div><strong>Pembuat Undangan</strong><small>Adat Madura · Royal Edition</small></div></div>
+    <nav>
+      <a href="#identity">♙ <span>Identitas Mempelai</span></a>
+      <a href="#events">♧ <span>Pengaturan Acara</span></a>
+      <a href="#venue">⌖ <span>Lokasi & Maps</span></a>
+      <a href="#media">▧ <span>Foto & Musik</span></a>
+      <a href="#payments">▣ <span>Hadiah / Rekening</span></a>
+      <a href="#texts">文 <span>Semua Teks</span></a>
+      <a href="#publish">↗ <span>Buat Tautan</span></a>
+      <a href="#drafts">▤ <span>Draf & Cadangan</span></a>
+    </nav>
+    <div class="side-note">Gunakan satu template untuk banyak pasangan. Setiap hasil pembuatan memiliki tautan sendiri.</div>
+  </aside>
+
+  <main class="admin-main">
+    <section class="admin-hero">
+      <div class="hero-house-icon">⌂</div>
+      <p class="eyebrow">TEMPLATE UNDANGAN DIGITAL</p>
+      <h1>Pembuat Undangan<br><em>Adat Madura</em></h1>
+      <p>Isi data pasangan, pilih jenis acara, ubah semua tulisan, lalu buat tautan undangan.</p>
+      <div class="hero-tags"><span>✓ Multi-pasangan</span><span>✓ Foto dari perangkat</span><span>✓ GitHub Pages gratis</span></div>
     </section>
 
-    <form id="builderForm" class="builder-form">
-      <section class="form-card">
-        <div class="section-head"><span>01</span><div><h2>Identitas mempelai</h2><p>Nama dan orang tua kedua mempelai.</p></div></div>
-        <div class="form-grid">
-          <label>Nama lengkap mempelai pria<input name="groom" required placeholder="Contoh: Ahmad Fauzi"></label>
-          <label>Nama lengkap mempelai wanita<input name="bride" required placeholder="Contoh: Fatimah Zahra"></label>
+    <form id="builderForm" novalidate>
+      <section id="identity" class="admin-card">
+        <div class="card-title"><span class="number">01</span><div><h2>Identitas Mempelai</h2><p>Nama dan keluarga kedua mempelai.</p></div></div>
+        <div class="field-grid">
+          <label>Nama mempelai pria<input name="groom" required placeholder="Nama lengkap mempelai pria"></label>
+          <label>Nama mempelai wanita<input name="bride" required placeholder="Nama lengkap mempelai wanita"></label>
           <label>Orang tua mempelai pria<input name="groomParents" placeholder="Putra dari Bapak ... dan Ibu ..."></label>
           <label>Orang tua mempelai wanita<input name="brideParents" placeholder="Putri dari Bapak ... dan Ibu ..."></label>
         </div>
       </section>
 
-      <section class="form-card">
-        <div class="section-head"><span>02</span><div><h2>Jenis acara dan waktu</h2><p>Pilih apakah undangan memuat akad dan resepsi atau resepsi saja.</p></div></div>
-        <label>Jenis acara
-          <select name="eventMode" id="eventMode">
-            <option value="akad_resepsi">Akad nikah dan resepsi</option>
-            <option value="resepsi_saja">Resepsi saja</option>
-          </select>
-        </label>
-        <div class="form-grid event-grid-admin">
-          <label id="akadDateWrap">Tanggal akad<input name="akadDateInput" type="date"></label>
-          <label id="akadTimeWrap">Jam akad<input name="akadTimeInput" type="time" value="08:00"></label>
-          <label>Tanggal resepsi<input name="receptionDateInput" type="date" required></label>
-          <label>Waktu resepsi<input name="receptionTimeInput" type="text" value="10.00–13.00 WIB" placeholder="10.00–13.00 WIB"></label>
-          <label>Jam tamu diharapkan hadir<input name="guestArrivalInput" type="time" value="10:00" required></label>
+      <section id="events" class="admin-card">
+        <div class="card-title"><span class="number">02</span><div><h2>Pengaturan Acara</h2><p>Pilih rangkaian acara yang akan ditampilkan.</p></div></div>
+        <div class="event-mode-options">
+          <label class="mode-choice"><input type="radio" name="eventMode" value="akad_resepsi" checked><span><b>💍</b><strong>Akad Nikah & Resepsi</strong><small>Dua rangkaian acara</small></span></label>
+          <label class="mode-choice"><input type="radio" name="eventMode" value="resepsi_saja"><span><b>🎉</b><strong>Resepsi Saja</strong><small>Tanpa bagian akad</small></span></label>
+          <label class="mode-choice"><input type="radio" name="eventMode" value="akad_saja"><span><b>🤝</b><strong>Akad Nikah Saja</strong><small>Tanpa bagian resepsi</small></span></label>
         </div>
-        <p class="hint">Jika memilih “Resepsi saja”, kartu akad tidak ditampilkan kepada tamu. Tanggal dan waktu dapat diatur terpisah.</p>
-      </section>
-
-      <section class="form-card">
-        <div class="section-head"><span>03</span><div><h2>Lokasi acara</h2><p>Peta dan alamat akan tampil dalam kartu lokasi.</p></div></div>
-        <div class="form-grid">
-          <label class="full">Nama tempat/gedung<input name="venueName" placeholder="Contoh: Kediaman Mempelai Wanita"></label>
-          <label class="full">Alamat lengkap<textarea name="venue" rows="3" placeholder="Dusun, desa, kecamatan, kabupaten, provinsi"></textarea></label>
-          <label class="full">Tautan Google Maps<input name="mapsUrl" placeholder="Tempel tautan Google Maps"></label>
-        </div>
-      </section>
-
-      <section class="form-card">
-        <div class="section-head"><span>04</span><div><h2>Foto mempelai dan musik</h2><p>Pilih langsung dari galeri HP atau folder komputer.</p></div></div>
-        <div class="form-grid">
-          <div class="upload-box full">
-            <label for="photoPicker">Foto pasangan (untuk sampul foto setelah undangan dibuka)</label>
-            <input id="photoPicker" type="file" accept="image/jpeg,image/png,image/webp">
-            <img id="photoPreview" class="upload-preview" alt="Pratinjau foto pasangan" hidden>
-            <input name="heroImage" type="hidden">
-            <small id="photoStatus" class="upload-status">Klik Pilih File untuk membuka galeri HP atau folder komputer. Foto akan diperkecil otomatis.</small>
+        <div class="field-grid event-details">
+          <div id="akadFields" class="sub-event">
+            <h3>Akad Nikah</h3>
+            <label>Tanggal akad<input name="akadDateInput" type="date"></label>
+            <label>Jam akad<input name="akadTimeInput" type="time" value="08:00"></label>
           </div>
-          <div class="upload-box full">
-            <label for="musicPicker">Musik latar islami (MP3/OGG)</label>
-            <input id="musicPicker" type="file" accept="audio/mpeg,audio/ogg,audio/mp4">
-            <input name="musicFile" type="hidden">
-            <small id="musicStatus" class="upload-status">Pilih file audio dari perangkat. Disarankan maksimal 100 KB agar tautan tetap ringkas.</small>
+          <div id="receptionFields" class="sub-event">
+            <h3>Resepsi</h3>
+            <label>Tanggal resepsi<input name="receptionDateInput" type="date"></label>
+            <label>Waktu resepsi<input name="receptionTimeInput" type="text" value="10.00–13.00 WIB" placeholder="10.00–13.00 WIB"></label>
+          </div>
+          <label class="field-full">Jam tamu diharapkan hadir<input name="guestArrivalInput" type="time" value="10:00"></label>
+        </div>
+        <p class="help">Jam kehadiran ini ditampilkan sebagai waktu yang diminta kepada tamu. Tamu juga dapat memilih perkiraan jam kedatangan melalui RSVP.</p>
+      </section>
+
+      <section id="venue" class="admin-card">
+        <div class="card-title"><span class="number">03</span><div><h2>Lokasi & Google Maps</h2><p>Isi nama tempat dan alamat acara.</p></div></div>
+        <div class="field-grid">
+          <label class="field-full">Nama tempat / gedung<input name="venueName" placeholder="Contoh: Kediaman Mempelai Wanita"></label>
+          <label class="field-full">Alamat lengkap<textarea name="venue" rows="3" placeholder="Dusun, desa, kecamatan, kabupaten, provinsi"></textarea></label>
+          <label class="field-full">Tautan Google Maps<input name="mapsUrl" placeholder="Tempel tautan Google Maps (opsional)"></label>
+        </div>
+      </section>
+
+      <section id="media" class="admin-card">
+        <div class="card-title"><span class="number">04</span><div><h2>Foto & Musik</h2><p>Tekan tombol pilih file untuk membuka galeri HP atau folder komputer.</p></div></div>
+        <div class="media-grid">
+          <div class="upload-tile">
+            <label for="heroFile"><span class="upload-symbol">▧</span><strong>Foto pasangan utama</strong><small>Ditampilkan memenuhi layar setelah sampul dibuka.</small><span class="file-button">Pilih foto pasangan</span></label>
+            <input id="heroFile" type="file" accept="image/jpeg,image/png,image/webp">
+            <img id="heroPreview" class="preview-image" alt="Pratinjau foto pasangan" hidden>
+            <input type="hidden" name="heroImage">
+            <p id="heroStatus" class="file-status">Belum ada foto.</p>
+          </div>
+          <div class="upload-tile">
+            <label for="groomFile"><span class="upload-symbol">♙</span><strong>Foto mempelai pria</strong><small>Foto profil pada bagian mempelai.</small><span class="file-button">Pilih foto pria</span></label>
+            <input id="groomFile" type="file" accept="image/jpeg,image/png,image/webp">
+            <img id="groomPreview" class="preview-image small-preview" alt="Pratinjau foto pria" hidden>
+            <input type="hidden" name="groomImage">
+            <p id="groomStatus" class="file-status">Opsional.</p>
+          </div>
+          <div class="upload-tile">
+            <label for="brideFile"><span class="upload-symbol">♙</span><strong>Foto mempelai wanita</strong><small>Foto profil pada bagian mempelai.</small><span class="file-button">Pilih foto wanita</span></label>
+            <input id="brideFile" type="file" accept="image/jpeg,image/png,image/webp">
+            <img id="bridePreview" class="preview-image small-preview" alt="Pratinjau foto wanita" hidden>
+            <input type="hidden" name="brideImage">
+            <p id="brideStatus" class="file-status">Opsional.</p>
+          </div>
+          <div class="upload-tile audio-tile">
+            <label for="musicFile"><span class="upload-symbol">♫</span><strong>Musik latar islami</strong><small>MP3, OGG, atau M4A pendek.</small><span class="file-button">Pilih musik</span></label>
+            <input id="musicFile" type="file" accept="audio/mpeg,audio/ogg,audio/mp4,audio/x-m4a">
+            <input type="hidden" name="musicData">
+            <p id="musicStatus" class="file-status">Opsional. Maksimal 100 KB agar tautan tidak terlalu panjang.</p>
           </div>
         </div>
-        <p class="hint">Pratinjau foto memakai file lokal di perangkat. Foto terkompresi akan ikut dalam tautan undangan; simpan tautan dan cadangan JSON setelah dibuat.</p>
+        <p class="help">Foto diperkecil otomatis. Jika ingin galeri banyak foto, lebih aman unggah foto ke repository sebagai aset publik dan gunakan versi lanjutan.</p>
       </section>
 
-      <section class="form-card">
-        <div class="section-head"><span>05</span><div><h2>Hadiah pernikahan / rekening</h2><p>Tambahkan hanya bank atau dompet digital yang ingin ditampilkan kepada tamu.</p></div></div>
-        <div id="bankAccountList" class="bank-account-list"></div>
-        <button type="button" id="addBankAccount" class="secondary add-account">＋ Tambah bank / e-wallet</button>
-        <p class="hint">Tamu hanya melihat metode pembayaran yang Anda tambahkan. Mereka dapat memilih satu metode, lalu kartu berlogo dan nomor rekening tampil.</p>
+      <section id="payments" class="admin-card">
+        <div class="card-title"><span class="number">05</span><div><h2>Hadiah / Rekening</h2><p>Pilih bank atau e-wallet dengan menekan logo yang diinginkan.</p></div></div>
+        <div id="paymentRows" class="payment-rows"></div>
+        <button id="addPayment" type="button" class="add-payment">＋ Tambah rekening / e-wallet</button>
+        <p class="help">Tamu hanya melihat metode yang Anda tambahkan. Pada undangan, mereka memilih satu metode untuk menampilkan kartu rekeningnya.</p>
       </section>
 
-      <section class="form-card">
-        <div class="section-head"><span>06</span><div><h2>Konfirmasi kehadiran</h2><p>Nomor WhatsApp penerima konfirmasi RSVP.</p></div></div>
+      <section class="admin-card">
+        <div class="card-title"><span class="number">06</span><div><h2>Konfirmasi Kehadiran</h2><p>Nomor WhatsApp penyelenggara untuk menerima RSVP.</p></div></div>
         <label>Nomor WhatsApp panitia<input name="whatsappNumber" inputmode="tel" placeholder="6281234567890"></label>
-        <p class="hint">Gunakan format internasional tanpa tanda + atau spasi. RSVP akan diteruskan melalui WhatsApp.</p>
-      </section>
-
-      <section class="form-card text-custom-card">
-        <div class="section-head"><span>07</span><div><h2>Semua tulisan undangan</h2><p>Ubah judul, salam, kalimat, label tombol, RSVP, dan penutup.</p></div></div>
-        <div id="textEditor" class="text-editor-groups"></div>
-        <div class="form-grid text-extra-grid">
-          <label>Pilihan jam kedatangan tamu (satu pilihan per baris)<textarea name="arrivalSlotsRows" rows="5"></textarea></label>
-          <label>Pilihan jumlah tamu (satu angka per baris)<textarea name="guestCountRows" rows="5"></textarea></label>
+        <div class="field-grid">
+          <label>Pilihan jam kedatangan tamu<textarea name="arrivalSlotsRows" rows="4">08.00–09.00 WIB
+09.00–10.00 WIB
+10.00–11.00 WIB
+11.00–12.00 WIB
+12.00 WIB atau setelahnya</textarea></label>
+          <label>Pilihan jumlah tamu<textarea name="guestCountRows" rows="4">1
+2
+3
+4
+5</textarea></label>
         </div>
       </section>
 
-      <section class="form-card action-card">
-        <div class="section-head"><span>08</span><div><h2>Buat tautan undangan</h2><p>Satu pasangan mendapatkan satu tautan data tersendiri; nama tamu dapat ditambahkan kemudian.</p></div></div>
-        <label>Nama tamu (opsional)<input name="guestName" placeholder="Contoh: Keluarga Bapak Ahmad"></label>
-        <div class="button-row">
-          <button class="primary" type="submit">Buat tautan undangan</button>
-          <button class="secondary" type="button" id="saveDraft">Simpan data di perangkat</button>
+      <section id="texts" class="admin-card">
+        <div class="card-title"><span class="number">07</span><div><h2>Semua Teks Undangan</h2><p>Ubah salam, judul, paragraf, label, tombol, pesan RSVP, dan penutup.</p></div></div>
+        <p class="help">Buka kelompok teks yang ingin diedit. Semua teks yang tampil kepada tamu ada di sini.</p>
+        <div id="textEditor" class="text-groups"></div>
+      </section>
+
+      <section id="publish" class="admin-card publish-card">
+        <div class="card-title"><span class="number">08</span><div><h2>Buat Undangan</h2><p>Hasilkan tautan tersendiri untuk pasangan ini.</p></div></div>
+        <label>Nama tamu undangan (opsional)<input name="guestName" placeholder="Contoh: Keluarga Bapak Ahmad"></label>
+        <div id="formMessage" class="form-message" role="status" aria-live="polite"></div>
+        <div class="publish-actions">
+          <button type="submit" class="primary-button" id="makeLink">✦ Buat / Perbarui Undangan</button>
+          <button type="button" class="secondary-button" id="saveDraft">Simpan Draf</button>
         </div>
         <div id="resultPanel" class="result-panel" hidden>
-          <label>Tautan undangan<textarea id="generatedLink" rows="5" readonly></textarea></label>
-          <div class="button-row">
-            <button class="primary" type="button" id="copyLink">Salin tautan</button>
-            <button class="secondary" type="button" id="openPreview">Buka pratinjau</button>
-            <button class="secondary" type="button" id="downloadData">Unduh cadangan JSON</button>
+          <label>Tautan undangan<textarea id="generatedLink" rows="4" readonly></textarea></label>
+          <div class="publish-actions">
+            <button type="button" id="copyLink" class="primary-button">Salin Tautan</button>
+            <button type="button" id="openPreview" class="secondary-button">Lihat Hasil</button>
+            <button type="button" id="downloadJson" class="secondary-button">Unduh JSON</button>
           </div>
-          <p id="resultMessage" class="success-message" aria-live="polite"></p>
+          <p id="linkMessage" class="success-message"></p>
         </div>
       </section>
     </form>
 
-    <section class="form-card saved-card">
-      <div class="section-head"><span>09</span><div><h2>Draf undangan di perangkat ini</h2><p>Dapat dimuat kembali pada browser dan perangkat yang sama.</p></div></div>
-      <div class="saved-row"><select id="savedList"><option value="">Pilih draf tersimpan</option></select><button type="button" class="secondary" id="loadDraft">Muat</button><button type="button" class="danger" id="deleteDraft">Hapus</button></div>
-      <p class="hint">Draf tidak tersimpan di server. Unduh JSON sebagai cadangan, terutama sebelum menghapus riwayat browser.</p>
+    <section id="drafts" class="admin-card">
+      <div class="card-title"><span class="number">09</span><div><h2>Draf & Cadangan</h2><p>Draf tersimpan di browser ini saja.</p></div></div>
+      <div class="draft-controls"><select id="draftList"><option value="">Pilih draf tersimpan</option></select><button type="button" id="loadDraft" class="secondary-button">Muat</button><button type="button" id="deleteDraft" class="danger-button">Hapus</button></div>
+      <p class="help">Untuk pindah perangkat atau menyimpan jangka panjang, unduh JSON setelah membuat tautan.</p>
+      <label class="import-label">Impor cadangan JSON<input id="importJson" type="file" accept="application/json,.json"></label>
     </section>
-    <section class="notice-card"><strong>Catatan hosting gratis</strong><p>GitHub Pages adalah hosting statis. Setiap tautan membawa data undangan masing-masing. Data draf tersimpan di browser lokal, bukan database online. Foto dan musik diperkecil agar tautan lebih ringan. RSVP dikirim melalui WhatsApp.</p></section>
-    <footer>Undangan Madura · Merah, hitam, emas · Template multi-pasangan</footer>
+
+    <aside class="disclaimer"><strong>Catatan hosting gratis:</strong> GitHub Pages tidak menyediakan database. Setiap tautan membawa data pasangan masing-masing; draf tersimpan pada browser pengelola. RSVP diteruskan ke WhatsApp, bukan disimpan otomatis ke server.</aside>
+    <footer class="admin-footer">UNDANGAN MADURA · ROYAL MAROON EDITION</footer>
   </main>
-  <script src="config.js"></script>
-  <script src="admin.js"></script>
+</div>
+<script src="config.js"></script>
+<script src="admin.js"></script>
 </body>
 </html>
