@@ -1,22 +1,32 @@
-# Template Undangan Pernikahan Adat Madura – Versi 3
+# Template Undangan Digital Adat Madura — V4 Editable Text
 
-Versi desain yang diperbarui dengan ornamen batik Madura bergaya pesisir/gentongan, warna merah-biru-hijau-emas, bingkai lengkung, animasi sampul, elemen dekoratif, dan animasi saat halaman digulir. Motif SVG adalah interpretasi dekoratif baru yang terinspirasi dari ragam flora, sulur, dan warna batik Madura; bukan salinan satu motif tradisional tertentu.
+## Semua teks undangan dapat diubah
+Buka `admin.html`. Pada bagian **Semua tulisan undangan**, tersedia kolom untuk mengubah seluruh salinan yang tampil kepada tamu serta pesan status dan format pesan WhatsApp: tulisan sampul, salam, pengantar, judul bagian, label mempelai, kutipan, nama acara, jam hadir, lokasi, hitung mundur, hadiah/rekening, label dan pilihan RSVP, placeholder, tombol, serta penutup. Perubahan teks ikut dimasukkan ke tautan undangan masing-masing.
 
-## Cara mengubah data undangan
-Edit file `config.js` saja untuk mengganti nama mempelai, nama orang tua, tanggal, waktu akad/resepsi, jam kehadiran tamu, alamat, tautan peta, WhatsApp panitia, rekening, foto, dan musik.
+Label dan petunjuk pada halaman admin bersifat instruksi pengelola, bukan teks undangan.
 
-- `heroImage`: contoh `assets/foto/mempelai.jpg`
-- `musicFile`: contoh `assets/musik/islami.mp3`
-- `whatsappNumber`: nomor format internasional tanpa `+` atau spasi, misalnya `6281234567890`
+## File utama
+- `index.html`: halaman undangan.
+- `admin.html`: pembuat tautan undangan dan editor seluruh teks.
+- `config.js`: teks bawaan dan data contoh.
+- `script.js`: renderer halaman undangan.
+- `admin.js`: formulir pembuat undangan.
+- `style.css`, `admin.css`: desain halaman.
+- `batik-madura.svg`: motif ornamen.
+- `batik-madura-fabric.jpg`: foto kain batik dekoratif tanpa tulisan.
 
-Foto dan musik dapat ditambahkan kemudian. Pastikan Anda memiliki hak untuk menggunakan file musik tersebut.
+## Menggunakan berulang kali
+1. Buka `/admin.html`.
+2. Isi nama, keluarga, acara, jam kehadiran, lokasi, foto, musik, rekening, WhatsApp.
+3. Buka grup **Semua tulisan undangan** untuk mengedit copy undangan.
+4. Tekan **Buat tautan undangan**.
+5. Masukkan nama tamu untuk membuat tautan personal. Ulangi untuk pasangan lain atau nama tamu berbeda.
+6. Unduh file JSON sebagai cadangan dan simpan tautannya.
 
-## RSVP
-Form mengirim konfirmasi dan pilihan jam kedatangan ke WhatsApp panitia. Template ini belum menyimpan RSVP ke database atau Google Sheets secara otomatis.
+## Batasan hosting gratis statis
+GitHub Pages tidak menyediakan database atau autentikasi admin. Draf disimpan pada browser/perangkat lokal. Data acara dan teks ikut dibawa dalam URL `?data=...`; URL dapat menjadi panjang jika teks sangat banyak. RSVP dikirim langsung ke WhatsApp panitia, bukan tersimpan sebagai daftar online. Jangan memakai kata sandi atau informasi rahasia di data undangan.
 
-## Tautan nama tamu
-Tambahkan `?to=Nama+Tamu` pada URL, misalnya:
-`https://USERNAME.github.io/undangan-madura-template/?to=Keluarga+Bapak+Ahmad`
+Foto pasangan dan audio harus diunggah ke repository atau tersedia melalui URL publik. Foto kain batik dekoratif sudah disertakan.
 
-## Memperbarui repository GitHub
-Unggah dan timpa file `index.html`, `style.css`, `script.js`, `config.js`, dan `README.md` pada root repository. Tambahkan juga `batik-madura.svg` pada root yang sama. Jangan meletakkan file-file ini di dalam folder lain.
+## Publikasi
+Unggah semua file ke root repository GitHub yang sama, timpa file yang namanya sama, commit ke branch `main`, dan pertahankan GitHub Pages pada `main` serta folder `/ (root)`.

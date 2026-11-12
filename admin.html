@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123d35">
+  <title>Pembuat Undangan Madura</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">✦ UNDANGAN MADURA</a>
+    <a class="view-site" href="index.html" target="_blank" rel="noopener">Lihat template ↗</a>
+  </header>
+  <main class="admin-wrap">
+    <section class="intro-card">
+      <p class="eyebrow">TEMPLATE UNDANGAN DIGITAL</p>
+      <h1>Pembuat Undangan</h1>
+      <p>Isi data pasangan sekali, lalu buat tautan undangan sendiri. Ulangi proses ini untuk pasangan berikutnya tanpa membuat website baru.</p>
+      <div class="intro-pills"><span>✓ Banyak pasangan</span><span>✓ Tautan masing-masing</span><span>✓ Gratis di GitHub Pages</span></div>
+    </section>
+
+    <form id="builderForm" class="builder-form">
+      <section class="form-card">
+        <div class="section-head"><span>01</span><div><h2>Identitas mempelai</h2><p>Nama dan keluarga kedua mempelai.</p></div></div>
+        <div class="form-grid">
+          <label>Nama lengkap mempelai pria<input name="groom" required placeholder="Contoh: Ahmad Fauzi"></label>
+          <label>Nama lengkap mempelai wanita<input name="bride" required placeholder="Contoh: Fatimah Zahra"></label>
+          <label>Orang tua mempelai pria<input name="groomParents" placeholder="Putra dari Bapak ... dan Ibu ..."></label>
+          <label>Orang tua mempelai wanita<input name="brideParents" placeholder="Putri dari Bapak ... dan Ibu ..."></label>
+        </div>
+      </section>
+
+
+      <section class="form-card text-custom-card">
+        <div class="section-head"><span>02</span><div><h2>Semua tulisan undangan</h2><p>Ubah judul, salam, kalimat, label, tombol, pilihan RSVP, dan teks penutup. Biarkan apa adanya jika ingin memakai teks bawaan.</p></div></div>
+        <div id="textEditor" class="text-editor-groups"></div>
+        <div class="form-grid text-extra-grid">
+          <label>Daftar pilihan jam kedatangan tamu (satu pilihan per baris)<textarea name="arrivalSlotsRows" rows="5"></textarea></label>
+          <label>Daftar pilihan jumlah tamu (satu angka per baris)<textarea name="guestCountRows" rows="5"></textarea></label>
+        </div>
+        <p class="hint">Semua teks yang tampil pada halaman undangan dapat diubah di sini. Teks label di halaman admin hanya sebagai petunjuk pengisian dan tidak muncul kepada tamu.</p>
+      </section>
+
+      <section class="form-card">
+        <div class="section-head"><span>03</span><div><h2>Tanggal dan waktu</h2><p>Tentukan tanggal acara dan jam yang dicantumkan untuk tamu.</p></div></div>
+        <div class="form-grid">
+          <label>Tanggal pernikahan<input name="eventDate" type="date" required></label>
+          <label>Jam akad nikah<input name="akadTimeInput" type="time" value="08:00" required></label>
+          <label>Jam resepsi<input name="receptionTimeInput" type="text" value="10.00–13.00 WIB" placeholder="10.00–13.00 WIB"></label>
+          <label>Jam tamu diharapkan hadir<input name="guestArrivalInput" type="time" value="10:00" required></label>
+        </div>
+        <p class="hint">Tanggal akad dan resepsi mengikuti tanggal pernikahan. Jam kedatangan ini ditampilkan sebagai informasi resmi di undangan.</p>
+      </section>
+
+      <section class="form-card">
+        <div class="section-head"><span>04</span><div><h2>Lokasi acara</h2><p>Alamat dan tautan petunjuk lokasi.</p></div></div>
+        <div class="form-grid">
+          <label class="full">Alamat lengkap acara<textarea name="venue" rows="2" placeholder="Desa, kecamatan, kabupaten, provinsi"></textarea></label>
+          <label class="full">Tautan Google Maps<input name="mapsUrl" type="text" placeholder="https://maps.app.goo.gl/..."></label>
+        </div>
+      </section>
+
+      <section class="form-card">
+        <div class="section-head"><span>05</span><div><h2>Foto dan musik</h2><p>Isi alamat file yang sudah diunggah ke repository atau alamat web publik.</p></div></div>
+        <div class="form-grid">
+          <label class="full">Alamat/path foto kedua mempelai<input name="heroImage" type="text" placeholder="assets/foto/mempelai.jpg atau https://..."></label>
+          <label class="full">Alamat/path musik islami<input name="musicFile" type="text" placeholder="assets/musik/islami.mp3 atau https://..."></label>
+        </div>
+        <p class="hint">Foto dan audio harus berupa file yang dapat dibuka melalui tautan publik. File foto kain batik dekoratif sudah termasuk dalam template.</p>
+      </section>
+
+      <section class="form-card">
+        <div class="section-head"><span>06</span><div><h2>Hadiah pernikahan</h2><p>Bagian rekening dapat dibiarkan kosong jika tidak digunakan.</p></div></div>
+        <div class="form-grid">
+          <label>Nama bank<input name="bankName" placeholder="Contoh: BSI"></label>
+          <label>Nomor rekening<input name="accountNumber" inputmode="numeric" placeholder="Nomor rekening"></label>
+          <label class="full">Nama pemilik rekening<input name="accountHolder" placeholder="Nama sesuai rekening"></label>
+        </div>
+      </section>
+
+      <section class="form-card">
+        <div class="section-head"><span>07</span><div><h2>Konfirmasi kehadiran</h2><p>Nomor WhatsApp penerima konfirmasi RSVP.</p></div></div>
+        <label>Nomor WhatsApp panitia<input name="whatsappNumber" inputmode="tel" placeholder="6281234567890"></label>
+        <p class="hint">Gunakan format internasional, misalnya 6281234567890 tanpa tanda +, spasi, atau strip. RSVP akan dikirim langsung ke WhatsApp ini.</p>
+      </section>
+
+      <section class="form-card action-card">
+        <div class="section-head"><span>08</span><div><h2>Buat tautan undangan</h2><p>Setiap pasangan mendapatkan tautan dengan data sendiri.</p></div></div>
+        <label>Nama tamu (opsional)<input name="guestName" placeholder="Contoh: Bapak Ahmad dan keluarga"></label>
+        <div class="button-row">
+          <button class="primary" type="submit">Buat tautan undangan</button>
+          <button class="secondary" type="button" id="saveDraft">Simpan data di perangkat ini</button>
+        </div>
+        <div id="resultPanel" class="result-panel" hidden>
+          <label>Tautan undangan Anda<textarea id="generatedLink" rows="4" readonly></textarea></label>
+          <div class="button-row">
+            <button class="primary" type="button" id="copyLink">Salin tautan</button>
+            <button class="secondary" type="button" id="openPreview">Buka/pratinjau</button>
+            <button class="secondary" type="button" id="downloadData">Unduh data JSON</button>
+          </div>
+          <p class="success-message" id="resultMessage" aria-live="polite"></p>
+        </div>
+      </section>
+    </form>
+
+    <section class="form-card saved-card">
+      <div class="section-head"><span>09</span><div><h2>Data undangan tersimpan di perangkat ini</h2><p>Daftar ini hanya tersimpan pada browser/perangkat yang Anda gunakan.</p></div></div>
+      <div class="saved-row"><select id="savedList"><option value="">Pilih data undangan tersimpan</option></select><button type="button" class="secondary" id="loadDraft">Muat</button><button type="button" class="danger" id="deleteDraft">Hapus</button></div>
+      <p class="hint">Data tidak otomatis tersimpan di server GitHub. Simpan tautan undangan atau unduh JSON sebagai cadangan.</p>
+    </section>
+
+    <section class="notice-card">
+      <strong>Catatan penggunaan</strong>
+      <p>GitHub Pages adalah hosting statis. Halaman ini membuat tautan mandiri yang membawa data acara; tidak ada database online dan tidak ada akun admin yang melindungi halaman ini. Siapa pun yang mengetahui alamat pembuat undangan dapat menggunakannya. RSVP dikirim ke WhatsApp panitia.</p>
+    </section>
+    <footer>Undangan Madura · Template modern bernuansa islami</footer>
+  </main>
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
