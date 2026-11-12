@@ -25,6 +25,7 @@ const DEFAULT_INVITATION = {
     brand:"UNDANGAN PERNIKAHAN MADURA",
     coverEyebrow:"UNDANGAN PERNIKAHAN",
     coverBismillah:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+    introArabic:"بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا",
     coverRecipient:"Kepada Yth.",
     coverPlace:"Di tempat",
     openButton:"Buka Undangan",

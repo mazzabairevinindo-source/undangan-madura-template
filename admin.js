@@ -29,10 +29,10 @@ const PROVIDERS = [
 
 const TEXT_GROUPS = [
  {title:"Sampul dan navigasi",fields:[
-  ["brand","Nama merek undangan"],["coverEyebrow","Judul kecil sampul"],["coverBismillah","Bismillah pada sampul"],["coverRecipient","Awalan nama tamu"],["coverPlace","Tulisan di bawah nama tamu"],["openButton","Teks tombol buka undangan"],["coverFooter","Kalimat penutup sampul"],["musicButton","Tombol musik"],["musicStop","Tombol saat musik menyala"]
+  ["brand","Nama merek undangan"],["coverEyebrow","Judul kecil sampul"],["coverBismillah","Teks Arab sampul (Bismillah)"],["coverRecipient","Awalan nama tamu"],["coverPlace","Tulisan di bawah nama tamu"],["openButton","Teks tombol buka undangan"],["coverFooter","Kalimat penutup sampul"],["musicButton","Tombol musik"],["musicStop","Tombol saat musik menyala"]
  ]},
  {title:"Foto pembuka dan pengantar",fields:[
-  ["afterOpenEyebrow","Judul kecil di foto mempelai"],["afterOpenCaption","Keterangan pada foto mempelai"],["introSalam","Salam pembuka"],["introText","Paragraf pengantar"],["noPhotoText","Tulisan jika foto belum dipilih"]
+  ["afterOpenEyebrow","Judul kecil di foto mempelai"],["afterOpenCaption","Keterangan pada foto mempelai"],["introArabic","Teks Arab bagian pengantar"],["introSalam","Salam pembuka"],["introText","Paragraf pengantar"],["noPhotoText","Tulisan jika foto belum dipilih"]
  ]},
  {title:"Profil kedua mempelai",fields:[
   ["coupleEyebrow","Tulisan kecil profil"],["coupleTitle","Judul profil"],["groomLabel","Label mempelai pria"],["brideLabel","Label mempelai wanita"],["quoteText","Kutipan ayat"],["quoteSource","Sumber kutipan"]

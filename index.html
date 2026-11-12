@@ -56,7 +56,7 @@
 
   <section class="paper-section intro-section reveal">
     <div class="paper-ornament"></div>
-    <p class="arabic">بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا</p>
+    <p class="arabic" data-text="introArabic">بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا</p>
     <p class="eyebrow" data-text="introSalam">Assalamu’alaikum Warahmatullahi Wabarakatuh</p>
     <p class="body-copy" data-text="introText">Dengan memohon rahmat dan ridha Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami.</p>
     <div class="flower-divider">✿ ❖ ✿</div>
@@ -113,7 +113,7 @@
           <p class="eyebrow" data-text="venueTitle">Lokasi Acara</p>
           <h2 id="venueName">Nama tempat acara</h2>
         </div>
-        <div class="map-box"><iframe id="mapFrame" title="Peta lokasi acara" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+        <div class="map-box" id="mapBox" style="position:relative"><iframe id="mapFrame" title="Peta lokasi acara" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe><span id="mapVenueTag" aria-label="Nama tempat acara" style="position:absolute;left:12px;top:12px;z-index:3;max-width:calc(100% - 24px);padding:7px 11px;border:1px solid #c8a05a;border-radius:5px;background:rgba(255,250,242,.96);color:#4b101b;font:700 12px/1.35 DM Sans,sans-serif;box-shadow:0 2px 8px rgba(30,8,12,.18)"></span></div>
         <p class="address-label" data-text="venueAddressLabel">Alamat lengkap</p>
         <p id="venueAddress" class="venue-address"></p>
         <a id="mapsLink" class="maps-button" href="https://maps.google.com/" target="_blank" rel="noopener"><span data-text="mapsButton">Buka Google Maps</span><b>↗</b></a>

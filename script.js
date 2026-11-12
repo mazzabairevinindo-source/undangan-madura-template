@@ -126,10 +126,20 @@ function updateCountdown() {
 updateCountdown();
 window.setInterval(updateCountdown,1000);
 
-const venueQuery=[d.venueName,d.venue].filter(Boolean).join(", ");
+// Embed the map from the entered street/address only. If the venue title is included
+// in Google's search query, Google can resolve a different saved place/POI name.
+const venueNameText=String(d.venueName || "").trim();
+const venueAddressText=String(d.venue || "").trim();
+const mapAddressQuery=venueAddressText || venueNameText;
 const mapFrame=$("mapFrame");
-if(venueQuery) {
-  mapFrame.src=`https://www.google.com/maps?q=${encodeURIComponent(venueQuery)}&output=embed`;
+const mapVenueTag=$("mapVenueTag");
+if(mapVenueTag) {
+  mapVenueTag.textContent=venueNameText || venueAddressText || "Lokasi Acara";
+  mapVenueTag.hidden=!(venueNameText || venueAddressText);
+  mapVenueTag.title=venueNameText || venueAddressText || "Lokasi Acara";
+}
+if(mapAddressQuery) {
+  mapFrame.src=`https://www.google.com/maps?q=${encodeURIComponent(mapAddressQuery)}&output=embed`;
 } else {
   mapFrame.src="https://www.google.com/maps?q=Madura,Indonesia&output=embed";
 }
@@ -137,9 +147,9 @@ let mapUrl="https://maps.google.com/";
 try {
   const custom=new URL(d.mapsUrl || "",location.href);
   if(d.mapsUrl && ["https:","http:"].includes(custom.protocol))mapUrl=custom.href;
-  else if(venueQuery)mapUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venueQuery)}`;
+  else if(mapAddressQuery)mapUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venueNameText,venueAddressText].filter(Boolean).join(", "))}`;
 } catch(_) {
-  if(venueQuery)mapUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venueQuery)}`;
+  if(mapAddressQuery)mapUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venueNameText,venueAddressText].filter(Boolean).join(", "))}`;
 }
 $("mapsLink").href=mapUrl;
 
