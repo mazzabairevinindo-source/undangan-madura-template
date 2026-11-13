@@ -1,25 +1,33 @@
-# Undangan Digital Adat Madura — V8.2 Pretty Permalink
+# Undangan Digital Adat Madura — V8.2 Direct Link Patch
 
-Pembaruan ini mempertahankan desain dan fitur V8/V8.1, lalu menambahkan permalink bersih tanpa `?id=`.
+Patch ini mempertahankan desain dan fitur undangan V8.2, serta menyederhanakan pembuatan tautan.
 
-## Format alamat
-`https://mazzabairevinindo-source.github.io/undangan-madura-template/undangan-pernikahan-bapak-ibu-guru-yamista`
+## Perubahan
+- Tombol **Buat / Perbarui Undangan** langsung menghasilkan tautan yang membawa data undangan dalam fragmen URL terkompresi.
+- Tidak perlu mengunduh JSON, mengunggah file ke folder `data`, atau melakukan commit GitHub untuk setiap undangan.
+- Bagian slug/alamat setelah nama repository dibatasi maksimal **50 karakter**, termasuk awalan `undangan-pernikahan-`.
+- Musik dapat dipilih dari perangkat dengan batas ukuran file **500 KB**.
+- Unduh JSON tetap tersedia hanya sebagai cadangan opsional.
+- `script.js` membaca payload terkompresi dari URL, dan tetap mendukung tautan lama yang menggunakan file JSON di folder `data`.
 
-Bagian `/undangan-madura-template/` tetap ada karena alamat GitHub Pages ini menggunakan project site.
+## File patch
+Unggah dan timpa file berikut ke root repository:
+- `admin.js`
+- `admin.html`
+- `script.js`
+- `README.md`
 
-## Cara membuat undangan dengan alamat pendek
-1. Buka `admin.html` dan isi data undangan seperti biasa.
-2. Isi nama tamu, misalnya `Bapak/Ibu Guru Yamista`, lalu klik Buat / Perbarui Undangan.
-3. Admin membuat alamat dengan slug `undangan-pernikahan-bapak-ibu-guru-yamista`.
-4. Klik **Unduh Data JSON**. File akan bernama `undangan-pernikahan-bapak-ibu-guru-yamista.json`.
-5. Klik **Unggah JSON ke GitHub** di halaman admin. Unggah file ke folder `data` pada repository, lalu klik **Commit changes** pada branch `main`.
-6. Setelah GitHub Pages menerbitkan commit tersebut, alamat pendek dapat dibuka dan dibagikan.
+`404.html` pada repository harus tetap ada dan tetap memuat `script.js` serta `style.css` dengan alamat absolut `/undangan-madura-template/...` agar jalur slug dapat ditangani oleh GitHub Pages. Tidak perlu mengubah desain/CSS atau file gambar.
 
-## File tambahan
-- `404.html`: fallback untuk menangani URL slug dan memuat desain V8 yang sama.
-- `data/README.md`: memastikan folder `data` tersedia dan menjelaskan lokasi file JSON.
+## Cara menggunakan
+1. Unggah patch dan commit satu kali.
+2. Buka `admin.html`.
+3. Isi data undangan seperti biasa.
+4. Masukkan nama tamu, lalu klik **Buat / Perbarui Undangan**.
+5. Klik **Salin Tautan** atau **Lihat Hasil**. Tidak ada unggahan JSON manual.
+6. Gunakan **Simpan Cadangan JSON (opsional)** untuk arsip data.
 
-## Batasan hosting statis
-GitHub Pages tidak memiliki database atau API tulis dari halaman admin. Karena itu, file data JSON untuk setiap slug harus diunggah dan di-commit ke folder `data`. Satu nama tamu menghasilkan satu slug; jika nama yang sama digunakan ulang, file JSON dengan nama sama akan diganti. Gunakan nama yang unik bila diperlukan.
+## Batasan teknis
+GitHub Pages adalah hosting statis. Agar tidak memerlukan database atau unggahan JSON setiap kali, data dibawa di fragmen URL setelah tanda `#` dan dikompresi gzip pada browser yang mendukungnya. Fragmen ini tidak dikirim ke server, tetapi dibaca oleh JavaScript saat undangan dibuka. Karena itu, slug dapat singkat (maksimal 50 karakter), sementara keseluruhan URL tetap lebih panjang sesuai foto, musik, dan data undangan. Musik dibatasi 500 KB sebelum dimasukkan ke tautan. Tautan berukuran besar sebaiknya diuji sebelum dibagikan luas.
 
-Fitur V8 tetap dipertahankan: seluruh editor teks, upload foto/musik, pilihan akad/resepsi, lokasi Google Maps, rekening bank/e-wallet, countdown, RSVP WhatsApp, dan penyimpanan draf lokal. Tautan lama V8 dengan hash terkompresi juga tetap didukung.
+Draf admin tetap lokal pada browser yang digunakan. RSVP diteruskan lewat WhatsApp dan tidak disimpan sebagai rekap server.

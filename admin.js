@@ -259,11 +259,11 @@ bindImagePicker("brideFile","brideImage","bridePreview","brideStatus","Foto wani
 $("musicFile").addEventListener("change",async()=>{
   const file=$("musicFile").files && $("musicFile").files[0];
   if(!file)return;
-  if(file.size > 100*1024) {
-    alert("Pilih musik singkat maksimal 100 KB agar tautan undangan tidak terlalu panjang.");
+  if(file.size > 500*1024) {
+    alert("Ukuran musik maksimal 500 KB. Pilih file yang lebih kecil.");
     $("musicFile").value="";
     field("musicData").value="";
-    $("musicStatus").textContent="Musik tidak dipilih. Maksimal 100 KB.";
+    $("musicStatus").textContent="Musik tidak dipilih. Maksimal 500 KB.";
     return;
   }
   try {
@@ -343,22 +343,28 @@ function collectConfig() {
 const APP_BASE = new URL(".", document.currentScript.src);
 let lastInvitationRecord = null;
 
+const SLUG_PREFIX = "undangan-pernikahan-";
+const MAX_SLUG_LENGTH = 50;
+const MAX_SLUG_NAME_LENGTH = MAX_SLUG_LENGTH - SLUG_PREFIX.length;
+
 function slugPart(value) {
-  return String(value || "")
+  let slug = String(value || "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
-    .slice(0, 70) || "tamu-undangan";
+    .slice(0, MAX_SLUG_NAME_LENGTH)
+    .replace(/-+$/g, "");
+  return slug || "tamu-undangan";
 }
 
 function makeInvitationRecord(config, guest) {
   const recipientName = guest || "Tamu Undangan";
-  const recipientPart = guest ? slugPart(guest) : `${slugPart(config.groom)}-${slugPart(config.bride)}`;
-  const slug = `undangan-pernikahan-${recipientPart}`;
+  const sourceName = guest || `${config.groom || "mempelai"}-${config.bride || ""}`;
+  const slug = `${SLUG_PREFIX}${slugPart(sourceName)}`.slice(0, MAX_SLUG_LENGTH).replace(/-+$/g, "");
   return {
-    format: "undangan-madura-static-v1",
+    format: "undangan-madura-link-v2",
     slug,
     recipientName,
     createdAt: new Date().toISOString(),
@@ -366,9 +372,52 @@ function makeInvitationRecord(config, guest) {
   };
 }
 
-function makeInvitationLink(record) {
-  // GitHub Pages project sites include /<repository>/ before the slug.
-  return new URL(record.slug, APP_BASE).href;
+function bytesToBase64Url(bytes) {
+  let binary = "";
+  const chunkSize = 0x6000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+async function makeInvitationLink(record) {
+  const json = JSON.stringify(record);
+  const raw = new TextEncoder().encode(json);
+  let packed = raw;
+  let compressed = false;
+
+  if (typeof CompressionStream === "function") {
+    try {
+      const stream = new Blob([raw]).stream().pipeThrough(new CompressionStream("gzip"));
+      packed = new Uint8Array(await new Response(stream).arrayBuffer());
+      compressed = true;
+    } catch (error) {
+      console.warn("Kompresi tidak tersedia; tautan dibuat tanpa kompresi.", error);
+    }
+  }
+
+  const payload = bytesToBase64Url(packed);
+  const url = new URL(record.slug, APP_BASE);
+  const hash = new URLSearchParams();
+  hash.set("v", "2");
+  hash.set("p", payload);
+  hash.set("z", compressed ? "1" : "0");
+  url.hash = hash.toString();
+  return url.href;
+}
+
+function downloadJson(record) {
+  if (!record) return showMessage("Buat undangan terlebih dahulu.", "error");
+  const blob = new Blob([JSON.stringify(record, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `${record.slug}.json`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function showMessage(text,type="info") {
@@ -435,19 +484,6 @@ function fillForm(config) {
     if(el)el.value=(config.texts && config.texts[key]!==undefined)?config.texts[key]:(DEFAULT_INVITATION.texts[key]||"");
   }));
 }
-function downloadJson(record) {
-  if (!record) return showMessage("Buat tautan undangan terlebih dahulu.", "error");
-  const blob = new Blob([JSON.stringify(record, null, 2)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = `${record.slug}.json`;
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
 form.addEventListener("submit",async event=>{
   event.preventDefault();
   const validation=validateBeforeBuild();
@@ -462,12 +498,17 @@ form.addEventListener("submit",async event=>{
     const config = collectConfig();
     const guest = val("guestName");
     const record = makeInvitationRecord(config, guest);
-    const link = makeInvitationLink(record);
+    const link = await makeInvitationLink(record);
     lastInvitationRecord = record;
     $("generatedLink").value = link;
     $("resultPanel").hidden = false;
-    $("linkMessage").textContent = `Tautan pendek siap: ${record.slug}. Unduh Data JSON, unggah file ${record.slug}.json ke folder data di repository GitHub, lalu Commit changes. Tautan akan aktif setelah GitHub Pages selesai menerbitkan pembaruan.`;
-    showMessage("Alamat undangan berhasil dibuat. Satu langkah lagi: unggah file data JSON agar tautan dapat membuka undangan.", "success");
+    const slugLength = record.slug.length;
+    const linkSizeKb = Math.round(new Blob([link]).size / 1024);
+    const longLinkNote = linkSizeKb > 100
+      ? " Catatan: tautan cukup panjang karena foto/musik ikut dibawa. Uji pengiriman melalui aplikasi pesan sebelum dibagikan luas."
+      : "";
+    $("linkMessage").textContent = `Tautan langsung siap. Slug ${slugLength}/${MAX_SLUG_LENGTH} karakter. Tidak perlu unggah JSON ke GitHub. Ukuran tautan sekitar ${linkSizeKb} KB.${longLinkNote}`;
+    showMessage("Undangan berhasil dibuat dan siap dibagikan. Klik Salin Tautan atau Lihat Hasil.", "success");
     $("resultPanel").scrollIntoView({behavior:"smooth",block:"center"});
   } catch(error) {
     showMessage(`Gagal membuat tautan: ${error.message || error}`,"error");

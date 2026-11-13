@@ -23,36 +23,48 @@ function decodeBase64Url(token) {
   for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
   return bytes;
 }
-async function readPayload() {
-  const token=fragment.get("p");
-  if(token) {
-    const bytes=decodeBase64Url(token);
-    if(fragment.get("z")==="1") {
-      if(typeof DecompressionStream!=="function") throw new Error("Browser ini belum mendukung pembukaan tautan terkompresi. Coba Chrome atau Edge versi terbaru.");
-      const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
-      const text=await new Response(stream).text();
-      return JSON.parse(text);
-    }
-    return JSON.parse(new TextDecoder().decode(bytes));
+function unwrapInvitationRecord(record) {
+  if (record && typeof record === "object" && record.invitation && typeof record.invitation === "object") {
+    recipientFromRecord = typeof record.recipientName === "string" ? record.recipientName : "";
+    return record.invitation;
   }
-  const old=query.get("data");
-  if(old)return JSON.parse(old);
+  if (record && typeof record === "object" && typeof record.recipientName === "string") {
+    recipientFromRecord = record.recipientName;
+  }
+  return record || {};
+}
 
-  // Pretty permalink: GitHub Pages routes unknown slug paths through the root 404.html.
+async function readPayload() {
+  // Fast mode: the admin puts the invitation data inside the URL fragment.
+  // This avoids uploading a JSON file to GitHub for every invitation.
+  const token = fragment.get("p");
+  if (token) {
+    const bytes = decodeBase64Url(token);
+    let text;
+    if (fragment.get("z") === "1") {
+      if (typeof DecompressionStream !== "function") {
+        throw new Error("Browser ini belum mendukung tautan terkompresi. Silakan buka dengan Chrome atau Edge versi terbaru.");
+      }
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+      text = await new Response(stream).text();
+    } else {
+      text = new TextDecoder().decode(bytes);
+    }
+    return unwrapInvitationRecord(JSON.parse(text));
+  }
+
+  // Backward compatibility: old V8 links that stored JSON in ?data=.
+  const old = query.get("data");
+  if (old) return unwrapInvitationRecord(JSON.parse(old));
+
+  // Backward compatibility: previously published pretty permalinks with JSON files.
   const slug = getPathSlug();
   if (slug) {
     const response = await fetch(new URL(`data/${encodeURIComponent(slug)}.json`, APP_BASE), {cache:"no-store"});
     if (!response.ok) {
-      throw new Error(`File data/${slug}.json belum ditemukan. Unggah Data JSON ke folder data di repository GitHub.`);
+      throw new Error("Data undangan tidak ditemukan pada tautan ini. Buat ulang tautan melalui halaman admin.");
     }
-    const record = await response.json();
-    if (record && record.invitation && typeof record.invitation === "object") {
-      recipientFromRecord = typeof record.recipientName === "string" ? record.recipientName : "";
-      return record.invitation;
-    }
-    // Backward compatibility for a plain invitation JSON file.
-    recipientFromRecord = record && typeof record.recipientName === "string" ? record.recipientName : "";
-    return record || {};
+    return unwrapInvitationRecord(await response.json());
   }
   return {};
 }

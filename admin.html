@@ -108,7 +108,7 @@
             <label for="musicFile"><span class="upload-symbol">♫</span><strong>Musik latar islami</strong><small>MP3, OGG, atau M4A pendek.</small><span class="file-button">Pilih musik</span></label>
             <input id="musicFile" type="file" accept="audio/mpeg,audio/ogg,audio/mp4,audio/x-m4a">
             <input type="hidden" name="musicData">
-            <p id="musicStatus" class="file-status">Opsional. Maksimal 100 KB agar tautan tidak terlalu panjang.</p>
+            <p id="musicStatus" class="file-status">Opsional. Maksimal 500 KB. Ukuran tautan dapat bertambah sesuai ukuran musik dan foto.</p>
           </div>
         </div>
         <p class="help">Foto diperkecil otomatis. Jika ingin galeri banyak foto, lebih aman unggah foto ke repository sebagai aset publik dan gunakan versi lanjutan.</p>
@@ -147,7 +147,7 @@
       <section id="publish" class="admin-card publish-card">
         <div class="card-title"><span class="number">08</span><div><h2>Buat Undangan</h2><p>Hasilkan tautan tersendiri untuk pasangan ini.</p></div></div>
         <label>Nama tamu undangan (opsional)<input name="guestName" placeholder="Contoh: Bapak/Ibu Guru Yamista"></label>
-        <p class="help">Nama tamu menjadi bagian alamat, misalnya <strong>undangan-pernikahan-bapak-ibu-guru-yamista</strong>. Jika dikosongkan, slug dibuat dari nama kedua mempelai.</p>
+        <p class="help">Nama tamu menjadi bagian alamat. Panjang slug dibatasi maksimal <strong>50 karakter</strong>. Jika dikosongkan, slug dibuat dari nama kedua mempelai.</p>
         <div id="formMessage" class="form-message" role="status" aria-live="polite"></div>
         <div class="publish-actions">
           <button type="submit" class="primary-button" id="makeLink">✦ Buat / Perbarui Undangan</button>
@@ -158,15 +158,9 @@
           <div class="publish-actions">
             <button type="button" id="copyLink" class="primary-button">Salin Tautan</button>
             <button type="button" id="openPreview" class="secondary-button">Lihat Hasil</button>
-            <button type="button" id="downloadJson" class="secondary-button">Unduh Data JSON</button>
-            <a class="secondary-button" href="https://github.com/mazzabairevinindo-source/undangan-madura-template/upload/main/data" target="_blank" rel="noopener">Unggah JSON ke GitHub</a>
+            <button type="button" id="downloadJson" class="secondary-button">Simpan Cadangan JSON (opsional)</button>
           </div>
-          <ol class="help publish-steps">
-            <li>Klik <strong>Unduh Data JSON</strong>.</li>
-            <li>Klik <strong>Unggah JSON ke GitHub</strong>, lalu pilih file JSON yang baru diunduh.</li>
-            <li>Pastikan lokasinya folder <code>data</code>, lalu klik <strong>Commit changes</strong>.</li>
-            <li>Setelah GitHub Pages selesai menerbitkan, tautan pendek siap dibagikan.</li>
-          </ol>
+          <p class="help publish-steps">Tautan langsung membawa data undangan yang sudah dikompresi. Tidak perlu mengunggah JSON atau melakukan commit GitHub setiap kali membuat undangan. Simpan JSON hanya sebagai cadangan.</p>
           <p id="linkMessage" class="success-message"></p>
         </div>
       </section>
@@ -175,11 +169,11 @@
     <section id="drafts" class="admin-card">
       <div class="card-title"><span class="number">09</span><div><h2>Draf & Cadangan</h2><p>Draf tersimpan di browser ini saja.</p></div></div>
       <div class="draft-controls"><select id="draftList"><option value="">Pilih draf tersimpan</option></select><button type="button" id="loadDraft" class="secondary-button">Muat</button><button type="button" id="deleteDraft" class="danger-button">Hapus</button></div>
-      <p class="help">Untuk pindah perangkat atau menyimpan jangka panjang, unduh JSON setelah membuat tautan.</p>
+      <p class="help">Draf tersimpan pada browser ini. Simpan cadangan JSON untuk memindahkan atau memulihkan data.</p>
       <label class="import-label">Impor cadangan JSON<input id="importJson" type="file" accept="application/json,.json"></label>
     </section>
 
-    <aside class="disclaimer"><strong>Catatan hosting gratis:</strong> GitHub Pages tidak menyediakan database. Setiap tautan membawa data pasangan masing-masing; draf tersimpan pada browser pengelola. RSVP diteruskan ke WhatsApp, bukan disimpan otomatis ke server.</aside>
+    <aside class="disclaimer"><strong>Catatan hosting gratis:</strong> GitHub Pages tidak menyediakan database. Data setiap undangan dibawa di dalam tautan terkompresi; draf tersimpan pada browser pengelola. RSVP diteruskan ke WhatsApp, bukan disimpan otomatis ke server.</aside>
     <footer class="admin-footer">UNDANGAN MADURA · ROYAL MAROON EDITION</footer>
   </main>
 </div>
