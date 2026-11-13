@@ -146,19 +146,27 @@
 
       <section id="publish" class="admin-card publish-card">
         <div class="card-title"><span class="number">08</span><div><h2>Buat Undangan</h2><p>Hasilkan tautan tersendiri untuk pasangan ini.</p></div></div>
-        <label>Nama tamu undangan (opsional)<input name="guestName" placeholder="Contoh: Keluarga Bapak Ahmad"></label>
+        <label>Nama tamu undangan (opsional)<input name="guestName" placeholder="Contoh: Bapak/Ibu Guru Yamista"></label>
+        <p class="help">Nama tamu menjadi bagian alamat, misalnya <strong>undangan-pernikahan-bapak-ibu-guru-yamista</strong>. Jika dikosongkan, slug dibuat dari nama kedua mempelai.</p>
         <div id="formMessage" class="form-message" role="status" aria-live="polite"></div>
         <div class="publish-actions">
           <button type="submit" class="primary-button" id="makeLink">✦ Buat / Perbarui Undangan</button>
           <button type="button" class="secondary-button" id="saveDraft">Simpan Draf</button>
         </div>
         <div id="resultPanel" class="result-panel" hidden>
-          <label>Tautan undangan<textarea id="generatedLink" rows="4" readonly></textarea></label>
+          <label>Tautan undangan<textarea id="generatedLink" rows="3" readonly></textarea></label>
           <div class="publish-actions">
             <button type="button" id="copyLink" class="primary-button">Salin Tautan</button>
             <button type="button" id="openPreview" class="secondary-button">Lihat Hasil</button>
-            <button type="button" id="downloadJson" class="secondary-button">Unduh JSON</button>
+            <button type="button" id="downloadJson" class="secondary-button">Unduh Data JSON</button>
+            <a class="secondary-button" href="https://github.com/mazzabairevinindo-source/undangan-madura-template/upload/main/data" target="_blank" rel="noopener">Unggah JSON ke GitHub</a>
           </div>
+          <ol class="help publish-steps">
+            <li>Klik <strong>Unduh Data JSON</strong>.</li>
+            <li>Klik <strong>Unggah JSON ke GitHub</strong>, lalu pilih file JSON yang baru diunduh.</li>
+            <li>Pastikan lokasinya folder <code>data</code>, lalu klik <strong>Commit changes</strong>.</li>
+            <li>Setelah GitHub Pages selesai menerbitkan, tautan pendek siap dibagikan.</li>
+          </ol>
           <p id="linkMessage" class="success-message"></p>
         </div>
       </section>

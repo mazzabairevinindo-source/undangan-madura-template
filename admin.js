@@ -340,30 +340,35 @@ function collectConfig() {
   };
 }
 
-function bytesToBase64Url(bytes) {
-  let binary="";
-  const chunk=0x6000;
-  for(let i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));
-  return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");
+const APP_BASE = new URL(".", document.currentScript.src);
+let lastInvitationRecord = null;
+
+function slugPart(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 70) || "tamu-undangan";
 }
-async function makeInvitationLink(config,guest) {
-  const json=JSON.stringify(config);
-  const raw=new TextEncoder().encode(json);
-  let packed=raw,compressed=false;
-  if(typeof CompressionStream==="function") {
-    try {
-      const stream=new Blob([raw]).stream().pipeThrough(new CompressionStream("gzip"));
-      packed=new Uint8Array(await new Response(stream).arrayBuffer());
-      compressed=true;
-    } catch(_) { packed=raw; compressed=false; }
-  }
-  const token=bytesToBase64Url(packed);
-  const url=new URL("./index.html",location.href);
-  const parts=new URLSearchParams();
-  parts.set("v","8");parts.set("p",token);parts.set("z",compressed?"1":"0");
-  if(guest)parts.set("to",guest);
-  url.hash=parts.toString();
-  return url.href;
+
+function makeInvitationRecord(config, guest) {
+  const recipientName = guest || "Tamu Undangan";
+  const recipientPart = guest ? slugPart(guest) : `${slugPart(config.groom)}-${slugPart(config.bride)}`;
+  const slug = `undangan-pernikahan-${recipientPart}`;
+  return {
+    format: "undangan-madura-static-v1",
+    slug,
+    recipientName,
+    createdAt: new Date().toISOString(),
+    invitation: config
+  };
+}
+
+function makeInvitationLink(record) {
+  // GitHub Pages project sites include /<repository>/ before the slug.
+  return new URL(record.slug, APP_BASE).href;
 }
 
 function showMessage(text,type="info") {
@@ -430,13 +435,17 @@ function fillForm(config) {
     if(el)el.value=(config.texts && config.texts[key]!==undefined)?config.texts[key]:(DEFAULT_INVITATION.texts[key]||"");
   }));
 }
-function downloadJson(config) {
-  const blob=new Blob([JSON.stringify(config,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const anchor=document.createElement("a");anchor.href=url;
-  anchor.download=`undangan-${(config.groom+"-"+config.bride).toLowerCase().replace(/[^a-z0-9]+/g,"-")}.json`;
-  document.body.appendChild(anchor);anchor.click();anchor.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
+function downloadJson(record) {
+  if (!record) return showMessage("Buat tautan undangan terlebih dahulu.", "error");
+  const blob = new Blob([JSON.stringify(record, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `${record.slug}.json`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 form.addEventListener("submit",async event=>{
@@ -450,17 +459,16 @@ form.addEventListener("submit",async event=>{
   }
   const button=$("makeLink");button.disabled=true;button.textContent="Sedang membuat tautan…";
   try {
-    const config=collectConfig();
-    const guest=val("guestName");
-    const link=await makeInvitationLink(config,guest);
-    $("generatedLink").value=link;
-    $("resultPanel").hidden=false;
-    const size=Math.round(new Blob([link]).size/1024);
-    $("linkMessage").textContent=`Tautan berhasil dibuat (${size} KB). Simpan tautan dan unduh cadangan JSON.`;
-    if(size>100) $("linkMessage").textContent+=" Catatan: tautan cukup panjang karena memuat foto/musik. Untuk berbagi yang lebih ringan, kurangi media atau host foto secara terpisah.";
-    showMessage("Undangan berhasil dibuat. Buka pratinjau untuk memeriksa hasilnya.","success");
+    const config = collectConfig();
+    const guest = val("guestName");
+    const record = makeInvitationRecord(config, guest);
+    const link = makeInvitationLink(record);
+    lastInvitationRecord = record;
+    $("generatedLink").value = link;
+    $("resultPanel").hidden = false;
+    $("linkMessage").textContent = `Tautan pendek siap: ${record.slug}. Unduh Data JSON, unggah file ${record.slug}.json ke folder data di repository GitHub, lalu Commit changes. Tautan akan aktif setelah GitHub Pages selesai menerbitkan pembaruan.`;
+    showMessage("Alamat undangan berhasil dibuat. Satu langkah lagi: unggah file data JSON agar tautan dapat membuka undangan.", "success");
     $("resultPanel").scrollIntoView({behavior:"smooth",block:"center"});
-    window.__lastInvitationConfig=config;
   } catch(error) {
     showMessage(`Gagal membuat tautan: ${error.message || error}`,"error");
   } finally {
@@ -480,9 +488,8 @@ $("openPreview").addEventListener("click",()=>{
   if(!link)return showMessage("Buat undangan terlebih dahulu.","error");
   window.open(link,"_blank","noopener,noreferrer");
 });
-$("downloadJson").addEventListener("click",()=>{
-  const config=window.__lastInvitationConfig || collectConfig();
-  downloadJson(config);
+$("downloadJson").addEventListener("click", () => {
+  downloadJson(lastInvitationRecord);
 });
 $("loadDraft").addEventListener("click",()=>{
   const index=Number($("draftList").value),list=drafts();
@@ -498,7 +505,7 @@ $("importJson").addEventListener("change",async()=>{
   const file=$("importJson").files && $("importJson").files[0];if(!file)return;
   try {
     const data=JSON.parse(await file.text());
-    fillForm(data);showMessage("Cadangan JSON berhasil dimuat. Periksa lalu buat tautan baru.","success");
+    fillForm(data.invitation || data);showMessage("Cadangan JSON berhasil dimuat. Periksa lalu buat tautan baru.","success");
   } catch(_) {showMessage("File JSON tidak valid atau rusak.","error");}
 });
 refreshDrafts();

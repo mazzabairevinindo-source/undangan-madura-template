@@ -3,6 +3,17 @@
 const $ = id => document.getElementById(id);
 const fragment = new URLSearchParams(location.hash.replace(/^#/,""));
 const query = new URLSearchParams(location.search);
+const APP_BASE = new URL(".", document.currentScript.src);
+let recipientFromRecord = "";
+
+function getPathSlug() {
+  const basePath = APP_BASE.pathname.endsWith("/") ? APP_BASE.pathname : `${APP_BASE.pathname}/`;
+  if (!location.pathname.startsWith(basePath)) return "";
+  let remainder = location.pathname.slice(basePath.length).replace(/^\/+|\/+$/g, "");
+  try { remainder = decodeURIComponent(remainder); } catch (_) {}
+  if (!remainder || ["index.html", "admin.html", "404.html"].includes(remainder)) return "";
+  return remainder.split("/")[0];
+}
 
 function decodeBase64Url(token) {
   const normalized=String(token||"").replace(/-/g,"+").replace(/_/g,"/");
@@ -26,6 +37,23 @@ async function readPayload() {
   }
   const old=query.get("data");
   if(old)return JSON.parse(old);
+
+  // Pretty permalink: GitHub Pages routes unknown slug paths through the root 404.html.
+  const slug = getPathSlug();
+  if (slug) {
+    const response = await fetch(new URL(`data/${encodeURIComponent(slug)}.json`, APP_BASE), {cache:"no-store"});
+    if (!response.ok) {
+      throw new Error(`File data/${slug}.json belum ditemukan. Unggah Data JSON ke folder data di repository GitHub.`);
+    }
+    const record = await response.json();
+    if (record && record.invitation && typeof record.invitation === "object") {
+      recipientFromRecord = typeof record.recipientName === "string" ? record.recipientName : "";
+      return record.invitation;
+    }
+    // Backward compatibility for a plain invitation JSON file.
+    recipientFromRecord = record && typeof record.recipientName === "string" ? record.recipientName : "";
+    return record || {};
+  }
   return {};
 }
 function mergeData(raw) {
@@ -45,11 +73,11 @@ try {
   invitationData=mergeData({});
   const warning=document.createElement("div");
   warning.className="link-warning";
-  warning.textContent="Data undangan pada tautan tidak dapat dibaca. Mohon minta tautan terbaru dari penyelenggara.";
+  warning.textContent=error && error.message ? error.message : "Data undangan pada tautan tidak dapat dibaca. Mohon minta tautan terbaru dari penyelenggara.";
   document.body.prepend(warning);
 }
 const d=invitationData, T=d.texts;
-const guestName=fragment.get("to") || query.get("to") || T.guestFallback || "Tamu Undangan";
+const guestName=recipientFromRecord || fragment.get("to") || query.get("to") || T.guestFallback || "Tamu Undangan";
 const put=(id,value)=>{const el=$(id);if(el)el.textContent=value==null?"":String(value);};
 document.querySelectorAll("[data-text]").forEach(el=>{
   const key=el.dataset.text;

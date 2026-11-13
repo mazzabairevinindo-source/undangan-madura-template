@@ -1,38 +1,25 @@
-# Undangan Digital Adat Madura — V8 Stabil
+# Undangan Digital Adat Madura — V8.2 Pretty Permalink
 
-Paket ini dibuat ulang dengan acuan tiga gambar desain yang diberikan pengguna:
-- Sampul memakai gambar rumah adat Madura dalam bingkai batik.
-- Setelah tombol buka ditekan, halaman menampilkan foto pasangan sebagai poster potret.
-- Isi undangan menggunakan panel krem, merah marun, hitam, dan emas.
-- Admin bergaya dashboard dengan navigasi bagian dan pilihan bank/e-wallet berbentuk tombol.
+Pembaruan ini mempertahankan desain dan fitur V8/V8.1, lalu menambahkan permalink bersih tanpa `?id=`.
 
-## File
-- `index.html` — halaman publik undangan.
-- `admin.html` — pembuat undangan.
-- `config.js` — teks dan data bawaan.
-- `script.js` — pembacaan tautan, tampilan undangan, lokasi, rekening, countdown, RSVP.
-- `admin.js` — editor semua teks, unggah media, pilihan bank, simpan draf, buat tautan.
-- `style.css`, `admin.css` — desain responsif.
-- `rumah-adat-madura-cover.jpg` — gambar sampul rumah adat Madura yang diberikan pengguna.
+## Format alamat
+`https://mazzabairevinindo-source.github.io/undangan-madura-template/undangan-pernikahan-bapak-ibu-guru-yamista`
 
-## Cara memakai
-1. Buka `admin.html`.
-2. Isi nama kedua mempelai.
-3. Pilih jenis acara: akad + resepsi, resepsi saja, atau akad saja.
-4. Isi tanggal dan jam sesuai jenis acara.
-5. Isi lokasi dan tautan Google Maps.
-6. Klik tombol pilih foto untuk memilih dari galeri HP / folder komputer.
-7. Pilih metode pembayaran lewat tombol bank/e-wallet, lalu isi nomor dan nama pemilik. Tambahkan metode lain bila perlu.
-8. Buka bagian Semua Teks untuk mengubah judul, salam, paragraf, label, tombol, RSVP dan penutup.
-9. Masukkan nomor WhatsApp panitia.
-10. Klik Buat / Perbarui Undangan, lalu salin tautannya dan unduh JSON sebagai cadangan.
+Bagian `/undangan-madura-template/` tetap ada karena alamat GitHub Pages ini menggunakan project site.
 
-## Uji sebelum dibagikan
-- Buka tautan yang dihasilkan di tab baru.
-- Tekan tombol Buka Undangan.
-- Coba tombol Musik jika musik sudah diunggah.
-- Klik pilihan bank/e-wallet pada bagian hadiah.
-- Isi RSVP untuk membuka pesan WhatsApp.
+## Cara membuat undangan dengan alamat pendek
+1. Buka `admin.html` dan isi data undangan seperti biasa.
+2. Isi nama tamu, misalnya `Bapak/Ibu Guru Yamista`, lalu klik Buat / Perbarui Undangan.
+3. Admin membuat alamat dengan slug `undangan-pernikahan-bapak-ibu-guru-yamista`.
+4. Klik **Unduh Data JSON**. File akan bernama `undangan-pernikahan-bapak-ibu-guru-yamista.json`.
+5. Klik **Unggah JSON ke GitHub** di halaman admin. Unggah file ke folder `data` pada repository, lalu klik **Commit changes** pada branch `main`.
+6. Setelah GitHub Pages menerbitkan commit tersebut, alamat pendek dapat dibuka dan dibagikan.
 
-## Catatan teknis
-GitHub Pages adalah hosting statis, tanpa database atau server. Data undangan disimpan di dalam fragmen tautan yang terkompresi; draf admin hanya tersimpan pada browser/perangkat admin. Foto diperkecil otomatis agar tautan tidak terlalu besar. File musik dibatasi 100 KB untuk menghindari tautan yang terlalu panjang. RSVP diteruskan melalui WhatsApp dan tidak direkap otomatis di server.
+## File tambahan
+- `404.html`: fallback untuk menangani URL slug dan memuat desain V8 yang sama.
+- `data/README.md`: memastikan folder `data` tersedia dan menjelaskan lokasi file JSON.
+
+## Batasan hosting statis
+GitHub Pages tidak memiliki database atau API tulis dari halaman admin. Karena itu, file data JSON untuk setiap slug harus diunggah dan di-commit ke folder `data`. Satu nama tamu menghasilkan satu slug; jika nama yang sama digunakan ulang, file JSON dengan nama sama akan diganti. Gunakan nama yang unik bila diperlukan.
+
+Fitur V8 tetap dipertahankan: seluruh editor teks, upload foto/musik, pilihan akad/resepsi, lokasi Google Maps, rekening bank/e-wallet, countdown, RSVP WhatsApp, dan penyimpanan draf lokal. Tautan lama V8 dengan hash terkompresi juga tetap didukung.
