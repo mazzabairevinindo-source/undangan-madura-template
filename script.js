@@ -25,11 +25,15 @@ function decodeBase64Url(token) {
 }
 function unwrapInvitationRecord(record) {
   if (record && typeof record === "object" && record.invitation && typeof record.invitation === "object") {
-    recipientFromRecord = typeof record.recipientName === "string" ? record.recipientName : "";
+    recipientFromRecord = typeof record.recipientName === "string"
+      ? record.recipientName
+      : (typeof record.recipient_name === "string" ? record.recipient_name : "");
     return record.invitation;
   }
-  if (record && typeof record === "object" && typeof record.recipientName === "string") {
-    recipientFromRecord = record.recipientName;
+  if (record && typeof record === "object") {
+    recipientFromRecord = typeof record.recipientName === "string"
+      ? record.recipientName
+      : (typeof record.recipient_name === "string" ? record.recipient_name : "");
   }
   return record || {};
 }
@@ -57,14 +61,38 @@ async function readPayload() {
   const old = query.get("data");
   if (old) return unwrapInvitationRecord(JSON.parse(old));
 
-  // Backward compatibility: previously published pretty permalinks with JSON files.
+  // New mode: short permalink reads the matching invitation row from Supabase.
   const slug = getPathSlug();
   if (slug) {
-    const response = await fetch(new URL(`data/${encodeURIComponent(slug)}.json`, APP_BASE), {cache:"no-store"});
-    if (!response.ok) {
-      throw new Error("Data undangan tidak ditemukan pada tautan ini. Buat ulang tautan melalui halaman admin.");
+    const cfg = window.SUPABASE_CONFIG || {};
+    const supabaseUrl = String(cfg.url || "").trim().replace(/\/+$/g, "");
+    const publishableKey = String(cfg.publishableKey || "").trim();
+
+    if (supabaseUrl && publishableKey &&
+        !supabaseUrl.includes("YOUR_PROJECT") &&
+        !publishableKey.includes("REPLACE_WITH")) {
+      const response = await fetch(`${supabaseUrl}/rest/v1/rpc/get_public_invitation`, {
+        method: "POST",
+        headers: {
+          apikey: publishableKey,
+          Authorization: `Bearer ${publishableKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ p_slug: slug })
+      });
+      if (!response.ok) {
+        const detail = await response.json().catch(() => ({}));
+        throw new Error(detail.message || detail.details || `Gagal membaca undangan dari penyimpanan online (HTTP ${response.status}).`);
+      }
+      const record = await response.json();
+      if (record) return unwrapInvitationRecord(record);
     }
-    return unwrapInvitationRecord(await response.json());
+
+    // Backward compatibility: previously published pretty permalinks with JSON files.
+    const legacyResponse = await fetch(new URL(`data/${encodeURIComponent(slug)}.json`, APP_BASE), {cache:"no-store"});
+    if (legacyResponse.ok) return unwrapInvitationRecord(await legacyResponse.json());
+
+    throw new Error("Data undangan tidak ditemukan. Pastikan Supabase sudah dikonfigurasi dan undangan berhasil dibuat dari halaman admin.");
   }
   return {};
 }

@@ -344,17 +344,20 @@ const APP_BASE = new URL(".", document.currentScript.src);
 let lastInvitationRecord = null;
 
 const SLUG_PREFIX = "undangan-pernikahan-";
-const MAX_SLUG_LENGTH = 50;
-const MAX_SLUG_NAME_LENGTH = MAX_SLUG_LENGTH - SLUG_PREFIX.length;
+const MAX_URL_LENGTH = 150;
+// The GitHub Pages base URL currently uses 68 characters.
+// Keep the slug <= 80 so the complete public URL remains <= 150 characters.
+const MAX_SLUG_LENGTH = Math.min(80, MAX_URL_LENGTH - APP_BASE.href.length);
 
 function slugPart(value) {
+  const maxNameLength = Math.max(8, MAX_SLUG_LENGTH - SLUG_PREFIX.length);
   let slug = String(value || "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
-    .slice(0, MAX_SLUG_NAME_LENGTH)
+    .slice(0, maxNameLength)
     .replace(/-+$/g, "");
   return slug || "tamu-undangan";
 }
@@ -362,9 +365,11 @@ function slugPart(value) {
 function makeInvitationRecord(config, guest) {
   const recipientName = guest || "Tamu Undangan";
   const sourceName = guest || `${config.groom || "mempelai"}-${config.bride || ""}`;
-  const slug = `${SLUG_PREFIX}${slugPart(sourceName)}`.slice(0, MAX_SLUG_LENGTH).replace(/-+$/g, "");
+  const slug = `${SLUG_PREFIX}${slugPart(sourceName)}`
+    .slice(0, MAX_SLUG_LENGTH)
+    .replace(/-+$/g, "");
   return {
-    format: "undangan-madura-link-v2",
+    format: "undangan-madura-supabase-v1",
     slug,
     recipientName,
     createdAt: new Date().toISOString(),
@@ -372,38 +377,183 @@ function makeInvitationRecord(config, guest) {
   };
 }
 
-function bytesToBase64Url(bytes) {
-  let binary = "";
-  const chunkSize = 0x6000;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+function getSupabaseConfig() {
+  const cfg = window.SUPABASE_CONFIG || {};
+  const url = String(cfg.url || "").trim().replace(/\/+$/g, "");
+  const publishableKey = String(cfg.publishableKey || "").trim();
+  if (!url || !publishableKey || url.includes("YOUR_PROJECT") || publishableKey.includes("REPLACE_WITH")) {
+    throw new Error("Konfigurasi Supabase belum diisi. Isi URL proyek dan publishable key pada supabase-config.js.");
   }
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  return { url, publishableKey, table: cfg.table || "invitations" };
 }
 
-async function makeInvitationLink(record) {
-  const json = JSON.stringify(record);
-  const raw = new TextEncoder().encode(json);
-  let packed = raw;
-  let compressed = false;
+const AUTH_STORAGE_KEY = "maduraWedding.supabase.session.v1";
+let supabaseSession = null;
 
-  if (typeof CompressionStream === "function") {
-    try {
-      const stream = new Blob([raw]).stream().pipeThrough(new CompressionStream("gzip"));
-      packed = new Uint8Array(await new Response(stream).arrayBuffer());
-      compressed = true;
-    } catch (error) {
-      console.warn("Kompresi tidak tersedia; tautan dibuat tanpa kompresi.", error);
-    }
+function loadSupabaseSession() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || "null");
+    if (saved && saved.access_token && saved.refresh_token) return saved;
+  } catch (_) {}
+  return null;
+}
+function saveSupabaseSession(session) {
+  supabaseSession = session;
+  try { localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session)); } catch (_) {}
+}
+function clearSupabaseSession() {
+  supabaseSession = null;
+  try { localStorage.removeItem(AUTH_STORAGE_KEY); } catch (_) {}
+}
+function authMessage(message, type="info") {
+  const node = document.getElementById("supabaseAuthStatus");
+  if (!node) return;
+  node.textContent = message;
+  node.className = `supabase-auth-status ${type}`;
+}
+function renderSupabaseAuthPanel() {
+  if (document.getElementById("supabaseAuthPanel")) return;
+  const formNode = document.getElementById("builderForm");
+  if (!formNode) return;
+
+  const panel = document.createElement("section");
+  panel.id = "supabaseAuthPanel";
+  panel.className = "admin-card supabase-auth-card";
+  panel.innerHTML = `
+    <div class="card-title">
+      <span class="number">☁</span>
+      <div><h2>Koneksi Penyimpanan Undangan</h2>
+      <p>Masuk satu kali untuk menyimpan undangan secara online. Sesi akan diingat pada browser ini.</p></div>
+    </div>
+    <div class="supabase-auth-grid">
+      <label>Email admin Supabase<input id="supabaseAdminEmail" type="email" autocomplete="username" placeholder="email admin"></label>
+      <label>Kata sandi<input id="supabaseAdminPassword" type="password" autocomplete="current-password" placeholder="Kata sandi admin"></label>
+    </div>
+    <div class="supabase-auth-actions">
+      <button id="supabaseSignIn" type="button" class="primary-button">Masuk</button>
+      <button id="supabaseSignOut" type="button" class="secondary-button" hidden>Keluar</button>
+    </div>
+    <p id="supabaseAuthStatus" class="supabase-auth-status" role="status" aria-live="polite"></p>`;
+  formNode.parentNode.insertBefore(panel, formNode);
+
+  document.getElementById("supabaseSignIn").addEventListener("click", signInToSupabase);
+  document.getElementById("supabaseSignOut").addEventListener("click", () => {
+    clearSupabaseSession();
+    updateAuthPanel();
+    authMessage("Anda sudah keluar dari penyimpanan online.", "info");
+  });
+  updateAuthPanel();
+}
+function updateAuthPanel() {
+  const signIn = document.getElementById("supabaseSignIn");
+  const signOut = document.getElementById("supabaseSignOut");
+  const email = document.getElementById("supabaseAdminEmail");
+  const password = document.getElementById("supabaseAdminPassword");
+  if (!signIn) return;
+  try {
+    getSupabaseConfig();
+  } catch (error) {
+    authMessage(error.message, "error");
+    signIn.disabled = true;
+    return;
   }
+  signIn.disabled = false;
+  if (supabaseSession && supabaseSession.access_token) {
+    if (email?.closest("label")) email.closest("label").hidden = true;
+    if (password?.closest("label")) password.closest("label").hidden = true;
+    signIn.hidden = true;
+    signOut.hidden = false;
+    authMessage(`Terhubung sebagai ${supabaseSession.user?.email || "admin"}. Undangan siap disimpan online.`, "success");
+  } else {
+    if (email?.closest("label")) email.closest("label").hidden = false;
+    if (password?.closest("label")) password.closest("label").hidden = false;
+    signIn.hidden = false;
+    signOut.hidden = true;
+    authMessage("Silakan masuk menggunakan akun admin Supabase.", "info");
+  }
+}
+async function signInToSupabase() {
+  const button = document.getElementById("supabaseSignIn");
+  const email = document.getElementById("supabaseAdminEmail")?.value.trim() || "";
+  const password = document.getElementById("supabaseAdminPassword")?.value || "";
+  if (!email || !password) {
+    authMessage("Isi email dan kata sandi admin terlebih dahulu.", "error");
+    return;
+  }
+  button.disabled = true;
+  button.textContent = "Menghubungkan…";
+  try {
+    const cfg = getSupabaseConfig();
+    const response = await fetch(`${cfg.url}/auth/v1/token?grant_type=password`, {
+      method: "POST",
+      headers: { apikey: cfg.publishableKey, "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.access_token) {
+      throw new Error(result.msg || result.message || result.error_description || "Login gagal. Periksa email dan kata sandi.");
+    }
+    result.expires_at = Date.now() + (Number(result.expires_in) || 3600) * 1000;
+    saveSupabaseSession(result);
+    updateAuthPanel();
+  } catch (error) {
+    authMessage(error.message || "Tidak dapat terhubung ke Supabase.", "error");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Masuk";
+  }
+}
+async function ensureSupabaseSession() {
+  if (!supabaseSession) throw new Error("Silakan masuk ke Supabase pada bagian Koneksi Penyimpanan Undangan terlebih dahulu.");
+  if (supabaseSession.expires_at && supabaseSession.expires_at > Date.now() + 60_000) return supabaseSession;
 
-  const payload = bytesToBase64Url(packed);
+  const cfg = getSupabaseConfig();
+  const response = await fetch(`${cfg.url}/auth/v1/token?grant_type=refresh_token`, {
+    method: "POST",
+    headers: { apikey: cfg.publishableKey, "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh_token: supabaseSession.refresh_token })
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || !result.access_token) {
+    clearSupabaseSession();
+    updateAuthPanel();
+    throw new Error("Sesi admin berakhir. Silakan masuk kembali.");
+  }
+  result.expires_at = Date.now() + (Number(result.expires_in) || 3600) * 1000;
+  saveSupabaseSession(result);
+  updateAuthPanel();
+  return result;
+}
+
+async function saveInvitationToSupabase(record) {
+  const cfg = getSupabaseConfig();
+  const session = await ensureSupabaseSession();
+  const endpoint = `${cfg.url}/rest/v1/${encodeURIComponent(cfg.table)}?on_conflict=slug`;
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      apikey: cfg.publishableKey,
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=merge-duplicates,return=minimal"
+    },
+    body: JSON.stringify({
+      slug: record.slug,
+      recipient_name: record.recipientName,
+      invitation: record.invitation
+    })
+  });
+  if (!response.ok) {
+    const detail = await response.json().catch(() => ({}));
+    throw new Error(detail.message || detail.details || detail.hint || `Gagal menyimpan undangan ke Supabase (HTTP ${response.status}). Periksa tabel dan kebijakan SQL.`);
+  }
+}
+
+function makeInvitationLink(record) {
   const url = new URL(record.slug, APP_BASE);
-  const hash = new URLSearchParams();
-  hash.set("v", "2");
-  hash.set("p", payload);
-  hash.set("z", compressed ? "1" : "0");
-  url.hash = hash.toString();
+  if (url.href.length > MAX_URL_LENGTH) {
+    throw new Error(`Alamat undangan melebihi ${MAX_URL_LENGTH} karakter. Pendekkan nama tamu.`);
+  }
   return url.href;
 }
 
@@ -498,17 +648,15 @@ form.addEventListener("submit",async event=>{
     const config = collectConfig();
     const guest = val("guestName");
     const record = makeInvitationRecord(config, guest);
-    const link = await makeInvitationLink(record);
+    await saveInvitationToSupabase(record);
+    const link = makeInvitationLink(record);
     lastInvitationRecord = record;
     $("generatedLink").value = link;
     $("resultPanel").hidden = false;
     const slugLength = record.slug.length;
-    const linkSizeKb = Math.round(new Blob([link]).size / 1024);
-    const longLinkNote = linkSizeKb > 100
-      ? " Catatan: tautan cukup panjang karena foto/musik ikut dibawa. Uji pengiriman melalui aplikasi pesan sebelum dibagikan luas."
-      : "";
-    $("linkMessage").textContent = `Tautan langsung siap. Slug ${slugLength}/${MAX_SLUG_LENGTH} karakter. Tidak perlu unggah JSON ke GitHub. Ukuran tautan sekitar ${linkSizeKb} KB.${longLinkNote}`;
-    showMessage("Undangan berhasil dibuat dan siap dibagikan. Klik Salin Tautan atau Lihat Hasil.", "success");
+    const linkLength = link.length;
+    $("linkMessage").textContent = `Undangan tersimpan online. Panjang alamat ${linkLength}/${MAX_URL_LENGTH} karakter; slug ${slugLength}/${MAX_SLUG_LENGTH} karakter. Tidak ada foto atau musik di dalam tautan.`;
+    showMessage("Undangan berhasil disimpan dan tautan pendek siap dibagikan.", "success");
     $("resultPanel").scrollIntoView({behavior:"smooth",block:"center"});
   } catch(error) {
     showMessage(`Gagal membuat tautan: ${error.message || error}`,"error");
@@ -549,5 +697,7 @@ $("importJson").addEventListener("change",async()=>{
     fillForm(data.invitation || data);showMessage("Cadangan JSON berhasil dimuat. Periksa lalu buat tautan baru.","success");
   } catch(_) {showMessage("File JSON tidak valid atau rusak.","error");}
 });
+supabaseSession = loadSupabaseSession();
+renderSupabaseAuthPanel();
 refreshDrafts();
 })();

@@ -1,0 +1,12 @@
+/* Panel login Supabase — tambahan kecil yang mengikuti warna admin V8.2. */
+.supabase-auth-card{border-left:3px solid #b98b48}
+.supabase-auth-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.supabase-auth-grid label{display:flex;flex-direction:column;gap:5px;font-size:.76rem;font-weight:700;color:#4b3030}
+.supabase-auth-grid input{width:100%;padding:11px 12px;border:1px solid #d7c3a4;border-radius:4px;background:#fff;color:#2b1c1c;font:inherit;font-size:.86rem}
+.supabase-auth-grid input:focus{outline:2px solid #b98b4840;border-color:#a87539}
+.supabase-auth-grid input[hidden]{display:none}
+.supabase-auth-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.supabase-auth-status{margin:10px 0 0;font-size:.74rem;color:#75665f}
+.supabase-auth-status.success{color:#27613a}
+.supabase-auth-status.error{color:#982737;background:#fff0ee;padding:9px;border-left:3px solid #a72c3b}
+@media(max-width:650px){.supabase-auth-grid{grid-template-columns:1fr}}

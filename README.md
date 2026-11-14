@@ -1,33 +1,69 @@
-# Undangan Digital Adat Madura — V8.2 Direct Link Patch
+# UNDANGAN MADURA — V8.3 SUPABASE SHORT LINK
 
-Patch ini mempertahankan desain dan fitur undangan V8.2, serta menyederhanakan pembuatan tautan.
+Pembaruan ini mempertahankan desain undangan V8.2. Perubahan hanya pada penyimpanan dan pembacaan data supaya tautan tidak lagi membawa foto, musik, atau JSON di dalam URL.
 
-## Perubahan
-- Tombol **Buat / Perbarui Undangan** langsung menghasilkan tautan yang membawa data undangan dalam fragmen URL terkompresi.
-- Tidak perlu mengunduh JSON, mengunggah file ke folder `data`, atau melakukan commit GitHub untuk setiap undangan.
-- Bagian slug/alamat setelah nama repository dibatasi maksimal **50 karakter**, termasuk awalan `undangan-pernikahan-`.
-- Musik dapat dipilih dari perangkat dengan batas ukuran file **500 KB**.
-- Unduh JSON tetap tersedia hanya sebagai cadangan opsional.
-- `script.js` membaca payload terkompresi dari URL, dan tetap mendukung tautan lama yang menggunakan file JSON di folder `data`.
+## Hasil tautan
+- Alamat dasar GitHub Pages: `https://mazzabairevinindo-source.github.io/undangan-madura-template/`
+- Panjang alamat penuh dibatasi maksimal 150 karakter.
+- Slug/path dibatasi otomatis agar alamat total tidak lebih dari 150 karakter.
+- Musik tetap dibatasi maksimal 500 KB.
+- Foto dan musik disimpan bersama data undangan di Supabase, bukan di URL.
+- Tidak ada unggah JSON manual atau commit GitHub untuk setiap undangan.
+- Tautan lama dengan payload `#v=...` dan file JSON lama tetap didukung sebagai kompatibilitas.
 
-## File patch
-Unggah dan timpa file berikut ke root repository:
-- `admin.js`
+## Pengaturan satu kali
+
+### A. Buat project Supabase
+1. Buat akun dan project baru di Supabase.
+2. Di Dashboard, salin **Project URL** dan **Publishable key** (`sb_publishable_...`). Pada project lama, key `anon` dapat digunakan.
+3. Jangan gunakan `service_role` atau Secret key pada website.
+
+### B. Buat tabel
+1. Buka Supabase → SQL Editor → New query.
+2. Buka file `SUPABASE-SETUP.sql` dari paket ini.
+3. Salin seluruh isi SQL ke SQL Editor dan tekan Run.
+4. SQL membuat tabel `invitations`, RLS, dan fungsi publik terbatas untuk membaca satu undangan berdasarkan slug.
+
+### C. Buat akun admin
+1. Buka Authentication → Users di Supabase.
+2. Klik Add user / Invite user, lalu undang email admin yang akan dipakai.
+3. Buka email undangan dan selesaikan pembuatan kata sandi. Pastikan akun sudah dikonfirmasi.
+4. Matikan pendaftaran publik (public sign-ups) setelah admin selesai dibuat. Admin akan masuk dari halaman `admin.html`.
+
+### D. Isi konfigurasi website
+Buka `supabase-config.js` di repository dan ganti:
+- `https://YOUR_PROJECT_REF.supabase.co` dengan Project URL Anda.
+- `sb_publishable_REPLACE_WITH_YOUR_PUBLISHABLE_KEY` dengan Publishable key.
+
+Simpan satu kali ke repository.
+
+## File yang perlu diunggah ke root repository
+Unggah dan timpa file berikut:
 - `admin.html`
+- `admin.js`
+- `config.js`
+- `index.html`
+- `404.html`
 - `script.js`
-- `README.md`
+- `supabase-config.js` (setelah diisi URL dan Publishable key)
+- `supabase-auth.css`
 
-`404.html` pada repository harus tetap ada dan tetap memuat `script.js` serta `style.css` dengan alamat absolut `/undangan-madura-template/...` agar jalur slug dapat ditangani oleh GitHub Pages. Tidak perlu mengubah desain/CSS atau file gambar.
+`SUPABASE-SETUP.sql` hanya untuk disalin ke SQL Editor Supabase; tidak perlu diunggah ke GitHub. `README.md` boleh diunggah sebagai panduan.
 
-## Cara menggunakan
-1. Unggah patch dan commit satu kali.
-2. Buka `admin.html`.
-3. Isi data undangan seperti biasa.
-4. Masukkan nama tamu, lalu klik **Buat / Perbarui Undangan**.
-5. Klik **Salin Tautan** atau **Lihat Hasil**. Tidak ada unggahan JSON manual.
-6. Gunakan **Simpan Cadangan JSON (opsional)** untuk arsip data.
+## Cara membuat undangan setelah pengaturan awal
+1. Buka `admin.html`.
+2. Masuk sekali dengan email dan kata sandi admin Supabase. Sesi akan diingat pada browser tersebut.
+3. Isi undangan seperti biasa, termasuk foto dan musik (maksimal 500 KB).
+4. Masukkan nama tamu.
+5. Klik **Buat / Perbarui Undangan**.
+6. Klik **Salin Tautan**.
 
-## Batasan teknis
-GitHub Pages adalah hosting statis. Agar tidak memerlukan database atau unggahan JSON setiap kali, data dibawa di fragmen URL setelah tanda `#` dan dikompresi gzip pada browser yang mendukungnya. Fragmen ini tidak dikirim ke server, tetapi dibaca oleh JavaScript saat undangan dibuka. Karena itu, slug dapat singkat (maksimal 50 karakter), sementara keseluruhan URL tetap lebih panjang sesuai foto, musik, dan data undangan. Musik dibatasi 500 KB sebelum dimasukkan ke tautan. Tautan berukuran besar sebaiknya diuji sebelum dibagikan luas.
+Tidak perlu mengunduh JSON, membuka folder `data`, mengunggah file, atau melakukan commit GitHub setiap kali membuat undangan.
 
-Draf admin tetap lokal pada browser yang digunakan. RSVP diteruskan lewat WhatsApp dan tidak disimpan sebagai rekap server.
+## Catatan keamanan dan operasional
+- Browser hanya memakai Publishable key bersama RLS. Jangan pernah memasukkan Secret/service_role key di file website.
+- Tamu membaca undangan melalui fungsi `get_public_invitation(slug)`. Tabel tidak memberi akses baca langsung kepada pengguna anonim.
+- Penulisan/ubah data memerlukan akun Supabase yang sudah login.
+- Foto dan musik disimpan sebagai data undangan di kolom JSONB. Musik dibatasi 500 KB dan foto dikompresi oleh admin.
+- Draf lokal tetap tersimpan di browser admin. RSVP tetap diteruskan melalui WhatsApp, tidak menjadi rekap RSVP di Supabase.
+- Karena URL harus <= 150 karakter dan alamat dasar sudah 68 karakter, slug dibatasi otomatis hingga maksimal 80 karakter.
