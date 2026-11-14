@@ -86,21 +86,21 @@
         <div class="media-grid">
           <div class="upload-tile">
             <label for="heroFile"><span class="upload-symbol">▧</span><strong>Foto pasangan utama</strong><small>Ditampilkan memenuhi layar setelah sampul dibuka.</small><span class="file-button">Pilih foto pasangan</span></label>
-            <input id="heroFile" type="file" accept="image/jpeg,image/png,image/webp">
+            <input id="heroFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif">
             <img id="heroPreview" class="preview-image" alt="Pratinjau foto pasangan" hidden>
             <input type="hidden" name="heroImage">
             <p id="heroStatus" class="file-status">Belum ada foto.</p>
           </div>
           <div class="upload-tile">
             <label for="groomFile"><span class="upload-symbol">♙</span><strong>Foto mempelai pria</strong><small>Foto profil pada bagian mempelai.</small><span class="file-button">Pilih foto pria</span></label>
-            <input id="groomFile" type="file" accept="image/jpeg,image/png,image/webp">
+            <input id="groomFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif">
             <img id="groomPreview" class="preview-image small-preview" alt="Pratinjau foto pria" hidden>
             <input type="hidden" name="groomImage">
             <p id="groomStatus" class="file-status">Opsional.</p>
           </div>
           <div class="upload-tile">
             <label for="brideFile"><span class="upload-symbol">♙</span><strong>Foto mempelai wanita</strong><small>Foto profil pada bagian mempelai.</small><span class="file-button">Pilih foto wanita</span></label>
-            <input id="brideFile" type="file" accept="image/jpeg,image/png,image/webp">
+            <input id="brideFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif">
             <img id="bridePreview" class="preview-image small-preview" alt="Pratinjau foto wanita" hidden>
             <input type="hidden" name="brideImage">
             <p id="brideStatus" class="file-status">Opsional.</p>
@@ -112,7 +112,7 @@
             <p id="musicStatus" class="file-status">Opsional. Maksimal 500 KB. Musik disimpan online di Supabase, bukan di alamat tautan.</p>
           </div>
         </div>
-        <p class="help">Foto diperkecil otomatis. Jika ingin galeri banyak foto, lebih aman unggah foto ke repository sebagai aset publik dan gunakan versi lanjutan.</p>
+        <p class="help">Foto diunggah ke Supabase Storage menggunakan file asli tanpa kompresi, perubahan format, atau resize. Maksimal 50 MB per foto sesuai batas proyek Free. Musik maksimal 500 KB.</p>
       </section>
 
       <section id="payments" class="admin-card">

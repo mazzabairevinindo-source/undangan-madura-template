@@ -170,110 +170,144 @@ function setPreview(previewId,statusId,dataUrl,status) {
   $(statusId).textContent = status || "Foto siap digunakan.";
 }
 
-function loadImageForCanvas(file) {
-  return new Promise((resolve,reject) => {
-    const objectUrl = URL.createObjectURL(file);
-    const image = new Image();
-    image.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      resolve(image);
-    };
-    image.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      reject(new Error("Gambar tidak dapat dibaca. Coba simpan ulang sebagai JPG atau PNG."));
-    };
-    image.src = objectUrl;
-  });
+// Media tetap dalam kualitas asli: file dipratinjau dengan Object URL,
+// lalu diunggah langsung sebagai File ke Supabase Storage tanpa canvas/re-encode.
+const selectedMediaFiles = {
+  heroImage: null,
+  groomImage: null,
+  brideImage: null,
+  musicFile: null
+};
+const previewObjectUrls = {};
+const STORAGE_BUCKET = "undangan-media";
+const MAX_IMAGE_BYTES = 50 * 1024 * 1024; // Batas bucket sesuai Supabase Free
+const MAX_MUSIC_BYTES = 500 * 1024; // 500 KB sesuai permintaan
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
+const ALLOWED_AUDIO_TYPES = ["audio/mpeg", "audio/ogg", "audio/mp4", "audio/aac", "audio/x-m4a", "audio/webm", "audio/wav"];
+
+function setFilePreview(previewId, statusId, file, label) {
+  if (previewObjectUrls[previewId]) URL.revokeObjectURL(previewObjectUrls[previewId]);
+  const objectUrl = URL.createObjectURL(file);
+  previewObjectUrls[previewId] = objectUrl;
+  setPreview(previewId, statusId, objectUrl,
+    `${label}: ${file.name} · ${Math.ceil(file.size / 1024)} KB · file asli, tanpa kompresi`);
 }
 
-async function compressImage(file) {
-  if (!file || !file.type.startsWith("image/")) throw new Error("Pilih file gambar JPG, PNG, atau WebP.");
-  if (file.size > 15 * 1024 * 1024) throw new Error("Foto melebihi 15 MB. Pilih foto yang lebih kecil.");
-  let source;
-  let width,height,draw;
-  if ("createImageBitmap" in window) {
-    try {
-      source = await createImageBitmap(file);
-      width = source.width; height = source.height;
-      draw = (ctx,w,h) => ctx.drawImage(source,0,0,w,h);
-    } catch (_) {}
-  }
-  if (!source) {
-    source = await loadImageForCanvas(file);
-    width = source.naturalWidth || source.width;
-    height = source.naturalHeight || source.height;
-    draw = (ctx,w,h) => ctx.drawImage(source,0,0,w,h);
-  }
-  const qualities = [0.72,0.62,0.52,0.43,0.35];
-  let result = "";
-  let maxSide = 820;
-  for (let attempt=0; attempt<9; attempt++) {
-    const scale = Math.min(1,maxSide/Math.max(width,height));
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1,Math.round(width*scale));
-    canvas.height = Math.max(1,Math.round(height*scale));
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("Browser tidak mendukung pemrosesan foto.");
-    ctx.fillStyle="#fff"; ctx.fillRect(0,0,canvas.width,canvas.height);
-    draw(ctx,canvas.width,canvas.height);
-    for (const quality of qualities) {
-      result = canvas.toDataURL("image/jpeg",quality);
-      if (result.length <= 52000) break;
+function bindImagePicker(inputId, hiddenName, previewId, statusId, label, configKey) {
+  $(inputId).addEventListener("change", () => {
+    const file = $(inputId).files && $(inputId).files[0];
+    if (!file) return;
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      $(inputId).value = "";
+      alert("Pilih foto JPG, PNG, WebP, GIF, atau AVIF.");
+      return;
     }
-    if (result.length <= 52000) break;
-    maxSide = Math.round(maxSide*0.78);
-  }
-  if (source.close) source.close();
-  if (!result || result.length > 62000) throw new Error("Ukuran foto masih terlalu besar setelah diperkecil. Coba potong atau pilih foto lain.");
-  return result;
-}
-async function readAsDataUrl(file) {
-  return await new Promise((resolve,reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result || ""));
-    reader.onerror = () => reject(new Error("File tidak dapat dibaca."));
-    reader.readAsDataURL(file);
-  });
-}
-
-function bindImagePicker(inputId,hiddenName,previewId,statusId,label) {
-  $(inputId).addEventListener("change",async()=>{
-    const file=$(inputId).files && $(inputId).files[0];
-    if(!file)return;
-    $(statusId).textContent="Sedang memperkecil foto…";
-    try {
-      const dataUrl=await compressImage(file);
-      field(hiddenName).value=dataUrl;
-      setPreview(previewId,statusId,dataUrl,`${label}: ${file.name} · ${Math.round(dataUrl.length/1024)} KB`);
-    } catch(error) {
-      field(hiddenName).value="";
-      setPreview(previewId,statusId,"",error.message || "Foto gagal diproses.");
-      alert(error.message || "Foto gagal diproses.");
+    if (file.size > MAX_IMAGE_BYTES) {
+      $(inputId).value = "";
+      alert("Ukuran foto melebihi 50 MB. Foto tidak akan dikompres; pilih file asli yang lebih kecil dari batas penyimpanan.");
+      return;
     }
+    selectedMediaFiles[configKey] = file;
+    field(hiddenName).value = "";
+    setFilePreview(previewId, statusId, file, label);
   });
 }
-bindImagePicker("heroFile","heroImage","heroPreview","heroStatus","Foto pasangan");
-bindImagePicker("groomFile","groomImage","groomPreview","groomStatus","Foto pria");
-bindImagePicker("brideFile","brideImage","bridePreview","brideStatus","Foto wanita");
+bindImagePicker("heroFile", "heroImage", "heroPreview", "heroStatus", "Foto pasangan", "heroImage");
+bindImagePicker("groomFile", "groomImage", "groomPreview", "groomStatus", "Foto pria", "groomImage");
+bindImagePicker("brideFile", "brideImage", "bridePreview", "brideStatus", "Foto wanita", "brideImage");
 
-$("musicFile").addEventListener("change",async()=>{
-  const file=$("musicFile").files && $("musicFile").files[0];
-  if(!file)return;
-  if(file.size > 500*1024) {
-    alert("Ukuran musik maksimal 500 KB. Pilih file yang lebih kecil.");
-    $("musicFile").value="";
-    field("musicData").value="";
-    $("musicStatus").textContent="Musik tidak dipilih. Maksimal 500 KB.";
+$("musicFile").addEventListener("change", () => {
+  const file = $("musicFile").files && $("musicFile").files[0];
+  if (!file) return;
+  if (!ALLOWED_AUDIO_TYPES.includes(file.type)) {
+    $("musicFile").value = "";
+    alert("Pilih musik MP3, OGG, M4A/MP4, AAC, WAV, atau WebM.");
     return;
   }
-  try {
-    field("musicData").value=await readAsDataUrl(file);
-    $("musicStatus").textContent=`Musik dipilih: ${file.name} · ${Math.round(file.size/1024)} KB`;
-  } catch(error) {
-    field("musicData").value="";
-    $("musicStatus").textContent=error.message;
+  if (file.size > MAX_MUSIC_BYTES) {
+    alert("Ukuran musik maksimal 500 KB. File tidak akan dikompres otomatis.");
+    $("musicFile").value = "";
+    return;
   }
+  selectedMediaFiles.musicFile = file;
+  field("musicData").value = "";
+  $("musicStatus").textContent = `Musik dipilih: ${file.name} · ${Math.ceil(file.size / 1024)} KB · maksimal 500 KB`;
 });
+
+function safeStorageFileName(file) {
+  const original = String(file.name || "media");
+  const dot = original.lastIndexOf(".");
+  const rawExt = dot >= 0 ? original.slice(dot + 1).toLowerCase() : "";
+  const extByMime = {
+    "image/jpeg":"jpg", "image/png":"png", "image/webp":"webp", "image/gif":"gif", "image/avif":"avif",
+    "audio/mpeg":"mp3", "audio/ogg":"ogg", "audio/mp4":"m4a", "audio/aac":"aac",
+    "audio/x-m4a":"m4a", "audio/webm":"webm", "audio/wav":"wav"
+  };
+  const allowedExt = extByMime[file.type] || (/^[a-z0-9]{2,5}$/.test(rawExt) ? rawExt : "bin");
+  return `${allowedExt}`;
+}
+
+function encodeStoragePath(path) {
+  return path.split("/").map(part => encodeURIComponent(part)).join("/");
+}
+
+async function uploadOriginalFileToStorage(file, slug, assetKind, session, cfg) {
+  const token = (typeof crypto !== "undefined" && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  const extension = safeStorageFileName(file);
+  const path = `${slug}/${assetKind}-${token}.${extension}`;
+  const endpoint = `${cfg.url}/storage/v1/object/${STORAGE_BUCKET}/${encodeStoragePath(path)}`;
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      apikey: cfg.publishableKey,
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": file.type || "application/octet-stream",
+      "Cache-Control": "31536000",
+      "x-upsert": "false"
+    },
+    // Kirim objek File asli langsung. Tidak memakai canvas, kompresi, atau resize.
+    body: file
+  });
+  if (!response.ok) {
+    const detail = await response.json().catch(() => ({}));
+    const message = detail.message || detail.error || detail.error_description || `HTTP ${response.status}`;
+    if (response.status === 400 || response.status === 404) {
+      throw new Error(`Gagal mengunggah ${assetKind}: ${message}. Pastikan SQL Storage sudah dijalankan dan bucket '${STORAGE_BUCKET}' sudah tersedia.`);
+    }
+    throw new Error(`Gagal mengunggah ${assetKind}: ${message}`);
+  }
+  return `${cfg.url}/storage/v1/object/public/${STORAGE_BUCKET}/${encodeStoragePath(path)}`;
+}
+
+async function uploadSelectedMedia(slug, config) {
+  const mediaMap = [
+    { key: "heroImage", hidden: "heroImage", kind: "foto-pasangan", label: "Foto pasangan" },
+    { key: "groomImage", hidden: "groomImage", kind: "foto-pria", label: "Foto pria" },
+    { key: "brideImage", hidden: "brideImage", kind: "foto-wanita", label: "Foto wanita" },
+    { key: "musicFile", hidden: "musicData", kind: "musik", label: "Musik" }
+  ];
+  const pending = mediaMap.filter(item => selectedMediaFiles[item.key]);
+  if (!pending.length) return config;
+  const cfg = getSupabaseConfig();
+  const session = await ensureSupabaseSession();
+  for (const item of pending) {
+    const file = selectedMediaFiles[item.key];
+    if (item.key === "musicFile" && file.size > MAX_MUSIC_BYTES) {
+      throw new Error("Ukuran musik maksimal 500 KB.");
+    }
+    if (item.key !== "musicFile" && file.size > MAX_IMAGE_BYTES) {
+      throw new Error(`Foto ${item.label} melebihi batas 50 MB.`);
+    }
+    const publicUrl = await uploadOriginalFileToStorage(file, slug, item.kind, session, cfg);
+    config[item.key] = publicUrl;
+    field(item.hidden).value = publicUrl;
+    selectedMediaFiles[item.key] = null;
+    $(item.key === "musicFile" ? "musicStatus" : `${item.key.replace("Image", "")}Status`).textContent = `${item.label} tersimpan di Storage · kualitas asli`;
+  }
+  return config;
+}
 
 function eventMode() {
   const selected=form.querySelector('input[name="eventMode"]:checked');
@@ -379,7 +413,7 @@ function makeInvitationRecord(config, guest) {
 
 function getSupabaseConfig() {
   const cfg = window.SUPABASE_CONFIG || {};
-  const url = String(cfg.url || "").trim().replace(/\/+$/g, "");
+  const url = String(cfg.url || "").trim().replace(/\/+$/g, "").replace(/\/rest\/v1$/i, "");
   const publishableKey = String(cfg.publishableKey || "").trim();
   if (!url || !publishableKey || url.includes("YOUR_PROJECT") || publishableKey.includes("REPLACE_WITH")) {
     throw new Error("Konfigurasi Supabase belum diisi. Isi URL proyek dan publishable key pada supabase-config.js.");
@@ -594,6 +628,9 @@ function refreshDrafts() {
   drafts().forEach((draft,index)=>select.add(new Option(`${draft.title} · ${draft.savedAt}`,String(index))));
 }
 function saveDraft() {
+  if (Object.values(selectedMediaFiles).some(Boolean)) {
+    return showMessage("Foto atau musik baru yang dipilih belum disimpan. Klik Buat / Perbarui Undangan untuk mengunggah file asli ke Supabase terlebih dahulu, lalu simpan draf.", "error");
+  }
   const config=collectConfig();
   if(!config.groom && !config.bride)return showMessage("Isi setidaknya salah satu nama sebelum menyimpan draf.","error");
   const title=`${config.groom || "Mempelai"} & ${config.bride || "Mempelai"}`;
@@ -645,9 +682,12 @@ form.addEventListener("submit",async event=>{
   }
   const button=$("makeLink");button.disabled=true;button.textContent="Sedang membuat tautan…";
   try {
-    const config = collectConfig();
+    let config = collectConfig();
     const guest = val("guestName");
     const record = makeInvitationRecord(config, guest);
+    // Upload file asli lebih dahulu; yang disimpan di JSON undangan hanya URL publiknya.
+    config = await uploadSelectedMedia(record.slug, config);
+    record.invitation = config;
     await saveInvitationToSupabase(record);
     const link = makeInvitationLink(record);
     lastInvitationRecord = record;

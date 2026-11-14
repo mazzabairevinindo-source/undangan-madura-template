@@ -1,10 +1,9 @@
-/*
-  KONFIGURASI SUPABASE — isi SATU KALI setelah membuat project.
-  Gunakan Project URL dan Publishable key (sb_publishable_...) dari Dashboard Supabase.
-  Jangan pernah memasukkan Secret key atau service_role key pada file ini.
-*/
+/* Konfigurasi publik Supabase untuk website GitHub Pages.
+   Publishable key memang digunakan pada browser; keamanan tetap dijaga dengan RLS.
+   Jangan masukkan sb_secret_... atau service_role ke file ini. */
 window.SUPABASE_CONFIG = {
-  url: "https://YOUR_PROJECT_REF.supabase.co",
-  publishableKey: "sb_publishable_REPLACE_WITH_YOUR_PUBLISHABLE_KEY",
-  table: "invitations"
+  url: "https://qulivfsmhqgosgvufes.supabase.co",
+  publishableKey: "sb_publishable_FNjlvKuiHYnNWK4KS6vsbw_z2aYiF53",
+  table: "invitations",
+  storageBucket: "undangan-media"
 };
