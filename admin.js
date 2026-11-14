@@ -465,12 +465,14 @@ function renderSupabaseAuthPanel() {
     </div>
     <div class="supabase-auth-actions">
       <button id="supabaseSignIn" type="button" class="primary-button">Masuk</button>
+      <button id="supabaseForgotPassword" type="button" class="secondary-button">Lupa kata sandi?</button>
       <button id="supabaseSignOut" type="button" class="secondary-button" hidden>Keluar</button>
     </div>
     <p id="supabaseAuthStatus" class="supabase-auth-status" role="status" aria-live="polite"></p>`;
   formNode.parentNode.insertBefore(panel, formNode);
 
   document.getElementById("supabaseSignIn").addEventListener("click", signInToSupabase);
+  document.getElementById("supabaseForgotPassword").addEventListener("click", requestSupabasePasswordReset);
   document.getElementById("supabaseSignOut").addEventListener("click", () => {
     clearSupabaseSession();
     updateAuthPanel();
@@ -481,6 +483,7 @@ function renderSupabaseAuthPanel() {
 function updateAuthPanel() {
   const signIn = document.getElementById("supabaseSignIn");
   const signOut = document.getElementById("supabaseSignOut");
+  const forgot = document.getElementById("supabaseForgotPassword");
   const email = document.getElementById("supabaseAdminEmail");
   const password = document.getElementById("supabaseAdminPassword");
   if (!signIn) return;
@@ -496,16 +499,58 @@ function updateAuthPanel() {
     if (email?.closest("label")) email.closest("label").hidden = true;
     if (password?.closest("label")) password.closest("label").hidden = true;
     signIn.hidden = true;
+    if (forgot) forgot.hidden = true;
     signOut.hidden = false;
     authMessage(`Terhubung sebagai ${supabaseSession.user?.email || "admin"}. Undangan siap disimpan online.`, "success");
   } else {
     if (email?.closest("label")) email.closest("label").hidden = false;
     if (password?.closest("label")) password.closest("label").hidden = false;
     signIn.hidden = false;
+    if (forgot) forgot.hidden = false;
     signOut.hidden = true;
     authMessage("Silakan masuk menggunakan akun admin Supabase.", "info");
   }
 }
+async function requestSupabasePasswordReset() {
+  const button = document.getElementById("supabaseForgotPassword");
+  const email = document.getElementById("supabaseAdminEmail")?.value.trim() || "";
+  if (!email) {
+    authMessage("Masukkan email admin terlebih dahulu, lalu klik Lupa kata sandi.", "error");
+    document.getElementById("supabaseAdminEmail")?.focus();
+    return;
+  }
+  const cfg = getSupabaseConfig();
+  if (!window.supabase || typeof window.supabase.createClient !== "function") {
+    authMessage("Komponen pemulihan belum termuat. Muat ulang halaman dan coba lagi.", "error");
+    return;
+  }
+  button.disabled = true;
+  button.textContent = "Mengirim…";
+  try {
+    const recoveryClient = window.supabase.createClient(cfg.url, cfg.publishableKey, {
+      auth: {
+        storageKey: "undanganMadura.supabase.recovery.v1",
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        flowType: "pkce"
+      }
+    });
+    const redirectTo = new URL("reset-password.html", window.location.href).toString();
+    const { error } = await recoveryClient.auth.resetPasswordForEmail(email, { redirectTo });
+    if (error) throw error;
+    authMessage("Permintaan pemulihan dikirim. Buka email terbaru dan klik tautan Reset Password. Periksa Spam bila belum terlihat.", "success");
+  } catch (error) {
+    const msg = error?.message || "Tidak dapat mengirim email pemulihan.";
+    authMessage(msg.includes("rate") || msg.includes("limit")
+      ? "Pengiriman email sedang dibatasi Supabase. Tunggu sebelum mencoba lagi."
+      : msg, "error");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Lupa kata sandi?";
+  }
+}
+
 async function signInToSupabase() {
   const button = document.getElementById("supabaseSignIn");
   const email = document.getElementById("supabaseAdminEmail")?.value.trim() || "";
