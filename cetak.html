@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#4b101b">
+<title>Cetak Undangan Madura - F4</title>
+<style>
+:root{--maroon:#4b101b;--maroon2:#2d090f;--red:#7d1d2b;--gold:#bd9147;--gold2:#e4c47b;--cream:#fff8ee;--ink:#39151a;--muted:#745a50}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e9e3db;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+.toolbar{position:sticky;top:0;z-index:20;background:#fffaf3;border-bottom:1px solid #ddc9a9;padding:14px 18px;box-shadow:0 3px 14px #2b11111c}
+.toolbar-inner{max-width:1080px;margin:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.toolbar h1{font:700 18px Georgia,serif;color:var(--maroon);margin:0 16px 0 0}
+.toolbar input{flex:1;min-width:250px;padding:11px 13px;border:1px solid #cdbb9d;border-radius:7px;font-size:14px;background:#fff}
+.btn{border:0;border-radius:7px;padding:11px 16px;font-weight:700;cursor:pointer;font-size:13px}
+.btn-primary{background:var(--maroon);color:#ffe7ad}.btn-secondary{background:#f2e7d5;color:var(--maroon);border:1px solid #d8bd8b}
+.info{max-width:1080px;margin:10px auto;color:#5c5148;font-size:12px;line-height:1.5;padding:0 18px}
+.status{max-width:1080px;margin:8px auto;padding:8px 18px;font-size:13px;color:#7a1d28}
+.status.ok{color:#17633d}
+.sheet{position:relative;width:215mm;height:330mm;margin:16px auto;background:white;box-shadow:0 4px 22px #0002;overflow:hidden;page-break-after:always;break-after:page}
+.sheet:last-of-type{page-break-after:auto;break-after:auto}
+.sheet-label{position:absolute;left:6mm;top:5mm;font:7pt Arial,sans-serif;letter-spacing:.15em;color:#aa9a83;text-transform:uppercase}
+.card{position:absolute;left:52.5mm;top:82.5mm;width:110mm;height:165mm;overflow:hidden;border-radius:1.2mm}
+.card-front{background:#4b101b url('cetak-cover-f4.png') center/100% 100% no-repeat;color:#fff3d9;text-align:center;border:1px solid var(--gold);outline:1px solid var(--maroon);outline-offset:-2.3mm}
+.front-top{position:absolute;left:7mm;right:7mm;top:14mm;text-shadow:0 1px 3px #23050a}
+.front-kicker{font:700 5.8pt Arial,sans-serif;letter-spacing:.2em;color:#f1d18a;margin-bottom:1.7mm}
+.front-arabic{font:12.5pt 'Noto Naskh Arabic','Traditional Arabic',serif;line-height:1.4;color:#eac16d;margin-bottom:1mm}
+.front-rule{color:#e4c47b;letter-spacing:.34em;font-size:7.5pt;margin:.5mm auto 1mm}
+.front-names{font:16pt Georgia,'Times New Roman',serif;line-height:1;color:#fff7e7;text-shadow:0 2px 4px #1c060a;display:flex;flex-direction:column;gap:.5mm}
+.front-names .amp{font-style:italic;color:#e5bf6c;font-size:12pt}
+.front-date{font:700 6.2pt Arial,sans-serif;letter-spacing:.06em;color:#fff2d7;margin-top:1.8mm;text-shadow:0 1px 3px #22070b}
+.front-recipient{position:absolute;left:12mm;right:12mm;bottom:7mm;color:#4b101b;background:rgba(255,245,226,.97);border:.75mm double #b98c45;border-radius:4mm;padding:1.8mm 2mm 2mm;box-shadow:0 1mm 3mm #1f080b55;display:flex;flex-direction:column;align-items:center;gap:.8mm;text-align:center}
+.front-recipient .to{font:6.4pt Georgia,serif;color:#5b1822}
+.front-recipient strong{font:700 9.2pt Georgia,serif;line-height:1.08;max-width:100%;overflow-wrap:anywhere;color:#4b101b}
+.front-recipient small{font:5.3pt Arial,sans-serif;letter-spacing:.14em;color:#7c5b36}
+.card-back{background:var(--cream);border:1.15mm solid var(--maroon);outline:0.45mm solid var(--gold);outline-offset:-2.4mm;padding:5.1mm 5.5mm 4.4mm;text-align:center;color:var(--ink)}
+.back-inner{height:100%;border:0.25mm solid #d4b36e;padding:3.2mm 3.2mm 2.5mm;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 0%,#fffdf8 0,#fff8ee 66%,#f8ecd9 100%)}
+.back-ornament{color:var(--gold);font:12pt Georgia,serif;letter-spacing:.3em;margin-bottom:1mm}
+.back-arabic{font:12pt 'Noto Naskh Arabic','Traditional Arabic',serif;color:#a67c39;line-height:1.5;margin:0 0 1mm}
+.back-salam{font:700 5.5pt Arial,sans-serif;letter-spacing:.12em;color:#8b2530;margin:0 0 1.7mm;text-transform:uppercase}
+.back-intro{font:6.4pt Georgia,serif;line-height:1.35;margin:0 auto 2mm;max-width:92%}
+.back-photo{width:31mm;height:25mm;object-fit:cover;border:0.7mm solid #d9b968;border-radius:18mm 18mm 2mm 2mm;margin:0 auto 1.8mm;display:none}
+.back-names{font:italic 13pt Georgia,serif;color:var(--maroon);line-height:1.08;margin:0 0 1mm}
+.back-parents{font:5.5pt Arial,sans-serif;color:#59443e;line-height:1.3;margin:0 0 1.7mm}
+.back-event-title{font:700 6pt Arial,sans-serif;letter-spacing:.16em;color:#a27a3c;margin:1.5mm 0 1.2mm}
+.event-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5mm;margin:0 0 1.8mm}
+.event-card{border:0.35mm solid #c59b50;border-radius:1.5mm;padding:1.5mm 1mm;background:#fffaf2;min-height:15mm}
+.event-card strong{display:block;font:700 6.3pt Georgia,serif;color:var(--maroon);margin-bottom:.8mm}
+.event-card span{display:block;font:5.5pt Arial,sans-serif;line-height:1.25;color:#57443a}
+.arrival{background:var(--maroon);color:#ffe8b5;border:0.4mm solid var(--gold);padding:1.7mm;margin:1.5mm 0;border-radius:1mm}
+.arrival .label{font:700 5pt Arial,sans-serif;letter-spacing:.17em;display:block;margin-bottom:.7mm}
+.arrival strong{font:12pt Georgia,serif;display:block}
+.arrival small{font:5pt Arial,sans-serif;display:block;margin-top:.4mm}
+.venue{margin:1.4mm 0 0;padding:1.4mm 1mm;border-top:.3mm solid #d2b16f;border-bottom:.3mm solid #d2b16f}
+.venue .vtitle{font:700 6.5pt Georgia,serif;color:var(--maroon);margin-bottom:.6mm}
+.venue p{font:5.7pt Arial,sans-serif;line-height:1.25;margin:.3mm 0;color:#4d3b36}
+.back-closing{font:italic 5.7pt Georgia,serif;color:#6d4b3e;margin:1.4mm 0 0;line-height:1.25}
+.back-recipient{position:absolute;left:0;right:0;bottom:1.8mm;font:700 5.3pt Arial,sans-serif;letter-spacing:.05em;color:#8b2530}
+.payment-line{font:5pt Arial,sans-serif;color:#72563d;line-height:1.2;margin-top:1mm}
+.envelope-svg{position:absolute;inset:0;width:215mm;height:330mm}
+.cutline{fill:none;stroke:#7d1d2b;stroke-width:.75;stroke-linejoin:round}
+.foldline{fill:none;stroke:#b68a43;stroke-width:.55;stroke-dasharray:2.2 1.6}
+.env-note{position:absolute;left:0;right:0;bottom:6mm;text-align:center;font:7pt Arial,sans-serif;color:#77685a;letter-spacing:.03em}
+.hidden{display:none!important}
+@media screen and (max-width:850px){.sheet{margin:12px auto;transform-origin:top center;transform:scale(.76);margin-bottom:-78mm}.toolbar h1{width:100%}}
+@media print{
+ @page{size:215mm 330mm;margin:0}
+ html,body{width:215mm!important;margin:0!important;padding:0!important;background:#fff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+ .toolbar,.info,.status,.sheet-label,.env-note{display:none!important}
+ .sheet{width:215mm!important;height:330mm!important;margin:0!important;box-shadow:none!important;overflow:hidden!important;page-break-after:always!important;break-after:page!important}
+ .sheet:last-of-type{page-break-after:auto!important;break-after:auto!important}
+}
+</style>
+</head>
+<body>
+<header class="toolbar">
+  <div class="toolbar-inner">
+    <h1>Cetak Undangan Madura - F4</h1>
+    <input id="slugInput" type="text" placeholder="Tempel tautan undangan atau nama slug di sini">
+    <button id="loadBtn" class="btn btn-secondary" type="button">Muat Undangan</button>
+    <button id="printBtn" class="btn btn-primary" type="button" disabled>Cetak / Simpan PDF</button>
+  </div>
+</header>
+<p class="info">Paket cetak terdiri dari 3 lembar F4: sampul kartu, isi undangan, dan pola amplop yang dipotong serta dilipat. Saat mencetak, pilih kertas F4/Folio 215 × 330 mm, skala 100%, margin None/Tidak ada, aktifkan Background graphics/Grafik latar belakang, dan matikan Header/Footer.</p>
+<div id="status" class="status">Tempel tautan undangan yang sudah tersimpan, lalu tekan “Muat Undangan”. Mode contoh dapat dibuka dengan menambahkan <b>?demo=1</b>.</div>
+
+<!-- SHEET 1: FRONT COVER CARD -->
+<section class="sheet" id="sheetFront">
+  <div class="sheet-label">Lembar 1 - Sampul kartu undangan - potong mengikuti ukuran kartu</div>
+  <article class="card card-front">
+    <div class="front-top">
+      <div class="front-kicker" id="coverEyebrow">UNDANGAN PERNIKAHAN</div>
+      <div class="front-arabic" id="coverBismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+      <div class="front-rule">✦ ━━━ ❖ ━━━ ✦</div>
+      <div class="front-names"><span id="groomFront">Nama Mempelai Pria</span><span class="amp">&</span><span id="brideFront">Nama Mempelai Wanita</span></div>
+      <div class="front-date" id="dateFront">Hari, tanggal pernikahan</div>
+    </div>
+    <div class="front-recipient">
+      <span class="to" id="coverRecipient">Kepada Yth.</span>
+      <strong id="recipientFront">Tamu Undangan</strong>
+      <small id="coverPlace">DI TEMPAT</small>
+    </div>
+  </article>
+</section>
+
+<!-- SHEET 2: INVITATION CARD INNER SIDE -->
+<section class="sheet" id="sheetBack">
+  <div class="sheet-label">Lembar 2 - Isi undangan - potong mengikuti ukuran kartu</div>
+  <article class="card card-back">
+    <div class="back-inner">
+      <div class="back-ornament">✿ ❖ ✿</div>
+      <p class="back-arabic" id="introArabic">بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا</p>
+      <p class="back-salam" id="introSalam">ASSALAMU’ALAIKUM WARAHMATULLAHI WABARAKATUH</p>
+      <img id="heroPhoto" class="back-photo" alt="Foto kedua mempelai">
+      <p class="back-intro" id="introText">Dengan memohon rahmat dan ridha Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami.</p>
+      <h2 class="back-names"><span id="groomBack">Nama Mempelai Pria</span><br><small style="font-size:8pt;color:#a77a37">&</small><br><span id="brideBack">Nama Mempelai Wanita</span></h2>
+      <p class="back-parents"><span id="groomParents">Putra dari Bapak ... dan Ibu ...</span><br><span id="brideParents">Putri dari Bapak ... dan Ibu ...</span></p>
+      <div class="back-event-title" id="eventTitle">RANGKAIAN ACARA</div>
+      <div class="event-grid" id="eventGrid">
+        <div class="event-card" id="akadBlock"><strong id="akadTitle">Akad Nikah</strong><span id="akadInfo">Tanggal dan waktu akad</span></div>
+        <div class="event-card" id="receptionBlock"><strong id="receptionTitle">Resepsi</strong><span id="receptionInfo">Tanggal dan waktu resepsi</span></div>
+      </div>
+      <div class="arrival"><span class="label" id="arrivalTitle">WAKTU KEHADIRAN TAMU</span><strong id="guestArrival">10.00 WIB</strong><small id="arrivalText">Kami mengharapkan kehadiran Bapak/Ibu/Saudara/i pada waktu tersebut.</small></div>
+      <div class="venue"><div class="vtitle" id="venueTitle">LOKASI ACARA</div><p><strong id="venueName">Nama tempat acara</strong></p><p id="venueAddress">Alamat lengkap acara</p></div>
+      <p class="back-closing" id="footerText">Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.</p>
+      <div class="payment-line" id="paymentLine"></div>
+      <div class="back-recipient"><span id="recipientBack">Tamu Undangan</span> · <span id="footerNames">Nama Mempelai</span></div>
+    </div>
+  </article>
+</section>
+
+<!-- SHEET 3: F4 ENVELOPE CUT/FOLD TEMPLATE -->
+<section class="sheet" id="sheetEnvelope">
+  <div class="sheet-label">Lembar 3 - Pola amplop - garis utuh: potong / garis putus: lipat</div>
+  <svg class="envelope-svg" viewBox="0 0 215 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pola amplop undangan Madura untuk kertas F4">
+    <defs>
+      <clipPath id="envBottomClip"><path d="M47.5 250 L167.5 250 Q156 286 107.5 310 Q59 286 47.5 250Z"/></clipPath>
+    </defs>
+    <!-- Dasar pola amplop -->
+    <path d="M47.5 80 Q107.5 20 167.5 80 L197.5 105 L197.5 225 L167.5 250 Q156 286 107.5 310 Q59 286 47.5 250 L17.5 225 L17.5 105 Z" fill="#fff8ed" stroke="none"/>
+    <!-- Tutup atas -->
+    <path d="M47.5 80 Q107.5 20 167.5 80 L107.5 165 Z" fill="#4b101b"/>
+    <path d="M62 76 Q107.5 34 153 76" fill="none" stroke="#d8b36b" stroke-width=".8"/>
+    <path d="M71 78 Q107.5 47 144 78" fill="none" stroke="#d8b36b" stroke-width=".35"/>
+    <text x="107.5" y="62" text-anchor="middle" fill="#f2d28a" font-size="5" font-family="Georgia" letter-spacing="1.2" transform="rotate(180 107.5 62)">✦ UNDANGAN MADURA ✦</text>
+    <!-- Sayap kiri dan kanan -->
+    <path d="M47.5 80 L17.5 105 L17.5 225 L47.5 250 L107.5 165 Z" fill="#f1e4cf" stroke="#c8a15b" stroke-width=".35"/>
+    <path d="M167.5 80 L197.5 105 L197.5 225 L167.5 250 L107.5 165 Z" fill="#f1e4cf" stroke="#c8a15b" stroke-width=".35"/>
+    <path d="M28 117 L47 101 M28 213 L47 229 M187 117 L168 101 M187 213 L168 229" stroke="#b68a43" stroke-width=".55"/>
+    <!-- Panel tengah belakang -->
+    <rect x="53" y="86" width="109" height="158" rx="2.5" fill="#fffaf2" stroke="#4b101b" stroke-width=".75"/>
+    <rect x="56" y="89" width="103" height="152" rx="1.5" fill="none" stroke="#c49a51" stroke-width=".45"/>
+    <path d="M78 110 Q107.5 94 137 110 M84 116 Q107.5 103 131 116" fill="none" stroke="#c49a51" stroke-width=".5"/>
+    <text x="107.5" y="133" text-anchor="middle" fill="#8d6634" font-size="4.2" font-family="Arial" letter-spacing="1.1">ADAT MADURA · MODERN ISLAMI</text>
+    <text x="107.5" y="148" text-anchor="middle" fill="#4b101b" font-size="7.2" font-family="Georgia" font-style="italic">Sampul Belakang</text>
+    <path d="M90 160 H125 M98 164 H117" stroke="#c49a51" stroke-width=".55"/>
+    <text x="107.5" y="177" text-anchor="middle" fill="#9b7438" font-size="7">✿</text>
+    <text x="107.5" y="214" text-anchor="middle" fill="#96784c" font-size="3.8" font-family="Arial">Masukkan kartu 110 × 165 mm</text>
+    <text x="107.5" y="222" text-anchor="middle" fill="#96784c" font-size="3.8" font-family="Arial">ke dalam amplop ini</text>
+    <!-- Tutup bawah / muka depan amplop -->
+    <path d="M47.5 250 L167.5 250 Q156 286 107.5 310 Q59 286 47.5 250Z" fill="#4b101b" stroke="#c49a51" stroke-width=".55"/>
+    <path d="M55 254 Q107.5 300 160 254" fill="none" stroke="#d9b66b" stroke-width=".75"/>
+    <path d="M62 258 Q107.5 295 153 258" fill="none" stroke="#d9b66b" stroke-width=".35"/>
+    <!-- Label pada tutup bawah sengaja diputar, agar tegak setelah tutup dilipat ke atas -->
+    <g transform="rotate(180 107.5 280)">
+      <rect x="68" y="264" width="79" height="27" rx="2.5" fill="#fff5e2" stroke="#c49a51" stroke-width=".7"/>
+      <text x="107.5" y="271" text-anchor="middle" fill="#8d6634" font-size="3.6" font-family="Arial" letter-spacing=".8">KEPADA YTH.</text>
+      <text id="envRecipient" x="107.5" y="279" text-anchor="middle" fill="#4b101b" font-size="5.2" font-family="Georgia" font-weight="bold">Tamu Undangan</text>
+      <text id="envCouple" x="107.5" y="286" text-anchor="middle" fill="#8d6634" font-size="4" font-family="Georgia">Nama Mempelai</text>
+    </g>
+    <!-- Garis lipat: putus-putus -->
+    <path class="foldline" fill="none" d="M47.5 80 Q107.5 20 167.5 80 M47.5 250 Q107.5 310 167.5 250 M47.5 80 L47.5 250 M167.5 80 L167.5 250"/>
+    <!-- Garis potong: utuh -->
+    <path class="cutline" fill="none" d="M47.5 80 Q107.5 20 167.5 80 L197.5 105 L197.5 225 L167.5 250 Q156 286 107.5 310 Q59 286 47.5 250 L17.5 225 L17.5 105 Z"/>
+    <text x="32" y="165" text-anchor="middle" fill="#8b2530" font-size="3.1" font-family="Arial" transform="rotate(-90 32 165)">LEM / REKATKAN</text>
+    <text x="183" y="165" text-anchor="middle" fill="#8b2530" font-size="3.1" font-family="Arial" transform="rotate(90 183 165)">LEM / REKATKAN</text>
+    <text x="107.5" y="15" text-anchor="middle" fill="#8d6634" font-size="3.5" font-family="Arial" letter-spacing=".7">LIPAT PENUTUP</text>
+  </svg>
+  <div class="env-note">Pola amplop F4 · ukuran amplop jadi ± 120 × 170 mm · kartu 110 × 165 mm</div>
+</section>
+
+<script src="supabase-config.js"></script>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const params = new URLSearchParams(location.search);
+  const status = $('status');
+  let loaded = false;
+  const demo = {
+    groom: 'Nama Mempelai Pria', bride: 'Nama Mempelai Wanita',
+    groomParents: 'Putra dari Bapak ... dan Ibu ...', brideParents: 'Putri dari Bapak ... dan Ibu ...',
+    eventMode: 'akad_resepsi', dateLabel: 'Hari, tanggal pernikahan',
+    akadDate: 'Hari, tanggal akad', akadTime: '08.00 WIB',
+    receptionDate: 'Hari, tanggal resepsi', receptionTime: '10.00–13.00 WIB',
+    guestArrival: '10.00 WIB', venueName: 'Nama tempat acara', venue: 'Alamat lengkap tempat acara',
+    heroImage: '', bankAccounts: [],
+    texts: {
+      coverEyebrow:'UNDANGAN PERNIKAHAN', coverBismillah:'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', coverRecipient:'Kepada Yth.', coverPlace:'DI TEMPAT',
+      introArabic:'بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا', introSalam:'Assalamu’alaikum Warahmatullahi Wabarakatuh',
+      introText:'Dengan memohon rahmat dan ridha Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami.',
+      eventTitle:'RANGKAIAN ACARA', akadTitle:'Akad Nikah', receptionTitle:'Resepsi',
+      arrivalTitle:'WAKTU KEHADIRAN TAMU', arrivalText:'Kami mengharapkan kehadiran Bapak/Ibu/Saudara/i pada waktu tersebut.',
+      venueTitle:'LOKASI ACARA', footerText:'Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.'
+    }
+  };
+  function set(id, value) { const el=$(id); if(el) el.textContent = value == null ? '' : String(value); }
+  function getSlug(raw) {
+    let value = String(raw || '').trim();
+    if (!value) return '';
+    try {
+      if (/^https?:\/\//i.test(value)) {
+        const u = new URL(value);
+        const base = '/undangan-madura-template/';
+        let p = u.pathname;
+        const idx = p.indexOf(base);
+        if (idx >= 0) p = p.slice(idx + base.length);
+        else p = p.split('/').filter(Boolean).pop() || '';
+        return decodeURIComponent(p.split('/')[0] || '').replace(/\/$/, '');
+      }
+    } catch (_) {}
+    return value.replace(/^\/+|\/+$/g, '').replace(/^.*\//, '');
+  }
+  async function fetchInvitation(slug) {
+    const cfg = window.SUPABASE_CONFIG || {};
+    const url = String(cfg.url || '').trim().replace(/\/rest\/v1\/?$/i, '').replace(/\/+$/g, '');
+    const key = String(cfg.publishableKey || '').trim();
+    if (url && key) {
+      const response = await fetch(`${url}/rest/v1/rpc/get_public_invitation`, {
+        method: 'POST',
+        headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_slug: slug })
+      });
+      if (!response.ok) {
+        const detail = await response.json().catch(() => ({}));
+        throw new Error(detail.message || detail.details || `Gagal mengambil undangan dari Supabase (HTTP ${response.status}).`);
+      }
+      let record = await response.json();
+      if (Array.isArray(record)) record = record[0];
+      if (record && record.invitation) return { data: record.invitation, recipient: record.recipient_name || record.recipientName || '' };
+      if (record) return { data: record, recipient: record.recipient_name || record.recipientName || '' };
+    }
+    const fallback = await fetch(`data/${encodeURIComponent(slug)}.json`, { cache: 'no-store' });
+    if (fallback.ok) {
+      const record = await fallback.json();
+      return { data: record.invitation || record, recipient: record.recipientName || record.recipient_name || '' };
+    }
+    throw new Error('Data undangan tidak ditemukan. Periksa slug atau pastikan undangan sudah tersimpan di Supabase.');
+  }
+  function render(payload, recipient) {
+    const d = payload || {}, T = d.texts || {};
+    const guest = recipient || T.guestFallback || 'Tamu Undangan';
+    set('coverEyebrow', T.coverEyebrow || 'UNDANGAN PERNIKAHAN');
+    set('coverBismillah', T.coverBismillah || 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ');
+    set('coverRecipient', T.coverRecipient || 'Kepada Yth.');
+    set('coverPlace', T.coverPlace || 'DI TEMPAT');
+    set('groomFront', d.groom || 'Nama Mempelai Pria');
+    set('brideFront', d.bride || 'Nama Mempelai Wanita');
+    set('dateFront', d.dateLabel || 'Hari, tanggal pernikahan');
+    set('recipientFront', guest);
+    set('introArabic', T.introArabic || 'بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا');
+    set('introSalam', T.introSalam || 'Assalamu’alaikum Warahmatullahi Wabarakatuh');
+    set('introText', T.introText || 'Dengan memohon rahmat dan ridha Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami.');
+    set('groomBack', d.groom || 'Nama Mempelai Pria'); set('brideBack', d.bride || 'Nama Mempelai Wanita');
+    set('groomParents', d.groomParents || ''); set('brideParents', d.brideParents || '');
+    set('eventTitle', T.eventTitle || 'RANGKAIAN ACARA');
+    set('akadTitle', T.akadTitle || 'Akad Nikah'); set('receptionTitle', T.receptionTitle || 'Resepsi');
+    const akad = $('akadBlock'), reception = $('receptionBlock');
+    akad.classList.toggle('hidden', d.eventMode === 'resepsi_saja');
+    reception.classList.toggle('hidden', d.eventMode === 'akad_saja');
+    const akadParts = [d.akadDate, d.akadTime].filter(Boolean);
+    const receptionParts = [d.receptionDate, d.receptionTime].filter(Boolean);
+    set('akadInfo', akadParts.join(' · ') || 'Detail akad belum diisi');
+    set('receptionInfo', receptionParts.join(' · ') || 'Detail resepsi belum diisi');
+    if (d.eventMode === 'resepsi_saja' || d.eventMode === 'akad_saja') $('eventGrid').style.gridTemplateColumns = '1fr';
+    set('arrivalTitle', T.arrivalTitle || 'WAKTU KEHADIRAN TAMU');
+    set('guestArrival', d.guestArrival || '');
+    set('arrivalText', T.arrivalText || 'Kami mengharapkan kehadiran Bapak/Ibu/Saudara/i pada waktu tersebut.');
+    set('venueTitle', T.venueTitle || 'LOKASI ACARA');
+    set('venueName', d.venueName || 'Lokasi Acara'); set('venueAddress', d.venue || '');
+    set('footerText', T.footerText || T.closingText || 'Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.');
+    set('recipientBack', guest); set('footerNames', `${d.groom || ''} & ${d.bride || ''}`);
+    set('envRecipient', guest); set('envCouple', `${d.groom || ''} & ${d.bride || ''}`);
+    const photo = $('heroPhoto');
+    if (d.heroImage) { photo.src = d.heroImage; photo.style.display = 'block'; }
+    else photo.style.display = 'none';
+    const accounts = Array.isArray(d.bankAccounts) ? d.bankAccounts.slice(0,2) : [];
+    set('paymentLine', accounts.map(a => `${a.provider || 'Bank'}: ${a.accountNumber || ''} a.n. ${a.accountHolder || ''}`).filter(Boolean).join('  |  '));
+    loaded = true; $('printBtn').disabled = false;
+    status.className = 'status ok'; status.textContent = 'Data undangan berhasil dimuat. Tiga lembar F4 siap dicetak.';
+    document.title = `Cetak Undangan ${d.groom || ''} & ${d.bride || ''} - F4`;
+  }
+  async function load(raw) {
+    const slug = getSlug(raw);
+    if (!slug) { status.textContent = 'Masukkan tautan undangan atau slug terlebih dahulu.'; return; }
+    status.className = 'status'; status.textContent = 'Memuat data undangan...';
+    try { const record = await fetchInvitation(slug); render(record.data, record.recipient); }
+    catch (error) { status.className = 'status'; status.textContent = error.message || 'Gagal memuat undangan.'; loaded = false; $('printBtn').disabled = true; }
+  }
+  $('loadBtn').addEventListener('click', () => load($('slugInput').value));
+  $('slugInput').addEventListener('keydown', e => { if (e.key === 'Enter') load($('slugInput').value); });
+  $('printBtn').addEventListener('click', () => { if (loaded) window.print(); });
+  if (params.get('demo') === '1') { $('slugInput').value = 'MODE CONTOH'; render(demo, 'Bapak/Ibu/Saudara/i Tamu Undangan'); }
+  else {
+    const preset = params.get('slug') || params.get('url') || '';
+    if (preset) { $('slugInput').value = preset; load(preset); }
+  }
+})();
+</script>
+</body>
+</html>
